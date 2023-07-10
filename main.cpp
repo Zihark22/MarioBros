@@ -264,6 +264,7 @@ int main(int argc, char **argv)
                 window_height = al_get_display_height(al_get_current_display());
                 depl = window_height/NBR_BOUT/2-5;
                 RATIO_FRAME=window_height/HEIGHT;
+                AGRANDI_FACT*=RATIO_FRAME;
                 if(enter) {
                     base_sol=changeMap();
                     temps=0;
@@ -402,13 +403,12 @@ int main(int argc, char **argv)
                     
                     case KEYBOARD_R :
                         if(enter && !menu) {
-                            num_map=1;
+                            num_map=0;
                             base_sol=changeMap();
                             temps=0;
                             sol=base_sol+1;
-                            anim_entree=true;
-                            perso->setPosX( blocs[entree-1]->getCoord().x + blocs[entree-1]->getW()/2-perso->getW()/2 );
-                            perso->setPosY( blocs[entree-1]->getCoord().y + blocs[entree-1]->getH() );
+                            perso = new User("stickman");
+                            perso->setPos(0,0);
                         }
                         break;
 
@@ -445,7 +445,6 @@ int main(int argc, char **argv)
                         if(enter && !menu) {
                             num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                             base_sol=changeMap();
-                            temps=0;
                             sol=base_sol;
                             perso->setSpeed(0,0);
                         }
@@ -778,14 +777,21 @@ int main(int argc, char **argv)
                             perso_num_img=NORD;
                         }
                         if(cmptSortie>20) {
-                            num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
-                            base_sol=changeMap();
-                            temps=0;
-                            perso = new User(perso->getNom());
-                            perso->setPos(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2 , blocs[entree-1]->getCoord().y);
-                            anim_fin=false;
-                            anim_entree=true;
-                            cmptSortie=0;
+                            if(num_map>=NB_MAPS-1) {
+                                finish();
+                                anim_fin=false;
+                                anim_entree=false;
+                                cmptSortie=0;
+                            }
+                            else {
+                                num_map++;
+                                base_sol=changeMap();
+                                perso = new User(perso->getNom());
+                                perso->setPos(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2 , blocs[entree-1]->getCoord().y);
+                                anim_fin=false;
+                                anim_entree=true;
+                                cmptSortie=0;
+                            }
                         }
                         else if(cmptSortie>15)
                             masqueRGB(display, perso->getImg(perso_num_img), true, true, true);
@@ -808,7 +814,6 @@ int main(int argc, char **argv)
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
-                                    temps=0;
                                     perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
                                     perso->setPosY(blocs[entree-1]->getCoord().y-10);
                                     anim_entree=true;
@@ -823,7 +828,6 @@ int main(int argc, char **argv)
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
-                                    temps=0;
                                     perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
                                     perso->setPosY(blocs[entree-1]->getCoord().y);
                                     anim_entree=true;
@@ -863,7 +867,7 @@ int main(int argc, char **argv)
 
                     cmptFrames++;
                     if(cmptFrames>=1000) cmptFrames=0;
-                    if(cmptFrames%FRAME_RATE==0) temps++;
+                    if(cmptFrames%FRAME_RATE==0 && num_map>0) temps++;
                     if(cmptFrames%33==0) perso->setMessage("");
 
                     dessine=true;
@@ -943,7 +947,6 @@ int main(int argc, char **argv)
                 music->stop();
 
             // Menu pause
-
             if(menu)
             {
                 // Dessiner le rectangle de flou

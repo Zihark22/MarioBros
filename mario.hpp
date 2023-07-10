@@ -520,6 +520,7 @@ float conv_to_Deg(float rad);
 void afficherBarreProgression(int pourcentage);
 void afficheTypeBloc(int numBloc);
 void restart();
+void finish();
 
 //---------- COLLISIONS ----------//
 // perso

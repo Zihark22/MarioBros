@@ -1137,7 +1137,44 @@ void restart() {
     retry=-1;
     al_flush_event_queue(event_queue);
 }
-
+void finish() {
+    al_clear_to_color(NOIR);
+    al_draw_text(polices[1], ORANGE, window_width/2, window_height/2-20, ALLEGRO_ALIGN_CENTER, "BRAVO, VOUS AVEZ TERMINÉ LE JEU !");
+    al_flip_display();
+    ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
+    al_set_window_title(d, "FINISH");
+    int result = al_show_native_message_box(d, "FELICITATIONS", "BRAVO", "Vous avez terminé avec succès le jeu Mario Bros !", "CONTINUER|QUITTER", ALLEGRO_MESSAGEBOX_YES_NO); // ALLEGRO_MESSAGEBOX_YES_NO, ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_MESSAGEBOX_ERROR, ALLEGRO_MESSAGEBOX_QUESTION et ALLEGRO_MESSAGEBOX_OK_CANCEL
+    if (result == 1) {
+        tracerAccueil(polices[1]);
+        AGRANDI_FACT=1;
+        num_map=0;
+        base_sol=changeMap();
+        perso = new User("stickman");
+        perso->setPos(0,0);
+        perso->setSpeed(0,0);
+        music->stop();
+        son_finish->stop();
+        son_jump->stop();
+        son_tuyau->stop();
+        playSound=false;
+        enter=false;
+        
+        stop=true;
+        key[KEY_RIGHT]=false;
+        key[KEY_D]=false;
+        key[KEY_LEFT]=false;
+        key[KEY_Q]=false;
+        key[KEY_DOWN]=false;
+        key[KEY_S]=false;
+        key[KEY_UP]=false;
+        key[KEY_Z]=false;
+        key[KEY_SPACE]=false;
+        al_flush_event_queue(event_queue);
+    }
+    else {
+        fin=true;
+    }
+}
 
 // ---------------  COLLISIONS -------------------------//
 float conv_to_Deg(float rad) {
@@ -1798,21 +1835,21 @@ int createMap0()
     nbrMechants=0;
 
     // SOL
-    blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         sol=blocs[nbrBlocs]->getH();
-    blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
 
     nbrBlocsSol = nbrBlocs;
@@ -1858,28 +1895,28 @@ int createMap1()
         const int base_sol = blocs[nbrBlocs]->getH();
         sol = base_sol+1;
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1,false,false,TERRE);
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
 
     nbrBlocsSol = nbrBlocs;
     
-    blocs[nbrBlocs] = new Bloc("images/bloc.png",350,window_height-sol-150,ZERO,1,false,false,BLOC); 
+    blocs[nbrBlocs] = new Bloc("images/bloc.png",350,window_height-sol-150,ZERO,1*RATIO_FRAME,false,false,BLOC); 
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),blocs[nbrBlocs-1]->getCoord().y,ZERO,1,false,true,MYSTERE);
+    blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),blocs[nbrBlocs-1]->getCoord().y,ZERO,1*RATIO_FRAME,false,true,MYSTERE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3,true,false,COIN); 
+    blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN); 
         newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
         newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-2;
         blocs[nbrBlocs]->setCoord(newCoord);
@@ -1888,11 +1925,11 @@ int createMap1()
         tmpBloc=blocs[nbrBlocs-2];
         blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
         blocs[nbrBlocs-1]=tmpBloc;
-    blocs[nbrBlocs] = new Bloc("images/bloc.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs-1]->getH()+5,ZERO,1,false,false,BLOC); 
+    blocs[nbrBlocs] = new Bloc("images/bloc.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs-1]->getH()+5,ZERO,1*RATIO_FRAME,false,false,BLOC); 
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()+200,blocs[nbrBlocs-1]->getCoord().y-20,ZERO,1,false,true,MYSTERE); 
+    blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()+200,blocs[nbrBlocs-1]->getCoord().y-20,ZERO,1*RATIO_FRAME,false,true,MYSTERE); 
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/fleur.png",0,0,ZERO,0.4,true,false,FLEUR);
+    blocs[nbrBlocs] = new Bloc("images/fleur.png",0,0,ZERO,0.4*RATIO_FRAME,true,false,FLEUR);
         newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
         newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-2;
         blocs[nbrBlocs]->setCoord(newCoord);
@@ -1901,12 +1938,12 @@ int createMap1()
         tmpBloc=blocs[nbrBlocs-2];
         blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
         blocs[nbrBlocs-1]=tmpBloc;
-    blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3,true,false,COIN); 
+    blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN); 
         newCoord.x = 300;
         newCoord.y = window_height-sol-100;
         blocs[nbrBlocs]->setCoord(newCoord);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3,true,false,COIN); 
+    blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN); 
         newCoord.x = 600;
         newCoord.y = window_height-sol-150;
         blocs[nbrBlocs]->setCoord(newCoord);
@@ -1914,28 +1951,28 @@ int createMap1()
 
 // -------- ENTREE ---------------
 
-    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1,false,false,TUYAU); 
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
         diffBords = blocs[nbrBlocs]->getW();
-    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1,false,false,TUYAU);
+    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
         diffBords -= blocs[nbrBlocs]->getW();
         diffBords /=2;
         blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1,false,false,TUYAU);
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
         blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
         entree = nbrBlocs;
         nbrBlocs++;
 
 // -------- SORTIE ---------------
-    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,ZERO,1,false,false,TUYAU); 
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU); 
         diffBords = blocs[nbrBlocs]->getW();
-    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,GAUCHE,1,false,false,TUYAU);
+    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU);
         diffBords -= blocs[nbrBlocs]->getW();
         diffBords /=2;
         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
         blocs[nbrBlocs]->setCoord( (POS) { window_width-blocs[nbrBlocs]->getW(), window_height-blocs[nbrBlocs]->getH()-sol} );
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,GAUCHE,1,false,false,TUYAU);
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU);
         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
         blocs[nbrBlocs]->setCoord( (POS) { window_width-blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW(), window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
         sortie = nbrBlocs;
@@ -1944,14 +1981,14 @@ int createMap1()
 //--------------- MECHANTS -----------------
 
     mechants[nbrMechants] = new Mechant("goomba");
-        mechants[nbrMechants]->setTaille(0.06);
+        mechants[nbrMechants]->setTaille(0.06*RATIO_FRAME);
         mechants[nbrMechants]->actualiseSize(0);
         mechants[nbrMechants]->setSpeedX(-3);
         mechants[nbrMechants]->setPos(200,window_height-sol-mechants[nbrMechants]->getH()-2);
         nbrMechants++;
 
     mechants[nbrMechants] = new Mechant("koopa");
-        mechants[nbrMechants]->setTaille(0.03);
+        mechants[nbrMechants]->setTaille(0.03*RATIO_FRAME);
         mechants[nbrMechants]->actualiseSize(0);
         mechants[nbrMechants]->setSpeedX(-3);
         mechants[nbrMechants]->setPos(500,window_height-sol-mechants[nbrMechants]->getH());
