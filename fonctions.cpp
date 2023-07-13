@@ -645,6 +645,7 @@ bool Bloc::getSortieObjet(){
 void Bloc::setSortieObjet(bool sortie){
     this->sortie_objet=sortie;
 }
+
 /*---------------- MAP -------------------*/
 Map::Map(const char* chemin_img) : Element(chemin_img) // constructeur classique
 {
@@ -656,7 +657,6 @@ Map::~Map() // Destructeur
 void Map::draw(int width, int height) {
     al_draw_scaled_bitmap(this->img, 0, 0, this->w, this->h, 0, HAUTEUR_TEXTE, width, height, 0);
 }
-
 
 
 ///////////////////////////////////////////////
@@ -859,7 +859,6 @@ void afficheOrientation(int num) {
             orientation = "ERROR";
             break;
     }
-
     cout << orientation << endl;
 }
 float conv_to_Rad(float degrees) {
@@ -988,6 +987,68 @@ string saisirUserName(void)
     al_rest(0.2); // Attendez
     return nom;
 
+}
+void afficheCommandes(void) {
+    ALLEGRO_DISPLAY *d = NULL;
+    ALLEGRO_EVENT_QUEUE *evt_queue = NULL;
+    ALLEGRO_FONT *font = NULL;
+    ALLEGRO_BITMAP *targetBitmap = NULL;
+    ALLEGRO_BITMAP* img = NULL;
+    ALLEGRO_EVENT evt;
+    int largeur=1200, hauteur=600;
+
+    al_destroy_bitmap(img);
+    img=al_load_bitmap("images/COMMANDES.png");
+    if(!img) {
+        erreur("chargement du perso");
+    }
+
+    al_set_new_display_flags(ALLEGRO_WINDOWED);
+    d = al_create_display(largeur,hauteur);
+    if (!d) {
+        fprintf(stderr, "Erreur lors de la création de la fenêtre.\n");
+    }
+    al_set_window_title(d, "COMMANDES");
+
+    font = al_load_ttf_font("polices/Arial Bold.ttf", 25, 0);
+    if (!font) {
+        fprintf(stderr, "Erreur lors du chargement de la police de caractères.\n");
+    }
+
+    evt_queue = al_create_event_queue();
+    if (!evt_queue) {
+        fprintf(stderr, "Erreur lors de la création de la file d'événements.\n");
+    }
+
+    targetBitmap = al_get_backbuffer(d); // Obtient la cible de rendu par défaut
+
+    al_register_event_source(evt_queue, al_get_display_event_source(d));
+    al_register_event_source(evt_queue, al_get_keyboard_event_source());
+
+    al_set_target_bitmap(targetBitmap); // Définit la cible de rendu
+    al_clear_to_color(GRIS);
+
+    al_draw_scaled_bitmap(img,0,0,al_get_bitmap_width(img),al_get_bitmap_height(img),0,0,largeur,hauteur,0);
+    al_draw_text(font, ORANGE, 10, 10, ALLEGRO_ALIGN_LEFT, "LISTE DES COMMANDES");
+
+    al_flip_display();
+    bool fin=false;
+    
+    while(!fin) {
+        al_wait_for_event(evt_queue, &evt);
+
+        switch (evt.type)
+        {
+            case ALLEGRO_EVENT_DISPLAY_CLOSE :
+            case ALLEGRO_EVENT_KEY_CHAR :
+                fin=true;
+                break;
+        }
+    }
+    al_destroy_event_queue(evt_queue);
+    al_destroy_display(d);
+    al_destroy_font(font);
+    al_rest(0.5); // Attendez
 }
 void afficherTexte(ALLEGRO_FONT *font) {
     al_draw_filled_rectangle(0,0,WIDTH,HAUTEUR_TEXTE, NOIR);
@@ -1996,7 +2057,6 @@ int createMap1()
 
     return base_sol;
 }
-
 int createMap2() 
 {
     int tmpH;
@@ -2291,8 +2351,6 @@ int createMap5()
 }
 
 // -----------------------------------------  HACHAGE ----------------------------------------------------
-
-
 int hachage(const char *chaine)
 {
     int i = 0, nombreHache = 0;

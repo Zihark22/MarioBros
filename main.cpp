@@ -14,7 +14,7 @@ Ameloirations :
     - bloc pieces multiples (nbr aléatoire)
     - animation mort mechant
     - drapeau de fin et de milieu de niveau
-    - ecran noir avec trou rapetisse en sortie de map
+    - écran noir avec trou rapetisse en sortie de map
     - pieges (pics, murs, lame de feu)
     - portes secretes
     - menu sauvegarde progression
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
     son_koopa_shell = new Sound("musiques/Koopa_Troopa_Kick_Shell.wav", ONCE, 0.5, 1.0, mixer);
     progress+=4; afficherBarreProgression(progress);
 
-        // Liste des boutons
+    // Liste des boutons
     bouton listeBut[NBR_BOUT];
     int indice  = 0;
     listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
@@ -225,18 +225,18 @@ int main(int argc, char **argv)
     listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
     listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
 
-    // définir l'événement de redimensionnement de fenêtre
+    // Définir l'événement de redimensionnement de fenêtre
     al_register_event_source(event_queue, al_get_keyboard_event_source());
     al_register_event_source(event_queue, al_get_mouse_event_source());
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_display_event_source(display));
     progress+=4; afficherBarreProgression(progress);
 
-    // début du timer
+    // Début du timer
     al_start_timer(timer);
     progress++; afficherBarreProgression(progress);
 
-    // lancement de la musique
+    // Lancement de la musique
     playSound=false;
     progress++; afficherBarreProgression(progress);
 
@@ -303,7 +303,9 @@ int main(int argc, char **argv)
                                     menu=false;
                                     break;
                                 case 1 :
-                                    cout << "Controls : \n\tECHAP -> Menu Pause\n\tF -> plein écran\n\tZ/UP/SPACE -> Sauter\n\tQ/Left -> gauche\n\tD/Right -> droite\n\tS/DOWN -> se baisser\n\tC -> saisir objet\n\tB -> boule de feu" << endl;
+                                    afficheCommandes();
+                                    al_flush_event_queue(event_queue);
+                                    // cout << "Controls : \n\tECHAP -> Menu Pause\n\tF -> plein écran\n\tZ/UP/SPACE -> Sauter\n\tQ/Left -> gauche\n\tD/Right -> droite\n\tS/DOWN -> se baisser\n\tC -> saisir objet\n\tB -> boule de feu" << endl;
                                     break;
                                 case 2 :
                                     sounds_on=!sounds_on;
@@ -538,7 +540,9 @@ int main(int argc, char **argv)
                                 menu=false;
                                 break;
                             case 1 :
-                                cout << "Controls : \n\tECHAP -> Menu Pause\n\tF -> plein écran\n\tZ/UP/SPACE -> Sauter\n\tQ/Left -> gauche\n\tD/Right -> droite\n\tS/DOWN -> se baisser\n\tC -> saisir objet\n\tB -> boule de feu" << endl;
+                                afficheCommandes();
+                                al_flush_event_queue(event_queue);
+                                // cout << "Controls : \n\tECHAP -> Menu Pause\n\tF -> plein écran\n\tZ/UP/SPACE -> Sauter\n\tQ/Left -> gauche\n\tD/Right -> droite\n\tS/DOWN -> se baisser\n\tC -> saisir objet\n\tB -> boule de feu" << endl;
                                 break;
                             case 2 :
                                 sounds_on=!sounds_on;
