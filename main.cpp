@@ -14,7 +14,6 @@ Ameloirations :
     - bloc pieces multiples (nbr aléatoire)
     - animation mort mechant
     - drapeau de fin et de milieu de niveau
-    - écran noir avec trou rapetisse en sortie de map
     - pieges (pics, murs, lame de feu)
     - portes secretes
     - menu sauvegarde progression
@@ -82,7 +81,7 @@ bool lanceObjet=false;
 
 float RATIO_FRAME=window_height/HEIGHT;
 
-bool fin=false, menu=false, dessine=false, fullscreen=false, jump=false, img_courir=false, baisse = false, anim_fin=false, anim_sortie=false;
+bool fin=false, menu=false, dessine=false, fullscreen=false, jump=false, img_courir=false, baisse = false, anim_fin=false, anim_perteVie=false, anim_sortie=false;
 bool anim_entree=false, remonte=true, retreci=false, grabObject=false, sounds_on=true, sortie_objet=false;
 
 string boutons[NBR_BOUT] = {"RESUME" , "CONTROLS" , "SOUNDS" , "EXIT"};
@@ -125,13 +124,15 @@ int main(int argc, char **argv)
     ALLEGRO_EVENT ev;
     ALLEGRO_VOICE *voice=NULL;
     ALLEGRO_MIXER *mixer=NULL;
-    ALLEGRO_BITMAP *wallpaper=NULL, *targetBitmap = NULL;;
+    ALLEGRO_BITMAP *wallpaper=NULL, *targetBitmap = NULL;
+    ALLEGRO_BITMAP* img_fin = al_load_bitmap("images/perteVieTransparent.png");
     progress+=9; afficherBarreProgression(progress);
 
     int boutonSelected = 0;
     float depl = HEIGHT/NBR_BOUT/2-5;
     int orientation = 0, x=0, y=0, i=0, j=0, k=0, cmptFrames=0, tmpH=0, dirCollision=FIN;
-    int cmptSortie=0, cmptRetreci=0, window_x=0, window_y=0, nbrColl=0, nbrCollMechants=0, indices_coll[nbrBlocs], indices_collMechants[nbrMechants];
+    int cmptSortie=0, cmptVie=0, cmptRetreci=0, window_x=0, window_y=0, nbrColl=0, nbrCollMechants=0, indices_coll[nbrBlocs], indices_collMechants[nbrMechants];
+    float zoom_factor = 4;  // Facteur de zoom de 2
     progress+=7; afficherBarreProgression(progress);
 
     perso = new User("stickman"); //    choixPerso();
@@ -591,7 +592,7 @@ int main(int argc, char **argv)
 
                 if(enter && !menu) 
                 {
-                    if(anim_sortie==false && anim_entree==false && anim_fin==false) // si pas en anim d'entrée ou de sortie de map
+                    if(anim_sortie==false && anim_entree==false && anim_fin==false && anim_perteVie==false) // si pas en anim d'entrée ou de sortie de map
                     {                                                  
                         // Orientation
                         perso_num_img=orientation;
@@ -759,7 +760,8 @@ int main(int argc, char **argv)
                         }
                     }
                     if (perso->getPos().y > window_height) { // si tombe dans un trou
-                        restart();
+                        anim_perteVie=true;
+                        if(sounds_on) son_over->play();
                     }
 
             // ------------------------------- ANIMATIONS -------------------------------------------
@@ -868,6 +870,16 @@ int main(int argc, char **argv)
                             }
                         }
                     }
+                    else if(anim_perteVie) {
+                        cmptVie++;
+                        zoom_factor-=0.05;
+                        if(zoom_factor <= 1) {
+                            cmptVie=0;
+                            zoom_factor=4;
+                            anim_perteVie=false;
+                            restart();
+                        }
+                    }
 
                     cmptFrames++;
                     if(cmptFrames>=1000) cmptFrames=0;
@@ -971,6 +983,28 @@ int main(int argc, char **argv)
                     else
                         al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, listeBut[i].nom.c_str());
                 }
+            }
+
+            // Dessine l'image perte de vie
+            else if(anim_perteVie) {
+                // Définir les coordonnées du rectangle source de l'image d'origine
+                int source_x = 0;
+                int source_y = 0;
+                int source_width  = al_get_bitmap_width(img_fin);
+                int source_height = al_get_bitmap_height(img_fin);
+
+                // Calculez les dimensions du rectangle de destination pour le zoom
+                int dest_width  = window_width  * zoom_factor;
+                int dest_height = window_height * zoom_factor;
+
+                // Calculez les coordonnées du point central
+                int center_x = source_width  / 2;
+                int center_y = source_height / 2;
+                int dest_x = center_x - dest_width/2;
+                int dest_y = center_y - dest_height/2;
+
+                // Dessinez l'image zoomée
+                al_draw_scaled_bitmap(img_fin, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, 0);
             }
             
             // actualise affichage

@@ -1150,10 +1150,7 @@ void afficheTypeBloc(int numBloc) {
 void restart() {
     int retry=-1;
     POS tmpCoord;
-
     vies--;
-    if(sounds_on) son_over->play();
-    al_rest(0.5);
     retry=perdu(vies);  // message de fin + choix
     score=0;
     temps=0;
@@ -1717,8 +1714,10 @@ void handleCollisions()
                         AGRANDI_FACT=0.7;
                         retreci=true;
                     }
-                    else
-                        restart();
+                    else {
+                        anim_perteVie=true;
+                        if(sounds_on) son_over->play();
+                    }
                 }
             }
         }

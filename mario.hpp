@@ -489,7 +489,7 @@ extern bool stop;
 extern bool playSound;
 extern bool enter;
 extern bool lanceObjet;
-extern bool fin, dessine, fullscreen, jump, img_courir, baisse, anim_fin, anim_sortie, anim_entree, remonte, retreci, grabObject, sounds_on, sortie_objet;
+extern bool fin, dessine, fullscreen, jump, img_courir, baisse, anim_fin, anim_sortie, anim_entree, anim_perteVie, remonte, retreci, grabObject, sounds_on, sortie_objet;
 
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 
