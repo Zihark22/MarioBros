@@ -149,6 +149,7 @@ enum { ZERO, DROITE, GAUCHE, INVERSION };
 #define KEYBOARD_N ALLEGRO_KEY_N
 
 
+
 ///////////////////////////////////////////////
 ///////////////// COULEURS ///////////////////
 //////////////////////////////////////////////
@@ -419,6 +420,23 @@ class Bloc : public Element // ex : bloc de terre , tuyau, nuage, sol, ...
 		bool object;
 		bool sortie_objet;
 		int type;
+};
+
+class Piege : public Bloc // ex : pics, traits de feu, ...
+{
+    public:
+    	Piege(const char* chemin_img, int posx, int posy, int angle, float scale, bool object, bool hiding, int type): Bloc(chemin_img, posx, posy, angle, scale, object, hiding, type) { } ;  // Constructeur
+    	~Piege(); // Destructeur
+
+    // Méthodes (prototypes)
+    	// Getters
+
+    	// Setters
+
+    	// Autres
+
+    private :
+	    // Attributs
 };
 
 class Map : public Element

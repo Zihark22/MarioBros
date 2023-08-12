@@ -646,6 +646,12 @@ void Bloc::setSortieObjet(bool sortie){
     this->sortie_objet=sortie;
 }
 
+/*--------------- PIEGE ------------------*/
+Piege::~Piege() // Destructeur
+{
+
+}
+
 /*---------------- MAP -------------------*/
 Map::Map(const char* chemin_img) : Element(chemin_img) // constructeur classique
 {

@@ -10,13 +10,14 @@ Ameloirations :
 ---------------
     - ajout joueur 2
     - saut écrase bloc avec fleche du bas
-    - optimisation chargement image bloc une sele fois
+    - optimisation chargement image bloc une seule fois
     - bloc pieces multiples (nbr aléatoire)
     - animation mort mechant
     - drapeau de fin et de milieu de niveau
     - pieges (pics, murs, lame de feu)
     - portes secretes
     - menu sauvegarde progression
+    - déplacement de la map avec le perso
 
 */
 
