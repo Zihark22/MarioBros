@@ -32,6 +32,7 @@ ALLEGRO_FONT *polices[NBR_FONTS];
 User *perso;
 Map *maps[NB_MAPS];
 Bloc *blocs[MAX_BLOCS];
+Bloc *blocsCopy[MAX_BLOCS];
 Mechant *mechants[MAX_MECHANTS];
 ObjectLance *objets[MAX_OBJETS];
 
@@ -741,6 +742,25 @@ int main(int argc, char **argv)
                     // acualise coord
                     perso->actualisePos();
 
+                    // si deplacement, bouge les blocs et image
+                    if((key[KEY_RIGHT] or key[KEY_LEFT]) and num_map>0) {
+                        if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 > 0) // limite bord gauche
+                            maps[num_map]->setBackgroundX(0);
+                        else if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 - window_width < -maps[num_map]->getW() * maps[num_map]->getBackgroundScale()) // limite bord droit
+                            maps[num_map]->setBackgroundX(maps[num_map]->getBackgroundX());
+                        else {
+                            maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 );
+
+                            for (i = nbrBlocsSol; i < nbrBlocs; i++)
+                            {
+                                POS newcoord;
+                                newcoord.x = blocsCopy[i]->getCoord().x - perso->getSpeed().x * 2 / 2;
+                                newcoord.y = blocsCopy[i]->getCoord().y;
+                                blocs[i]->setCoord(newcoord);
+                            }
+                        }
+                    }
+
                     // Limites de bords
                     if (perso->getPos().x < 0) {
                         if(entree!=0 || num_map==0)
@@ -792,6 +812,10 @@ int main(int argc, char **argv)
                             }
                             else {
                                 num_map++;
+                                if(num_map>0) {
+                                    maps[num_map]->setMap0(false);
+                                    maps[num_map]->setBackgroundScale(2);
+                                }
                                 base_sol=changeMap();
                                 perso = new User(perso->getNom());
                                 perso->setPos(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2 , blocs[entree-1]->getCoord().y);
@@ -820,6 +844,10 @@ int main(int argc, char **argv)
                                 if(blocs[sortie]->getCoord().x<perso->getPos().x) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
+                                    if(num_map>0) {
+                                        maps[num_map]->setMap0(false);
+                                        maps[num_map]->setBackgroundScale(2);
+                                    }
                                     base_sol=changeMap();
                                     perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
                                     perso->setPosY(blocs[entree-1]->getCoord().y-10);
@@ -834,6 +862,10 @@ int main(int argc, char **argv)
                                 if(blocs[sortie]->getCoord().y<perso->getPos().y) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
+                                    if(num_map>0) {
+                                        maps[num_map]->setMap0(false);
+                                        maps[num_map]->setBackgroundScale(2);
+                                    }
                                     base_sol=changeMap();
                                     perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
                                     perso->setPosY(blocs[entree-1]->getCoord().y);
@@ -908,7 +940,7 @@ int main(int argc, char **argv)
 
             // draw wallpaper
             maps[num_map]->draw(window_width, window_height);
-
+            
             // draw perso & blocs
             for (i = 0; i < nbrBlocs; ++i) {
                 if(blocs[i]->getSortieObjet() && blocs[i]->isObject() && !blocs[i]->isHiding() && blocs[i]->is_enable() &&  !blocs[i+1]->isObject() && !blocs[i+1]->isHiding() && blocs[i+1]->getType()==BLOC_VIDE) 

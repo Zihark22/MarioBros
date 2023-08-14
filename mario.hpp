@@ -51,6 +51,7 @@ using namespace std; // déclaration qui permet de rendre tous les symboles du n
 #define VIT_OBJ 3
 #define NBR_BOUT 4
 #define VITY_BONUS 2
+#define LARGEUR_MAP 5000
 
 
 ///////////////////////////////////////////////
@@ -442,9 +443,25 @@ class Piege : public Bloc // ex : pics, traits de feu, ...
 class Map : public Element
 {
     public:
-    	Map(const char* chemin_img);
+    	Map(const char* chemin_img); // Constructeur
     	~Map(); // Destructeur
+
+		// Setters
+		void setBackgroundScale(float scale);
+		void setBackgroundX(int pos);
+		void setMap0(bool Map0);
+
+		// Getters
+		float getBackgroundScale();
+		int getBackgroundX();
+		bool isMap0();
+
     	void draw(int width, int height);
+
+	private :
+		float backgroundScale;
+		int backgroundX;
+		bool Map0;
 };
 
 
@@ -458,6 +475,7 @@ extern ALLEGRO_FONT *polices[NBR_FONTS];
 extern User *perso;
 extern Map *maps[NB_MAPS];
 extern Bloc *blocs[MAX_BLOCS];
+extern Bloc *blocsCopy[MAX_BLOCS];
 extern Mechant *mechants[MAX_MECHANTS];
 extern ObjectLance *objets[MAX_OBJETS];
 
@@ -560,10 +578,10 @@ void handleCollisions(); // objets et mechants
 int changeMap();
 int createMap0();
 int createMap1();
-int createMap2();
-int createMap3();
-int createMap4();
-int createMap5();
+// int createMap2();
+// int createMap3();
+// int createMap4();
+// int createMap5();
 
 //------------ HACHAGE -------------//
 int hachage(char *chaine);
