@@ -37,9 +37,9 @@ using namespace std; // déclaration qui permet de rendre tous les symboles du n
 #define MAX_OBJETS 10
 #define FRAME_RATE 30
 #define TIME_STEP 1.0/FRAME_RATE
-#define MAX_SPEED 10.0
+#define MAX_SPEED 5.0
 #define FREIN 1
-#define ACCELERATION 2
+#define ACCELERATION 1
 #define IMGS_PERSOS 5
 #define IMGS_MECHANTS 3
 #define PI 3.14159
@@ -52,7 +52,7 @@ using namespace std; // déclaration qui permet de rendre tous les symboles du n
 #define NBR_BOUT 4
 #define VITY_BONUS 2
 #define LARGEUR_MAP 5000
-
+#define TEXT_SPEED 5
 
 ///////////////////////////////////////////////
 //////////////// STRUCTURES //////////////////
@@ -166,7 +166,7 @@ enum { ZERO, DROITE, GAUCHE, INVERSION };
 #define CYAN 	al_map_rgb(0,255,255) 	 // cyan
 #define ORANGE 	al_map_rgb(255,155,55) 	 // orange
 #define VIOLET 	al_map_rgb(138,43,226) 	 // violet	
-#define GRIS    al_map_rgb(55, 55, 55)
+#define GRIS    al_map_rgb(55, 55, 55)   // gris
 
 // Transparent
 #define ROUGE_TR 	al_map_rgba(255,0,0,200) 
@@ -530,6 +530,10 @@ extern bool fin, dessine, fullscreen, jump, img_courir, baisse, anim_fin, anim_s
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 
 extern string boutons[NBR_BOUT];
+
+extern string txt;
+extern int longTxt;  // Position de la partie cachée du texte
+extern int textX; // Position de la partie affichée du texte
 
 ///////////////////////////////////////////////
 //////////////// PROTOTYPES ///////////////////

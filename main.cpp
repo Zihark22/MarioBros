@@ -17,7 +17,8 @@ Ameloirations :
     - pieges (pics, murs, lame de feu)
     - portes secretes
     - menu sauvegarde progression
-    - déplacement de la map avec le perso
+    - message bandeau de welcome qui défile
+    - adapter les boutons du menu lors du changement de taille de fenetre
 
 */
 
@@ -87,6 +88,10 @@ bool fin=false, menu=false, dessine=false, fullscreen=false, jump=false, img_cou
 bool anim_entree=false, remonte=true, retreci=false, grabObject=false, sounds_on=true, sortie_objet=false;
 
 string boutons[NBR_BOUT] = {"RESUME" , "CONTROLS" , "SOUNDS" , "EXIT"};
+
+string txt = "Bienvenu dans Mario Bros !! Appuyez sur ENTRER pour JOUER";
+int longTxt;  // Position de la partie cachée du texte
+int textX; // Position de la partie affichée du texte
 
 ALLEGRO_EVENT_QUEUE *event_queue=NULL;
 
@@ -172,9 +177,6 @@ int main(int argc, char **argv)
     }
     progress++; afficherBarreProgression(progress);
 
-    // Création de la fenêtre d'accueil
-    wallpaper=tracerAccueil(polices[1]); // arial bold
-
     // Création d'un timer
     timer = al_create_timer(TIME_STEP);
     if(!timer) {
@@ -223,10 +225,10 @@ int main(int argc, char **argv)
     // Liste des boutons
     bouton listeBut[NBR_BOUT];
     int indice  = 0;
-    listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
 
     // Définir l'événement de redimensionnement de fenêtre
     al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -250,6 +252,11 @@ int main(int argc, char **argv)
     // Change position
     window_x-=1000;
     al_set_window_position(display, window_x, window_y);
+
+    // Création de la fenêtre d'accueil
+    longTxt = al_get_text_width(polices[1], txt.c_str());  // Position de la partie cachée du texte
+    textX = window_width/2 - longTxt/2; // Position de la partie affichée du texte
+    wallpaper=tracerAccueil(polices[1]); 
 
     targetBitmap = al_get_backbuffer(display); // Obtient la cible de rendu par défaut
 
@@ -324,7 +331,7 @@ int main(int argc, char **argv)
                         else {
                             if(!enter) {
                                 nomUser=saisirUserName();
-                                al_rest(0.2); // Attendez 1 secondes
+                                al_rest(0.2); // Attendez 0,2 secondes
                                 if(nomUser.size()>1) {
                                     if(sounds_on) playSound=true;
                                     al_flush_event_queue(event_queue); // enlève évènement lors de la saisie du nom ex: N
@@ -333,6 +340,7 @@ int main(int argc, char **argv)
                                 }
                             }
                         }
+                        al_flush_event_queue(event_queue);
                         break;
                     case ALLEGRO_KEY_DOWN :    // deplacement bas
                     case KEYBOARD_S :
@@ -443,6 +451,13 @@ int main(int argc, char **argv)
                             }
                             else
                                 wallpaper=tracerAccueil(polices[1]);
+                        }
+                        // Dessin des boutons et rectangles
+                        for (i = 0; i < NBR_BOUT; ++i) {
+                            listeBut[i].posX = window_width/4;
+                            listeBut[i].posY = (i+1)*window_height/(NBR_BOUT+2)+(i*20);
+                            listeBut[i].w = 2*window_width/4;
+                            listeBut[i].h = window_height/(NBR_BOUT+2);
                         }
                         break;
 
@@ -710,7 +725,7 @@ int main(int argc, char **argv)
 
                         if(jump) {
                             if(key[KEY_SPACE])
-                                perso->setSpeedY( perso->getSpeed().y + JUMP_FORCE - 5);
+                                perso->setSpeedY( perso->getSpeed().y + JUMP_FORCE - 2);
                             else
                                 perso->setSpeedY( perso->getSpeed().y + JUMP_FORCE );
                             jump = false;
@@ -920,7 +935,12 @@ int main(int argc, char **argv)
                     if(cmptFrames%33==0) perso->setMessage("");
 
                     dessine=true;
-
+                }
+                else if(!enter && !menu) {
+                    textX -= TEXT_SPEED;
+                    if (textX < -al_get_text_width(polices[1], txt.c_str()))
+                        textX = window_width+textX;  // Réinitialisation à droite une fois que le texte a dépassé l'écran
+                    dessine=true;
                 }
                 else if(menu)
                     dessine=true;
@@ -931,117 +951,121 @@ int main(int argc, char **argv)
         }
 
         if(dessine==true && al_is_event_queue_empty(event_queue)){
-            // clear
-            al_clear_to_color(NOIR);
-            
-            // actual coord
-            perso->setTaille(AGRANDI_FACT);
-            perso->actualiseSize(perso_num_img);
+            if(enter) {
+                // clear
+                al_clear_to_color(NOIR);
+                
+                // actual coord
+                perso->setTaille(AGRANDI_FACT);
+                perso->actualiseSize(perso_num_img);
 
-            // draw wallpaper
-            maps[num_map]->draw(window_width, window_height);
-            
-            // draw perso & blocs
-            for (i = 0; i < nbrBlocs; ++i) {
-                if(blocs[i]->getSortieObjet() && blocs[i]->isObject() && !blocs[i]->isHiding() && blocs[i]->is_enable() &&  !blocs[i+1]->isObject() && !blocs[i+1]->isHiding() && blocs[i+1]->getType()==BLOC_VIDE) 
-                {
-                    blocs[i]->setCoord(blocs[i]->getCoord().x , blocs[i]->getCoord().y-VITY_BONUS);
-                    if(blocs[i]->getCoord().y+blocs[i]->getH()+2<blocs[i+1]->getCoord().y)
-                        blocs[i]->setSortieObjet(false);
+                // draw wallpaper
+                maps[num_map]->draw(window_width, window_height);
+                
+                // draw perso & blocs
+                for (i = 0; i < nbrBlocs; ++i) {
+                    if(blocs[i]->getSortieObjet() && blocs[i]->isObject() && !blocs[i]->isHiding() && blocs[i]->is_enable() &&  !blocs[i+1]->isObject() && !blocs[i+1]->isHiding() && blocs[i+1]->getType()==BLOC_VIDE) 
+                    {
+                        blocs[i]->setCoord(blocs[i]->getCoord().x , blocs[i]->getCoord().y-VITY_BONUS);
+                        if(blocs[i]->getCoord().y+blocs[i]->getH()+2<blocs[i+1]->getCoord().y)
+                            blocs[i]->setSortieObjet(false);
+                    }
                 }
-            }
-            
-            if(anim_fin) 
-            {
-                for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
-                perso->draw(perso_num_img); // draw perso
+                
+                if(anim_fin) 
+                {
+                    for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
+                    perso->draw(perso_num_img); // draw perso
+                }
+                else 
+                {
+                    if(anim_tuyau>0) { // si sortie par le tuyau
+                        perso->draw(perso_num_img); // draw perso
+                        for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
+                    }
+                    else {
+                        for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
+                        perso->draw(perso_num_img); // draw perso
+                    }
+                }
+
+                // Draw text, vies, score, temps, nomUser
+                afficherTexte(polices[3]);
+                if(blocs[sortie]->getType()==CHATEAU) {
+                    int xaffich, yaffich;
+                    xaffich=blocs[sortie]->getCoord().x+blocs[sortie]->getW()/2;
+                    yaffich=blocs[sortie]->getCoord().y+25;
+                    al_draw_filled_rectangle(xaffich-25, yaffich, xaffich+25, yaffich+20, BLANC);
+                    al_draw_text(polices[3], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
+                }
+
+                // Draw mechants
+                for(i=0;i<nbrMechants;i++)
+                    mechants[i]->draw();
+
+                // Afficher message +1 ou Zup
+                perso->afficherMessage(polices[3]);
+
+                // Draw objets (boules de feu, boomerang)
+                for ( i = 0; i < nbrObjets; ++i)
+                    objets[i]->draw();
+
+                // Joue musique
+                if(playSound)
+                    music->play();
+                else
+                    music->stop();
+
+                // Menu pause
+                if(menu)
+                {
+                    // Dessiner le rectangle de flou
+                    al_draw_filled_rectangle(0, 0, window_width, window_height, al_map_rgba(0, 0, 0, 222));
+
+                    // Dessin de MENU
+                    al_draw_text(polices[1], ROUGE, window_width/2, window_height/5/2, ALLEGRO_ALIGN_CENTER, "MENU");
+                    
+                    // Dessin des boutons et rectangles
+                    for (i = 0; i < NBR_BOUT; ++i) {
+                        al_draw_filled_rectangle(listeBut[i].posX, listeBut[i].posY, listeBut[i].posX+listeBut[i].w, listeBut[i].posY+listeBut[i].h, listeBut[i].couleurRect);
+                        if(listeBut[i].nom.compare("SONS")==0) {
+                            if(sounds_on)
+                                al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": ON").c_str());
+                            else
+                                al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": OFF").c_str());
+                        }
+                        else
+                            al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, listeBut[i].nom.c_str());
+                    }
+                }
+
+                // Dessine l'image perte de vie
+                else if(anim_perteVie) {
+                    // Définir les coordonnées du rectangle source de l'image d'origine
+                    int source_x = 0;
+                    int source_y = 0;
+                    int source_width  = al_get_bitmap_width(img_fin);
+                    int source_height = al_get_bitmap_height(img_fin);
+
+                    // Calculez les dimensions du rectangle de destination pour le zoom
+                    int dest_width  = window_width  * zoom_factor;
+                    int dest_height = window_height * zoom_factor;
+
+                    // Calculez les coordonnées du point central
+                    int center_x = source_width  / 2;
+                    int center_y = source_height / 2;
+                    int dest_x = center_x - dest_width/2;
+                    int dest_y = center_y - dest_height/2;
+
+                    // Dessinez l'image zoomée
+                    al_draw_scaled_bitmap(img_fin, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, 0);
+                }
+                
+                // actualise affichage
+                al_flip_display();
             }
             else 
-            {
-                if(anim_tuyau>0) { // si sortie par le tuyau
-                    perso->draw(perso_num_img); // draw perso
-                    for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
-                }
-                else {
-                    for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
-                    perso->draw(perso_num_img); // draw perso
-                }
-            }
-
-            // Draw text, vies, score, temps, nomUser
-            afficherTexte(polices[3]);
-            if(blocs[sortie]->getType()==CHATEAU) {
-                int xaffich, yaffich;
-                xaffich=blocs[sortie]->getCoord().x+blocs[sortie]->getW()/2;
-                yaffich=blocs[sortie]->getCoord().y+25;
-                al_draw_filled_rectangle(xaffich-25, yaffich, xaffich+25, yaffich+20, BLANC);
-                al_draw_text(polices[3], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
-            }
-
-            // Draw mechants
-            for(i=0;i<nbrMechants;i++)
-                mechants[i]->draw();
-
-            // Afficher message +1 ou Zup
-            perso->afficherMessage(polices[3]);
-
-            // Draw objets (boules de feu, boomerang)
-            for ( i = 0; i < nbrObjets; ++i)
-                objets[i]->draw();
-
-            // Joue musique
-            if(playSound)
-                music->play();
-            else
-                music->stop();
-
-            // Menu pause
-            if(menu)
-            {
-                // Dessiner le rectangle de flou
-                al_draw_filled_rectangle(0, 0, window_width, window_height, al_map_rgba(0, 0, 0, 200));
-
-                // Dessin de MENU
-                al_draw_text(polices[1], ROUGE, window_width/2, window_height/5/2/2, ALLEGRO_ALIGN_CENTER, "MENU");
-                
-                // Dessin des boutons et rectangles
-                for (i = 0; i < NBR_BOUT; ++i) {
-                    al_draw_filled_rectangle(listeBut[i].posX, listeBut[i].posY, listeBut[i].posX+listeBut[i].w, listeBut[i].posY+listeBut[i].h, listeBut[i].couleurRect);
-                    if(listeBut[i].nom.compare("SONS")==0) {
-                        if(sounds_on)
-                            al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": ON").c_str());
-                        else
-                            al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": OFF").c_str());
-                    }
-                    else
-                        al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, listeBut[i].nom.c_str());
-                }
-            }
-
-            // Dessine l'image perte de vie
-            else if(anim_perteVie) {
-                // Définir les coordonnées du rectangle source de l'image d'origine
-                int source_x = 0;
-                int source_y = 0;
-                int source_width  = al_get_bitmap_width(img_fin);
-                int source_height = al_get_bitmap_height(img_fin);
-
-                // Calculez les dimensions du rectangle de destination pour le zoom
-                int dest_width  = window_width  * zoom_factor;
-                int dest_height = window_height * zoom_factor;
-
-                // Calculez les coordonnées du point central
-                int center_x = source_width  / 2;
-                int center_y = source_height / 2;
-                int dest_x = center_x - dest_width/2;
-                int dest_y = center_y - dest_height/2;
-
-                // Dessinez l'image zoomée
-                al_draw_scaled_bitmap(img_fin, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, 0);
-            }
-            
-            // actualise affichage
-            if(enter) al_flip_display();
+                wallpaper=tracerAccueil(polices[1]);
 
             dessine=false;
         }

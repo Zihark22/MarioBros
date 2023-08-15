@@ -815,12 +815,18 @@ string choixPerso(void)
 }
 ALLEGRO_BITMAP* tracerAccueil(ALLEGRO_FONT* font) {
     ALLEGRO_BITMAP *image = al_load_bitmap(WALLPAPER);
-    if (!image) {
+    if (!image)
         erreur("initialise image d'accueil");
-    }
+
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+
     al_draw_scaled_bitmap(image, 0, 0, al_get_bitmap_width(image), al_get_bitmap_height(image), 0, 0, window_width, window_height, 0);
-    al_draw_filled_rectangle(0,window_height/2-30,window_width,window_height/2+30,GRIS_TR);
-    al_draw_text(font, ORANGE, window_width/2, window_height/2-20, ALLEGRO_ALIGN_CENTER, " Bienvenu dans Mario Bros !! Appuyez sur ENTRER pour JOUER");
+    al_draw_filled_rectangle(0,window_height/2-30,window_width,window_height/2+30,al_map_rgba(0, 0, 0, 222));
+
+    al_draw_text(font, ORANGE, textX, window_height/2-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
+    if(textX<0)
+        al_draw_text(font, ORANGE, window_width+textX, window_height/2-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
+
     al_flip_display();
 
     return image;
@@ -939,7 +945,7 @@ string saisirUserName(void)
     ALLEGRO_EVENT_QUEUE *evt_queue = NULL;
     ALLEGRO_FONT *font = NULL;
     ALLEGRO_BITMAP *targetBitmap = NULL;
-    int largeur=400, hauteur=400;
+    int largeur=400, hauteur=200;
 
     al_set_new_display_flags(ALLEGRO_WINDOWED);
     d = al_create_display(largeur,hauteur);
@@ -972,12 +978,11 @@ string saisirUserName(void)
 
     while (1) {
         al_set_target_bitmap(targetBitmap); // Définit la cible de rendu
-        al_clear_to_color(GRIS);
+        al_clear_to_color(NOIR);
 
-        al_draw_text(font, ORANGE, largeur/2, 1*hauteur/5, ALLEGRO_ALIGN_CENTER, "SAISIR VOTRE");
-        al_draw_text(font, ORANGE, largeur/2, 2*hauteur/5, ALLEGRO_ALIGN_CENTER, "PSEUDO");
-        al_draw_filled_rectangle(50,3*hauteur/5-30,largeur-50,3*hauteur/5+30, ORANGE);
-        al_draw_text(font, BLANC, largeur/2, 3*hauteur/5-12, ALLEGRO_ALIGN_CENTER, nom.c_str());
+        al_draw_text(font, ROUGE, largeur/2, hauteur/4, ALLEGRO_ALIGN_CENTER, "PSEUDO");
+        al_draw_filled_rectangle(50,3*hauteur/4-30,largeur-50,3*hauteur/4+30, GRIS);
+        al_draw_text(font, BLANC, largeur/2, 3*hauteur/4-12, ALLEGRO_ALIGN_CENTER, nom.c_str());
 
         al_flip_display();
 
@@ -1002,7 +1007,7 @@ string saisirUserName(void)
                 if(nom.size()>0)
                     nom.pop_back();
                 if (nom.size() < sizeof(nom) - 1 && nom.size()<20) {
-                    char c[2] = {evt.keyboard.unichar, '\0'};
+                    char c[2] = {(char)evt.keyboard.unichar, '\0'};
                     nom+=c;
                     nom+="_";
                 }
@@ -1305,10 +1310,10 @@ int collisionPersoBloc(User *perso, Bloc *bloc)
     int dcx = abs(bcx-pcx);
     int dcy = abs(bcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-bcx , pcy-bcy , 0};
+    VECT2D vect_bloc_perso = {(float)pcx-bcx , (float)pcy-bcy , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { bcx+bw/2-bcx , bcy-bcy , 1 };
+    VECT2D vect_bloc = { (float)bcx+bw/2-bcx , (float)bcy-bcy , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 
@@ -1354,10 +1359,10 @@ int collisionPersoMechant(User *perso, Mechant *mechant)
     int dcx = abs(mcx-pcx);
     int dcy = abs(mcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-mcx , pcy-mcy , 0};
+    VECT2D vect_bloc_perso = { (float) pcx-mcx , (float) pcy-mcy , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { mcx+mw/2-mcx , mcy-mcy , 1 };
+    VECT2D vect_bloc = { (float) mcx+mw/2-mcx , (float) mcy-mcy , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 
@@ -1403,10 +1408,10 @@ int collision2Mechants(Mechant *mechant1, Mechant *mechant2)
     int dcx = abs(bcx-pcx);
     int dcy = abs(bcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-bcx , pcy-bcy , 0};
+    VECT2D vect_bloc_perso = { (float) pcx-bcx , (float) pcy-bcy , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { bcx+bw/2-bcx , bcy-bcy , 1 };
+    VECT2D vect_bloc = { (float) bcx+bw/2-bcx , (float) bcy-bcy , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 
@@ -1452,10 +1457,10 @@ int collisionBlocMechant(Bloc *bloc, Mechant *mechant)
     int dcx = abs(bcx-pcx);
     int dcy = abs(bcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-bcx , pcy-bcy , 0};
+    VECT2D vect_bloc_perso = { (float) pcx-bcx , (float) pcy-bcy , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { bcx+bw/2-bcx , bcy-bcy , 1 };
+    VECT2D vect_bloc = { (float) bcx+bw/2-bcx , (float) bcy-bcy , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 
@@ -1933,18 +1938,12 @@ int createMap0()
         sol=blocs[nbrBlocs]->getH();
     blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
+
+    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < window_width )
+    {
+        blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
+    }
 
     nbrBlocsSol = nbrBlocs;
 
@@ -1983,28 +1982,24 @@ int createMap1()
     int diffBords=0;
     Bloc *tmpBloc;
 
+    // -------- SOL ---------------
+
     blocs[nbrBlocs] = new Bloc("images/sol_terre.png",0,0,ZERO,1,false,false,TERRE);
         blocs[nbrBlocs]->setCoord( (POS) { 0, window_height-blocs[nbrBlocs]->getH() } );
         indice_sol = nbrBlocs;
         const int base_sol = blocs[nbrBlocs]->getH();
         sol = base_sol+1;
         nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
-    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-        nbrBlocs++;
 
+    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < window_width )
+    {
+        blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
+        nbrBlocs++;
+    }
+    
     nbrBlocsSol = nbrBlocs;
+
+    // -------- JEU ---------------
     
     blocs[nbrBlocs] = new Bloc("images/bloc.png",350,window_height-sol-150,ZERO,1*RATIO_FRAME,false,false,BLOC); 
         nbrBlocs++;
@@ -2065,11 +2060,11 @@ int createMap1()
         diffBords -= blocs[nbrBlocs]->getW();
         diffBords /=2;
         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
-        blocs[nbrBlocs]->setCoord( (POS) { maps[num_map]->getW()*maps[num_map]->getBackgroundScale()-maps[num_map]->getW()/2-blocs[nbrBlocs]->getW() , window_height-blocs[nbrBlocs]->getH()-sol } );
+        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW()*maps[num_map]->getBackgroundScale() - maps[num_map]->getW()/2-blocs[nbrBlocs]->getW()) , window_height-blocs[nbrBlocs]->getH()-sol } );
         nbrBlocs++;
     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU);
         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
-        blocs[nbrBlocs]->setCoord( (POS) { maps[num_map]->getW()*maps[num_map]->getBackgroundScale()-maps[num_map]->getW()/2-blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW() , window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
+        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW()*maps[num_map]->getBackgroundScale() - maps[num_map]->getW()/2-blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW()) , window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
         sortie = nbrBlocs;
         nbrBlocs++;
 
