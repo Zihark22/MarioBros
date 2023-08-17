@@ -445,6 +445,9 @@ void Mechant::changeDir() {
     this->versDroite = !this->versDroite;
     this->vitesses.x *= -1;
 }
+void Mechant::setVersDroite(bool droite) {
+    this->versDroite = droite;
+}
 bool Mechant::getEcrase() {
     return this->ecrase;
 }
@@ -814,22 +817,28 @@ string choixPerso(void)
         return luigi;
 }
 ALLEGRO_BITMAP* tracerAccueil(ALLEGRO_FONT* font) {
-    ALLEGRO_BITMAP *image = al_load_bitmap(WALLPAPER);
-    if (!image)
+    ALLEGRO_BITMAP* wallpaper = al_load_bitmap(WALLPAPER);
+    if (!wallpaper)
         erreur("initialise image d'accueil");
+
+    ALLEGRO_BITMAP *logo = al_load_bitmap(LOGO);
+    if (!logo)
+        erreur("initialise logo d'accueil");
 
     al_clear_to_color(al_map_rgb(0, 0, 0));
 
-    al_draw_scaled_bitmap(image, 0, 0, al_get_bitmap_width(image), al_get_bitmap_height(image), 0, 0, window_width, window_height, 0);
-    al_draw_filled_rectangle(0,window_height/2-30,window_width,window_height/2+30,al_map_rgba(0, 0, 0, 222));
-
-    al_draw_text(font, ORANGE, textX, window_height/2-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
+    al_draw_scaled_bitmap(wallpaper, 0, 0, al_get_bitmap_width(wallpaper), al_get_bitmap_height(wallpaper), 0, 0, window_width, window_height, 0);
+    int facteur = 4;
+    al_draw_scaled_bitmap(logo, 0, 0, al_get_bitmap_width(logo), al_get_bitmap_height(logo), window_width/2-al_get_bitmap_width(logo)/facteur/2, 3*window_height/4-al_get_bitmap_height(logo)/facteur/2, al_get_bitmap_width(logo)/facteur, al_get_bitmap_height(logo)/facteur, 0);
+    int posY = window_height-30;
+    al_draw_filled_rectangle(0,posY-30,window_width,posY+30,al_map_rgba(0, 0, 0, 222));
+    al_draw_text(font, ORANGE, textX, posY-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
     if(textX<0)
-        al_draw_text(font, ORANGE, window_width+textX, window_height/2-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
+        al_draw_text(font, ORANGE, window_width+textX, posY-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
 
     al_flip_display();
 
-    return image;
+    return wallpaper;
 }
 void masqueRGB(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *image, bool R, bool G, bool B) {
     ALLEGRO_COLOR color, newColor;
@@ -975,9 +984,9 @@ string saisirUserName(void)
     ALLEGRO_EVENT evt;
     string nom="_";
 
+    al_set_target_bitmap(targetBitmap); // Définit la cible de rendu
 
     while (1) {
-        al_set_target_bitmap(targetBitmap); // Définit la cible de rendu
         al_clear_to_color(NOIR);
 
         al_draw_text(font, ROUGE, largeur/2, hauteur/4, ALLEGRO_ALIGN_CENTER, "PSEUDO");
@@ -1016,9 +1025,8 @@ string saisirUserName(void)
     }
 
     al_destroy_event_queue(evt_queue);
-    al_destroy_display(d);
     al_destroy_font(font);
-    al_rest(0.2); // Attendez
+    al_destroy_display(d);
     return nom;
 
 }
@@ -1085,26 +1093,33 @@ void afficheCommandes(void) {
     al_rest(0.5); // Attendez
 }
 void afficherTexte(ALLEGRO_FONT *font) {
-    al_draw_filled_rectangle(0,0,WIDTH,HAUTEUR_TEXTE, NOIR);
+    int decaleBords = 40;
+    ALLEGRO_BITMAP* coeur = al_load_bitmap("images/coeur.png");
+    if (!coeur)
+        erreur("initialise image coeur");
+
+    ALLEGRO_BITMAP* horloge = al_load_bitmap("images/horloge.png");
+    if (!horloge)
+        erreur("initialise image horloge");
+
+    ALLEGRO_BITMAP* coin = al_load_bitmap("images/coin2.png");
+    if (!coin)
+        erreur("initialise image coin");
+
+    al_draw_filled_rectangle(0,0,window_width,HAUTEUR_TEXTE, NOIR);
     int minutes, secondes, heures;
     level=num_map;
     minutes=secondes=heures=0;
 
-    string msgNom = "User : " + nomUser;
-    al_draw_text(font, ORANGE, 20, 20, ALLEGRO_ALIGN_LEFT, msgNom.c_str());
-
-    string msgVies = "Vies : x" + to_string(vies);
-    al_draw_text(font, ORANGE, WIDTH/4, 20, ALLEGRO_ALIGN_LEFT, msgVies.c_str());
-
     if(temps>=3600) {
         heures=temps/60;
         minutes=temps%60;
-        
     }
     else {
         heures=0;
         minutes=temps;
     }
+
     if(minutes>=60) {
         secondes=minutes%60;
         minutes=minutes/60;
@@ -1113,17 +1128,32 @@ void afficherTexte(ALLEGRO_FONT *font) {
         secondes=temps%60;
         minutes=temps/60;
     }
-    string msgTemps = "Temps : " + to_string(temps)+ "s";
-    string msgHeure = "Temps : " + to_string(heures)+ "h " + to_string(minutes)+ "m " + to_string(secondes)+ "s";
-    al_draw_text(font, ORANGE, WIDTH/2, 20, ALLEGRO_ALIGN_CENTER, msgHeure.c_str());
+
+    string msgNom = "User : " + nomUser;
+    al_draw_text(font, ORANGE, decaleBords, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2, ALLEGRO_ALIGN_LEFT, msgNom.c_str());
+
+    string msgVies = "x " + to_string(vies);
+    al_draw_scaled_bitmap(coeur, 0, 0, al_get_bitmap_width(coeur), al_get_bitmap_height(coeur), window_width/4-30, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2, 25, 25, 0);
+    al_draw_text(font, ORANGE, window_width/4, 20, ALLEGRO_ALIGN_LEFT, msgVies.c_str());
+
+    string msgTemps = to_string(secondes)+ "s";
+    if(minutes!=0)
+        msgTemps = to_string(minutes) + "m " + msgTemps;
+    if(heures!=0)
+        msgTemps = to_string(heures) + "h " + msgTemps;
+    
+    int longTxt = al_get_text_width(font, msgTemps.c_str());
+    al_draw_scaled_bitmap(horloge, 0, 0, al_get_bitmap_width(horloge), al_get_bitmap_height(horloge), window_width/2-longTxt/2-35, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2, 25, 25, 0);
+    al_draw_text(font, ORANGE, window_width/2, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2, ALLEGRO_ALIGN_CENTER, msgTemps.c_str());
 
     string msgLevel = "Level : " + to_string(level);
-    al_draw_text(font, ORANGE, 3*WIDTH/4, 20, ALLEGRO_ALIGN_RIGHT, msgLevel.c_str());
+    al_draw_text(font, ORANGE, 3*window_width/4, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2, ALLEGRO_ALIGN_RIGHT, msgLevel.c_str());
 
-    string msgScore = "Pieces : " + to_string(score);
-    al_draw_text(font, ORANGE, WIDTH-20, 20, ALLEGRO_ALIGN_RIGHT, msgScore.c_str());
+    string msgScore =  "x " + to_string(score);
+    longTxt = al_get_text_width(font, msgScore.c_str());
+    al_draw_scaled_bitmap(coin, 0, 0, al_get_bitmap_width(coin), al_get_bitmap_height(coin), window_width-decaleBords-longTxt-30, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2 , 25, 25, 0);
+    al_draw_text(font, ORANGE, window_width-decaleBords, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2, ALLEGRO_ALIGN_RIGHT, msgScore.c_str());
 }
-
 void afficheTypeBloc(int numBloc) {
     switch(blocs[numBloc]->getType())
     {
@@ -1180,7 +1210,6 @@ void afficheTypeBloc(int numBloc) {
             break;
     }
 }
-
 void restart() {
     int retry=-1;
     POS tmpCoord;
@@ -1619,9 +1648,10 @@ void handleCollisions()
                     perso->setSpeedY(0);
                     perso_num_img=NORD;
                     blocs[i] = new Bloc("images/Door_open.png",0,0,ZERO,1,false,false,DOOR_OPEN);
-                    blocs[i]->setCoord(window_width/4, window_height-base_sol-blocs[i]->getH());
+                    blocs[i]->setCoord(blocsCopy[i]->getCoord());
                     perso->setPosX(blocs[i]->getCoord().x+blocs[i]->getW()/2-perso->getW()/2);
                     anim_fin=true;
+                    blocsCopy[i]=blocs[i]; // actualise blocsCopy
                 }
             }
             else if(dirCollision!=FIN && blocs[i]->getType()==DOOR_OPEN) {
@@ -1900,12 +1930,12 @@ int changeMap()
         case 1 : 
             base_sol=createMap1();
             break;
-        // case 2 : 
-        //     base_sol=createMap2();
-        //     break;
-        // case 3 : 
-        //     base_sol=createMap3();
-        //     break;
+        case 2 : 
+            base_sol=createMap2();
+            break;
+        case 3 : 
+            base_sol=createMap3();
+            break;
         // case 4 : 
         //     base_sol=createMap4();
         //     break;
@@ -1991,7 +2021,7 @@ int createMap1()
         sol = base_sol+1;
         nbrBlocs++;
 
-    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < window_width )
+    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
     {
         blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
         nbrBlocs++;
@@ -2060,29 +2090,152 @@ int createMap1()
         diffBords -= blocs[nbrBlocs]->getW();
         diffBords /=2;
         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
-        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW()*maps[num_map]->getBackgroundScale() - maps[num_map]->getW()/2-blocs[nbrBlocs]->getW()) , window_height-blocs[nbrBlocs]->getH()-sol } );
+        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs]->getW()) , window_height-blocs[nbrBlocs]->getH()-sol } );
         nbrBlocs++;
     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU);
         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
-        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW()*maps[num_map]->getBackgroundScale() - maps[num_map]->getW()/2-blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW()) , window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
+        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW()) , window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
         sortie = nbrBlocs;
         nbrBlocs++;
 
 //--------------- MECHANTS -----------------
+/* 
+    mechants[nbrMechants] = new Mechant("goomba");
+        mechants[nbrMechants]->setTaille(0.06*RATIO_FRAME);
+        mechants[nbrMechants]->actualiseSize(0);
+        mechants[nbrMechants]->setSpeedX(-3);
+        mechants[nbrMechants]->setPos(200,window_height-sol-mechants[nbrMechants]->getH()-2);
+        nbrMechants++;
 
-    // mechants[nbrMechants] = new Mechant("goomba");
-    //     mechants[nbrMechants]->setTaille(0.06*RATIO_FRAME);
-    //     mechants[nbrMechants]->actualiseSize(0);
-    //     mechants[nbrMechants]->setSpeedX(-3);
-    //     mechants[nbrMechants]->setPos(200,window_height-sol-mechants[nbrMechants]->getH()-2);
-    //     nbrMechants++;
+    mechants[nbrMechants] = new Mechant("koopa");
+        mechants[nbrMechants]->setTaille(0.03*RATIO_FRAME);
+        mechants[nbrMechants]->actualiseSize(0);
+        mechants[nbrMechants]->setSpeedX(-3);
+        mechants[nbrMechants]->setPos(500,window_height-sol-mechants[nbrMechants]->getH());
+        nbrMechants++;
+ */
+    return base_sol;
+}
+int createMap2() 
+{
+    int tmpH, trou=0;
+    nbrBlocs=0;
+    nbrMechants=0;
+    Bloc *tmpBloc;
 
-    // mechants[nbrMechants] = new Mechant("koopa");
-    //     mechants[nbrMechants]->setTaille(0.03*RATIO_FRAME);
-    //     mechants[nbrMechants]->actualiseSize(0);
-    //     mechants[nbrMechants]->setSpeedX(-3);
-    //     mechants[nbrMechants]->setPos(500,window_height-sol-mechants[nbrMechants]->getH());
-    //     nbrMechants++;
+    // -------- SOL ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/sol_terre.png",0,0,ZERO,1,false,false,TERRE);
+        blocs[nbrBlocs]->setCoord( (POS) { 0, window_height-blocs[nbrBlocs]->getH() } );
+        indice_sol = nbrBlocs;
+        const int base_sol = blocs[nbrBlocs]->getH();
+        sol = base_sol+1;
+        nbrBlocs++;
+
+    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+    {
+        if(nbrBlocs ==2) trou = 500;
+        else trou = 0;
+        blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()+trou,window_height-sol,ZERO,1,false,false,TERRE);
+            nbrBlocs++;
+    }      
+    nbrBlocsSol = nbrBlocs;
+
+    // ----------- JEU ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/bloc.png",350,window_height-sol-150,ZERO,1,false,false,BLOC); 
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/bloc.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()+200,blocs[nbrBlocs-1]->getCoord().y,ZERO,1,false,false,BLOC); 
+        nbrBlocs++;
+
+    // -------- SORTIE ---------------
+
+    sortie=0;
+
+    // -------- ENTREE ---------------
+    
+    blocs[nbrBlocs] = new Bloc("images/tuyau.png",0,0,ZERO,1,false,false,TUYAU);
+        blocs[nbrBlocs]->setCoord( (POS) { 0, window_height-sol-blocs[nbrBlocs]->getH() } );
+        entree=nbrBlocs;
+        nbrBlocs++;
+
+    return base_sol;
+}
+int createMap3() 
+{
+    int Le,He;
+    POS newCoord;
+    sol=60;
+    nbrBlocs=0;
+    nbrMechants=0;
+    Bloc *tmpBloc;
+
+    // -------- SOL ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5,false,false,TERRE);
+        indice_sol = nbrBlocs;
+        const int base_sol = blocs[nbrBlocs]->getH();
+        sol = base_sol+1;
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5,false,false,TERRE);
+        nbrBlocs++;
+    
+    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+    {
+        blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+            nbrBlocs++;
+    }
+    nbrBlocsSol = nbrBlocs;
+
+    // ----------- JEU --------------
+
+    blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",window_width/2,window_height-sol-150,ZERO,1,false,true,MYSTERE); 
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/champi.png",0,0,ZERO,1,true,false,CHAMPI); 
+        newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
+        newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-5;
+        blocs[nbrBlocs]->setCoord(newCoord);
+        blocs[nbrBlocs]->disable();
+        nbrBlocs++;
+        tmpBloc=blocs[nbrBlocs-2];
+        blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
+        blocs[nbrBlocs-1]=tmpBloc;
+
+    // -------- SORTIE ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/Door_closed.png",0,0,ZERO,1,false,false,DOOR_CLOSED); 
+        newCoord.x = (int) ( maps[num_map]->getW() * maps[num_map]->getBackgroundScale() - blocs[nbrBlocs]->getW() ) ;
+        newCoord.y = window_height-sol-blocs[nbrBlocs]->getH();
+        blocs[nbrBlocs]->setCoord(newCoord);
+        sortie=nbrBlocs;
+        nbrBlocs++;
+
+    // -------- ENTREE ---------------
+
+    entree=0;
+
+    //--------- MECHANTS -------------
+
+    mechants[nbrMechants] = new Mechant("goomba");
+        mechants[nbrMechants]->setTaille(0.06);
+        mechants[nbrMechants]->actualiseSize(0);
+        mechants[nbrMechants]->setSpeedX(3);
+        mechants[nbrMechants]->setVersDroite(true);
+        mechants[nbrMechants]->setPos(window_width/4,window_height-sol-mechants[nbrMechants]->getH()-2);
+        nbrMechants++;
+
+    mechants[nbrMechants] = new Mechant("goomba");
+        mechants[nbrMechants]->setTaille(0.06);
+        mechants[nbrMechants]->actualiseSize(0);
+        mechants[nbrMechants]->setSpeedX(-3);
+        mechants[nbrMechants]->setPos(3*window_width/4,window_height-sol-mechants[nbrMechants]->getH()-2);
+        nbrMechants++;
+
+    mechants[nbrMechants] = new Mechant("koopa");
+        mechants[nbrMechants]->setTaille(0.03);
+        mechants[nbrMechants]->actualiseSize(0);
+        mechants[nbrMechants]->setSpeedX(-3);
+        mechants[nbrMechants]->setPos(window_width/2,window_height-sol-mechants[nbrMechants]->getH());
+        nbrMechants++;
 
     return base_sol;
 }

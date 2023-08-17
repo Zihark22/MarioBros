@@ -21,23 +21,22 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_video.h>
 
-
 using namespace std; // déclaration qui permet de rendre tous les symboles du namespace std disponibles dans le scope actuel sans avoir besoin de les qualifier explicitement.
-
 
 ///////////////////////////////////////////////
 ///////////////// PARAMETRES /////////////////
 //////////////////////////////////////////////
 #define WIDTH 	1280
 #define HEIGHT 	720
-#define WALLPAPER "images/Super_Mario_Bros_Movie.jpg" 
+#define WALLPAPER "images/Super_Mario_Bros_Movie.jpg"
+#define LOGO "images/New_Super_Mario_Bros._Logo.png"
 #define NB_MAPS 6
 #define MAX_BLOCS 40
 #define MAX_MECHANTS 10
 #define MAX_OBJETS 10
 #define FRAME_RATE 30
 #define TIME_STEP 1.0/FRAME_RATE
-#define MAX_SPEED 5.0
+#define MAX_SPEED 8.0
 #define FREIN 1
 #define ACCELERATION 1
 #define IMGS_PERSOS 5
@@ -53,6 +52,7 @@ using namespace std; // déclaration qui permet de rendre tous les symboles du n
 #define VITY_BONUS 2
 #define LARGEUR_MAP 5000
 #define TEXT_SPEED 5
+#define VIT_MAP -3
 
 ///////////////////////////////////////////////
 //////////////// STRUCTURES //////////////////
@@ -121,12 +121,9 @@ enum { ZERO, DROITE, GAUCHE, INVERSION };
 
 #define KEYBOARD_Q ALLEGRO_KEY_A
 #define KEYBOARD_A ALLEGRO_KEY_Q
-
 #define KEYBOARD_Z ALLEGRO_KEY_W
 #define KEYBOARD_W ALLEGRO_KEY_Z
-
 #define KEYBOARD_M ALLEGRO_KEY_SEMICOLON
-
 #define KEYBOARD_E ALLEGRO_KEY_E
 #define KEYBOARD_R ALLEGRO_KEY_R
 #define KEYBOARD_T ALLEGRO_KEY_T
@@ -148,8 +145,6 @@ enum { ZERO, DROITE, GAUCHE, INVERSION };
 #define KEYBOARD_V ALLEGRO_KEY_V
 #define KEYBOARD_B ALLEGRO_KEY_B
 #define KEYBOARD_N ALLEGRO_KEY_N
-
-
 
 ///////////////////////////////////////////////
 ///////////////// COULEURS ///////////////////
@@ -203,7 +198,6 @@ enum { ZERO, DROITE, GAUCHE, INVERSION };
 ///////////////////////////////////////////////
 ///////////////// CLASSES ////////////////////
 //////////////////////////////////////////////
-/*---------------- SOUNDS -------------------*/
 class Sound
 {
     public:
@@ -320,6 +314,7 @@ class Mechant : public Personnage
 		void setImg(const char* chemin, int indice);
 		void setImg(ALLEGRO_BITMAP* img, int indice);
     	void setEcrase(bool newEcrase);
+		void setVersDroite(bool droite);
     	void changeDir();
 
     	// Autres
@@ -353,7 +348,6 @@ class ObjectLance : public Personnage
 	    float angle;
 };
 
-/*---------------- ELEMENT -------------------*/
 class Element
 {
     public:
@@ -582,8 +576,8 @@ void handleCollisions(); // objets et mechants
 int changeMap();
 int createMap0();
 int createMap1();
-// int createMap2();
-// int createMap3();
+int createMap2();
+int createMap3();
 // int createMap4();
 // int createMap5();
 

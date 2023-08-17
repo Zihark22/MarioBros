@@ -89,7 +89,7 @@ bool anim_entree=false, remonte=true, retreci=false, grabObject=false, sounds_on
 
 string boutons[NBR_BOUT] = {"RESUME" , "CONTROLS" , "SOUNDS" , "EXIT"};
 
-string txt = "Bienvenu dans Mario Bros !! Appuyez sur ENTRER pour JOUER";
+string txt = "Bienvenu dans Mario Bros. !! Appuyez sur ENTRER pour JOUER";
 int longTxt;  // Position de la partie cachée du texte
 int textX; // Position de la partie affichée du texte
 
@@ -331,16 +331,19 @@ int main(int argc, char **argv)
                         else {
                             if(!enter) {
                                 nomUser=saisirUserName();
+                                al_set_target_bitmap(wallpaper); // Définit la cible de rendu
                                 al_rest(0.2); // Attendez 0,2 secondes
                                 if(nomUser.size()>1) {
                                     if(sounds_on) playSound=true;
                                     al_flush_event_queue(event_queue); // enlève évènement lors de la saisie du nom ex: N
                                     enter = true;
+                                    dessine=true;
                                     vies=3;
+                                    while(!al_is_event_queue_empty(event_queue))
+                                        al_flush_event_queue(event_queue);
                                 }
                             }
                         }
-                        al_flush_event_queue(event_queue);
                         break;
                     case ALLEGRO_KEY_DOWN :    // deplacement bas
                     case KEYBOARD_S :
@@ -464,6 +467,10 @@ int main(int argc, char **argv)
                     case KEYBOARD_N :
                         if(enter && !menu) {
                             num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
+                            if(num_map>0) {
+                                maps[num_map]->setMap0(false);
+                                maps[num_map]->setBackgroundScale(2);
+                            }
                             base_sol=changeMap();
                             sol=base_sol;
                             perso->setSpeed(0,0);
@@ -757,16 +764,16 @@ int main(int argc, char **argv)
                     // acualise coord
                     perso->actualisePos();
 
-                    // si deplacement, bouge les blocs et image
-                    if((key[KEY_RIGHT] or key[KEY_LEFT]) and num_map>0) {
+                    // si deplacement, bouge les blocs et map
+                    if((key[KEY_RIGHT] or key[KEY_LEFT]) and num_map>0) 
+                    {
                         if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 > 0) // limite bord gauche
                             maps[num_map]->setBackgroundX(0);
                         else if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 - window_width < -maps[num_map]->getW() * maps[num_map]->getBackgroundScale()) // limite bord droit
                             maps[num_map]->setBackgroundX(maps[num_map]->getBackgroundX());
                         else {
-                            maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 );
-
-                            for (i = nbrBlocsSol; i < nbrBlocs; i++)
+                            maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 3 );
+                            for (i = 0; i < nbrBlocs; i++) // deplace les blocs
                             {
                                 POS newcoord;
                                 newcoord.x = blocsCopy[i]->getCoord().x - perso->getSpeed().x * 2 / 2;
@@ -783,6 +790,10 @@ int main(int argc, char **argv)
                         else {
                             perso->setPosX(window_width-perso->getW()-1);
                             num_map = num_map <= 0 ? NB_MAPS-1 : num_map-1;
+                            if(num_map>0) {
+                                maps[num_map]->setMap0(false);
+                                maps[num_map]->setBackgroundScale(2);
+                            }
                             base_sol=changeMap();
                         }
                     }
@@ -792,6 +803,10 @@ int main(int argc, char **argv)
                         else {
                             perso->setPosX(0);
                             num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
+                            if(num_map>0) {
+                                maps[num_map]->setMap0(false);
+                                maps[num_map]->setBackgroundScale(2);
+                            }
                             base_sol=changeMap();
                         }
                     }
