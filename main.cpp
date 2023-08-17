@@ -772,13 +772,18 @@ int main(int argc, char **argv)
                         else if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 - window_width < -maps[num_map]->getW() * maps[num_map]->getBackgroundScale()) // limite bord droit
                             maps[num_map]->setBackgroundX(maps[num_map]->getBackgroundX());
                         else {
-                            maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 3 );
-                            for (i = 0; i < nbrBlocs; i++) // deplace les blocs
-                            {
-                                POS newcoord;
-                                newcoord.x = blocsCopy[i]->getCoord().x - perso->getSpeed().x * 2 / 2;
-                                newcoord.y = blocsCopy[i]->getCoord().y;
-                                blocs[i]->setCoord(newcoord);
+                            int bloc_fin = sortie;
+                            if(blocs[sortie-1]->getType()==TUYAU or blocs[sortie-1]->getType()==CHATEAU)
+                                bloc_fin = sortie - 1;
+                            if(blocs[entree]->getCoord().x < 10 && blocs[bloc_fin]->getCoord().x+blocs[bloc_fin]->getW() > window_width) {
+                                maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 3 );
+                                for (i = 0; i < nbrBlocs; i++) // deplace les blocs
+                                {
+                                    POS newcoord;
+                                    newcoord.x = blocsCopy[i]->getCoord().x - perso->getSpeed().x * 2 / 2;
+                                    newcoord.y = blocsCopy[i]->getCoord().y;
+                                    blocs[i]->setCoord(newcoord);
+                                }
                             }
                         }
                     }
@@ -790,10 +795,6 @@ int main(int argc, char **argv)
                         else {
                             perso->setPosX(window_width-perso->getW()-1);
                             num_map = num_map <= 0 ? NB_MAPS-1 : num_map-1;
-                            if(num_map>0) {
-                                maps[num_map]->setMap0(false);
-                                maps[num_map]->setBackgroundScale(2);
-                            }
                             base_sol=changeMap();
                         }
                     }
@@ -803,10 +804,6 @@ int main(int argc, char **argv)
                         else {
                             perso->setPosX(0);
                             num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
-                            if(num_map>0) {
-                                maps[num_map]->setMap0(false);
-                                maps[num_map]->setBackgroundScale(2);
-                            }
                             base_sol=changeMap();
                         }
                     }
@@ -842,10 +839,6 @@ int main(int argc, char **argv)
                             }
                             else {
                                 num_map++;
-                                if(num_map>0) {
-                                    maps[num_map]->setMap0(false);
-                                    maps[num_map]->setBackgroundScale(2);
-                                }
                                 base_sol=changeMap();
                                 perso = new User(perso->getNom());
                                 perso->setPos(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2 , blocs[entree-1]->getCoord().y);
@@ -874,10 +867,6 @@ int main(int argc, char **argv)
                                 if(blocs[sortie]->getCoord().x<perso->getPos().x) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
-                                    if(num_map>0) {
-                                        maps[num_map]->setMap0(false);
-                                        maps[num_map]->setBackgroundScale(2);
-                                    }
                                     base_sol=changeMap();
                                     perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
                                     perso->setPosY(blocs[entree-1]->getCoord().y-10);
@@ -888,14 +877,10 @@ int main(int argc, char **argv)
                             else if(blocs[sortie]->getAngle()==ZERO) {  // sortie vers le bas du tuyau
                                 perso->setSpeed(0,1);
                                 perso_num_img=SUD;
-                                perso->setPosX(blocs[sortie]->getCoord().x+(blocs[sortie]->getH()-perso->getW())/2);
+                                perso->setPosX(blocs[sortie]->getCoord().x+(blocs[sortie]->getW()-perso->getW())/2);
                                 if(blocs[sortie]->getCoord().y<perso->getPos().y) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
-                                    if(num_map>0) {
-                                        maps[num_map]->setMap0(false);
-                                        maps[num_map]->setBackgroundScale(2);
-                                    }
                                     base_sol=changeMap();
                                     perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
                                     perso->setPosY(blocs[entree-1]->getCoord().y);

@@ -121,9 +121,6 @@ void Sound::play(void) {
     this->played=true;
 }
 
-///////////////////////////////////
-///////////////////////////////////
-
 /*---------------- PERSONNAGE -------------------*/
 Personnage::Personnage(string nom) // constructeur 
 {
@@ -146,7 +143,6 @@ string Personnage::getNom()
 {
     return this->nom;
 }
-
 POS Personnage::getPos() // constructeur classique
 {
     return this->coord;
@@ -501,7 +497,6 @@ ObjectLance::ObjectLance(string nom) : Personnage(nom) { // Constructeur
     this->angle=0;
 }
 ObjectLance::~ObjectLance() { }
-
 void ObjectLance::draw() {
     if(this->afficher) {
         this->angle+=PI/6;
@@ -514,8 +509,6 @@ void ObjectLance::actualiseSize() {
     this->w = al_get_bitmap_width(this->img)  * this->tailleFactor;
     this->h = al_get_bitmap_height(this->img) * this->tailleFactor;
 }
-///////////////////////////////////
-///////////////////////////////////
 
 /*---------------- ELEMENT -------------------*/
 Element::Element(const char* chemin_img) // constructeur classique
@@ -590,7 +583,6 @@ Bloc::~Bloc() // Destructeur
 {
     al_destroy_bitmap(this->img);
 }
-
 POS Bloc::getCoord() {
     return this->coord;
 }
@@ -721,7 +713,6 @@ int perdu(int vies)
         return 2;
     }
 }
-
 bool confirmQuit(void)
 {
     ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
@@ -733,7 +724,6 @@ bool confirmQuit(void)
     }
     return false;
 }
-
 int initialisation(void) {
     if (!al_init()) {
         erreur("initialise Allegro5");
@@ -1151,7 +1141,7 @@ void afficherTexte(ALLEGRO_FONT *font) {
 
     string msgScore =  "x " + to_string(score);
     longTxt = al_get_text_width(font, msgScore.c_str());
-    al_draw_scaled_bitmap(coin, 0, 0, al_get_bitmap_width(coin), al_get_bitmap_height(coin), window_width-decaleBords-longTxt-30, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2 , 25, 25, 0);
+    al_draw_scaled_bitmap(coin, 0, 0, al_get_bitmap_width(coin), al_get_bitmap_height(coin), window_width-decaleBords-longTxt-35, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2 , 25, 25, 0);
     al_draw_text(font, ORANGE, window_width-decaleBords, HAUTEUR_TEXTE/2-al_get_font_line_height(font)/2, ALLEGRO_ALIGN_RIGHT, msgScore.c_str());
 }
 void afficheTypeBloc(int numBloc) {
@@ -1511,7 +1501,6 @@ int collisionBlocMechant(Bloc *bloc, Mechant *mechant)
     else 
         return FIN; 
 }
-
 int collisionObjetBloc(ObjectLance *objet, Bloc *bloc) 
 {
     // Positions
@@ -1572,7 +1561,6 @@ int collisionObjetMechant(ObjectLance *objet, Mechant *mechant)
     }
     return -1;
 }
-
 void handleCollisions() 
 {
     int i=0, j=0, k=0, nbrColl=0, dirCollision=0, tmpNbrObjets=0;
@@ -1917,11 +1905,14 @@ void handleCollisions()
     nbrObjets=tmpNbrObjets;
 }
 
-
 // ---------------  MAPS -------------------------//
 int changeMap() 
 {
     int base_sol=0;
+    if(num_map>0) {
+        maps[num_map]->setMap0(false);
+        maps[num_map]->setBackgroundScale(2);
+    }
     switch(num_map) 
     {
         case 0 : 
@@ -1950,6 +1941,7 @@ int changeMap()
     {
         blocsCopy[i] = blocs[i];
     }
+    maps[num_map-1]->setBackgroundX(0);
     return base_sol;
 }
 int createMap0() 
@@ -2118,7 +2110,7 @@ int createMap1()
 }
 int createMap2() 
 {
-    int tmpH, trou=0;
+    int tmpH, trou=0, diffBords=0;
     nbrBlocs=0;
     nbrMechants=0;
     Bloc *tmpBloc;
@@ -2150,7 +2142,17 @@ int createMap2()
 
     // -------- SORTIE ---------------
 
-    sortie=0;
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU); 
+        diffBords = blocs[nbrBlocs]->getW();
+    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU);
+        diffBords -= blocs[nbrBlocs]->getW();
+        diffBords /=2;
+        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs-1]->getW() - blocs[nbrBlocs]->getW())-diffBords, window_height-sol-blocs[nbrBlocs]->getH()} );
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU);
+        blocs[nbrBlocs]->setCoord( (POS) { blocs[nbrBlocs-1]->getCoord().x - diffBords, blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH() } );
+        sortie = nbrBlocs;
+        nbrBlocs++;
 
     // -------- ENTREE ---------------
     
@@ -2163,7 +2165,7 @@ int createMap2()
 }
 int createMap3() 
 {
-    int Le,He;
+    int Le,He, diffBords=0;
     POS newCoord;
     sol=60;
     nbrBlocs=0;
@@ -2203,7 +2205,7 @@ int createMap3()
     // -------- SORTIE ---------------
 
     blocs[nbrBlocs] = new Bloc("images/Door_closed.png",0,0,ZERO,1,false,false,DOOR_CLOSED); 
-        newCoord.x = (int) ( maps[num_map]->getW() * maps[num_map]->getBackgroundScale() - blocs[nbrBlocs]->getW() ) ;
+        newCoord.x = (int) ( maps[num_map]->getW() - blocs[nbrBlocs]->getW() ) ;
         newCoord.y = window_height-sol-blocs[nbrBlocs]->getH();
         blocs[nbrBlocs]->setCoord(newCoord);
         sortie=nbrBlocs;
@@ -2211,7 +2213,17 @@ int createMap3()
 
     // -------- ENTREE ---------------
 
-    entree=0;
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
+        diffBords = blocs[nbrBlocs]->getW();
+    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
+        diffBords -= blocs[nbrBlocs]->getW();
+        diffBords /=2;
+        blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
+        blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
+        entree = nbrBlocs;
+        nbrBlocs++;
 
     //--------- MECHANTS -------------
 
