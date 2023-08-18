@@ -55,67 +55,6 @@ using namespace std; // déclaration qui permet de rendre tous les symboles du n
 #define VIT_MAP -3
 
 ///////////////////////////////////////////////
-//////////////// STRUCTURES //////////////////
-//////////////////////////////////////////////
-
-typedef struct {
-	int x;
-	int y;
-} POS;
-
-typedef struct {
-	float x;
-	float y;
-	float norme;
-} VECT2D;
-
-typedef struct {
-	int x;
-	int y;
-} VITESSE;
-
-typedef struct
-{
-    string nom;
-    float posX;
-    float posY;
-    float w;
-    float h;
-    ALLEGRO_FONT* font;
-    ALLEGRO_COLOR couleurTxt;
-    ALLEGRO_COLOR couleurRect;
-} bouton;
-
-// ----------  HACHAGE ---------------------
-
-// Structure pour stocker une paire clé-valeur
-typedef struct {
-    char key[50];
-    int value;
-} KeyValuePair;
-
-// Structure de la table de hachage
-typedef struct {
-    KeyValuePair data[TABLE_SIZE];
-} HashTable;
-
-
-///////////////////////////////////////////////
-/////////////// ENUMERATIONS /////////////////
-//////////////////////////////////////////////
-
-enum { KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_Z, KEY_Q, KEY_D, KEY_S, KEY_SPACE, KEY_E, KEY_ENTER, KEY_C, KEY_MAX };
-
-enum { SUD, EST, OUEST, NORD, RUNR, RUNL, COUCHER, COUCHEL, FIN };
-
-enum { ONCE, LOOP, BIDIR};
-
-enum { TERRE, CHATEAU, ESCALIER, MYSTERE, COIN, PERSO, CHAMPI, ETOILE, CHAMPI_GEANT, CHAMPI_MINI, FLEUR, CHAMPI_ROYAL, TUYAU, BLOC, BLOC_VIDE, DOOR_OPEN, DOOR_CLOSED}; // type de bloc
-
-enum { ZERO, DROITE, GAUCHE, INVERSION };
-
-
-///////////////////////////////////////////////
 //mapping QWERTY par défault mais ici AZERTY//
 //////////////////////////////////////////////
 
@@ -193,7 +132,57 @@ enum { ZERO, DROITE, GAUCHE, INVERSION };
 //////////////////////////////////////////////
 #define ARIAL_BOLD_36 al_load_font("polices/Arial Bold.ttf", 36, 0)
 
+///////////////////////////////////////////////
+/////////////// ENUMERATIONS /////////////////
+//////////////////////////////////////////////
 
+enum { KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_Z, KEY_Q, KEY_D, KEY_S, KEY_SPACE, KEY_E, KEY_ENTER, KEY_C, KEY_MAX };
+enum { SUD, EST, OUEST, NORD, RUNR, RUNL, COUCHER, COUCHEL, FIN };
+enum { ONCE, LOOP, BIDIR};
+enum { TERRE, CHATEAU, ESCALIER, MYSTERE, COIN, PERSO, CHAMPI, ETOILE, CHAMPI_GEANT, CHAMPI_MINI, FLEUR, CHAMPI_ROYAL, TUYAU, BLOC, BLOC_VIDE, DOOR_OPEN, DOOR_CLOSED}; // type de bloc
+enum { ZERO, DROITE, GAUCHE, INVERSION };
+
+///////////////////////////////////////////////
+//////////////// STRUCTURES //////////////////
+//////////////////////////////////////////////
+
+typedef struct {
+	int x;
+	int y;
+} POS;
+typedef struct {
+	float x;
+	float y;
+	float norme;
+} VECT2D;
+typedef struct {
+	int x;
+	int y;
+} VITESSE;
+typedef struct
+{
+    string nom;
+    float posX;
+    float posY;
+    float w;
+    float h;
+    ALLEGRO_FONT* font;
+    ALLEGRO_COLOR couleurTxt;
+    ALLEGRO_COLOR couleurRect;
+} bouton;
+
+// ----------  HACHAGE ---------------------
+
+// Structure pour stocker une paire clé-valeur
+typedef struct {
+    char key[50];
+    int value;
+} KeyValuePair;
+
+// Structure de la table de hachage
+typedef struct {
+    KeyValuePair data[TABLE_SIZE];
+} HashTable;
 
 ///////////////////////////////////////////////
 ///////////////// CLASSES ////////////////////
@@ -347,7 +336,6 @@ class ObjectLance : public Personnage
 	    ALLEGRO_BITMAP *img;
 	    float angle;
 };
-
 class Element
 {
     public:
@@ -380,7 +368,6 @@ class Element
 		int w;
 		bool afficher;
 };
-
 class Bloc : public Element // ex : bloc de terre , tuyau, nuage, sol, ...
 {
     public:
@@ -416,7 +403,6 @@ class Bloc : public Element // ex : bloc de terre , tuyau, nuage, sol, ...
 		bool sortie_objet;
 		int type;
 };
-
 class Piege : public Bloc // ex : pics, traits de feu, ...
 {
     public:
@@ -433,7 +419,6 @@ class Piege : public Bloc // ex : pics, traits de feu, ...
     private :
 	    // Attributs
 };
-
 class Map : public Element
 {
     public:
@@ -458,20 +443,19 @@ class Map : public Element
 		bool Map0;
 };
 
-
-
 ///////////////////////////////////////////////
 ///////////// VARIABLE GLOBALES //////////////
 //////////////////////////////////////////////
 
 extern ALLEGRO_FONT *polices[NBR_FONTS];
-
 extern User *perso;
 extern Map *maps[NB_MAPS];
 extern Bloc *blocs[MAX_BLOCS];
 extern Bloc *blocsCopy[MAX_BLOCS];
 extern Mechant *mechants[MAX_MECHANTS];
 extern ObjectLance *objets[MAX_OBJETS];
+extern bool objetsCol[MAX_OBJETS];
+extern POS coordCol;
 
 extern Sound *music;
 extern Sound *son_finish;
@@ -561,15 +545,13 @@ void finish();
 // perso
 int collisionPersoBloc(User *perso, Bloc *bloc);
 int collisionPersoMechant(User *perso, Mechant *mechant);
-
 // mechants
 int collision2Mechants(Mechant *mechant1, Mechant *mechant2);
 int collisionBlocMechant(Bloc *bloc, Mechant *mechant);
-
 // objets
 int collisionObjetBloc(ObjectLance *objet, Bloc *bloc);
 int collisionObjetMechant(ObjectLance *objet, Mechant *mechant);
-
+// handle
 void handleCollisions(); // objets et mechants
 
 //------------ MAPS -------------//

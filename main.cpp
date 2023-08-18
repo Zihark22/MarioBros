@@ -36,6 +36,7 @@ Bloc *blocs[MAX_BLOCS];
 Bloc *blocsCopy[MAX_BLOCS];
 Mechant *mechants[MAX_MECHANTS];
 ObjectLance *objets[MAX_OBJETS];
+bool objetsCol[MAX_OBJETS];
 
 Sound *music=NULL;
 Sound *son_finish=NULL;
@@ -81,6 +82,7 @@ bool stop=true;
 bool playSound=false;
 bool enter=false;
 bool lanceObjet=false;
+POS coordCol;
 
 float RATIO_FRAME=window_height/HEIGHT;
 
@@ -132,13 +134,14 @@ int main(int argc, char **argv)
     ALLEGRO_VOICE *voice=NULL;
     ALLEGRO_MIXER *mixer=NULL;
     ALLEGRO_BITMAP *wallpaper=NULL, *targetBitmap = NULL;
-    ALLEGRO_BITMAP* img_fin = al_load_bitmap("images/perteVieTransparent.png");
+    ALLEGRO_BITMAP *img_fin = al_load_bitmap("images/perteVieTransparent.png");
     progress+=9; afficherBarreProgression(progress);
 
     int boutonSelected = 0;
     float depl = HEIGHT/NBR_BOUT/2-5;
     int orientation = 0, x=0, y=0, i=0, j=0, k=0, cmptFrames=0, tmpH=0, dirCollision=FIN;
     int cmptSortie=0, cmptVie=0, cmptRetreci=0, window_x=0, window_y=0, nbrColl=0, nbrCollMechants=0, indices_coll[nbrBlocs], indices_collMechants[nbrMechants];
+    int cmptColObjet=0;
     float zoom_factor = 4;  // Facteur de zoom de 2
     progress+=7; afficherBarreProgression(progress);
 
@@ -193,6 +196,15 @@ int main(int argc, char **argv)
     base_sol=changeMap();
     perso->setPos(blocs[entree]->getW()/2-perso->getW()/2, blocs[entree]->getH());
     progress++; afficherBarreProgression(progress);
+
+    // Init objets Collisions
+    for (i = 0; i < MAX_OBJETS; i++)
+    {
+        objetsCol[i]=false;
+    }
+    ALLEGRO_BITMAP *explose = al_load_bitmap("images/explosion.png");
+    if (!explose)
+        erreur("initialise image d'accueil");
 
     // Charge l'audio
     voice = al_create_voice(FREQ_ECHANTILLONAGE, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
@@ -425,6 +437,13 @@ int main(int argc, char **argv)
                             sol=base_sol+1;
                             perso = new User("stickman");
                             perso->setPos(0,0);
+                            perso->setTaille(1);
+                            for (int i = 0; i < NB_MAPS; i++)
+                            {
+                                maps[i]->setBackgroundX(0);
+                                maps[i]->setBackgroundScale(1);
+                            }
+                            
                         }
                         break;
 
@@ -1006,9 +1025,22 @@ int main(int argc, char **argv)
                 // Afficher message +1 ou Zup
                 perso->afficherMessage(polices[3]);
 
-                // Draw objets (boules de feu, boomerang)
-                for ( i = 0; i < nbrObjets; ++i)
+                // Draw objets (boules de feu, boomerang) et explosion
+                for ( i = 0; i < MAX_OBJETS; ++i) {
+                    if(objetsCol[i]==true) {
+                        cmptColObjet++;
+                        if(cmptColObjet<10)
+                            al_draw_scaled_bitmap(explose, 0, 0, al_get_bitmap_width(explose), al_get_bitmap_height(explose), coordCol.x, coordCol.y, al_get_bitmap_width(explose)/20, al_get_bitmap_height(explose)/20, 0);
+                        else {
+                            objetsCol[i]=false;
+                            cmptColObjet=0;
+                            coordCol = (POS) { 0,0 };
+                        }
+                    }
+                }
+                for ( i = 0; i < nbrObjets; ++i) {
                     objets[i]->draw();
+                }
 
                 // Joue musique
                 if(playSound)

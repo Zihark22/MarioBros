@@ -1525,7 +1525,7 @@ int collisionObjetBloc(ObjectLance *objet, Bloc *bloc)
     int dcx = abs(bcx-pcx);
     int dcy = abs(bcy-pcy);
 
-    if(dcx<=(pw+bw)/2 && dcy<=(ph+bh)/2)  // Collision
+    if(dcx<=(/* pw+ */bw)/2 && dcy<=(ph+bh)/2)  // Collision
     {
         return 0;
     }
@@ -1722,8 +1722,6 @@ void handleCollisions()
         } // fin du for
     }  // fin bool
 
-
-
 // ------------------- MECHANTS ---------------------
     
     for(i=0;i<nbrMechants;i++) 
@@ -1869,6 +1867,8 @@ void handleCollisions()
                 dirCollision=collisionObjetBloc(objets[i],blocs[j]);
                 if(dirCollision==0 && blocs[j]->getType()!=COIN && blocs[j]->isObject()==false && blocs[j]->getType()!=DOOR_CLOSED) 
                 {
+                    coordCol = (POS) {  objets[i]->getPos().x , objets[i]->getPos().y };
+                    objetsCol[i]=true;
                     for (k = 0; k < MAX_OBJETS; ++k) // copy la liste
                         tmpObjets[k]=objets[k];
                     for (k = i; k < tmpNbrObjets-1; ++k) // enlève l'indice i et déplacement de la liste pour supprimer que la boule qui sort
@@ -2086,7 +2086,7 @@ int createMap1()
         nbrBlocs++;
     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU);
         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
-        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW()) , window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
+        blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW())+20 , window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
         sortie = nbrBlocs;
         nbrBlocs++;
 
