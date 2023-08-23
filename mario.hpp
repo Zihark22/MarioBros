@@ -53,6 +53,7 @@ using namespace std; // déclaration qui permet de rendre tous les symboles du n
 #define LARGEUR_MAP 5000
 #define TEXT_SPEED 5
 #define VIT_MAP -3
+#define FACTEUR_ZOOM_PERTE_VIE 2
 
 ///////////////////////////////////////////////
 //mapping QWERTY par défault mais ici AZERTY//

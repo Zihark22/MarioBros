@@ -17,8 +17,7 @@ Ameloirations :
     - pieges (pics, murs, lame de feu)
     - portes secretes
     - menu sauvegarde progression
-    - message bandeau de welcome qui défile
-    - adapter les boutons du menu lors du changement de taille de fenetre
+    - boule de feu supprimé trop tôt
 
 */
 
@@ -142,7 +141,7 @@ int main(int argc, char **argv)
     int orientation = 0, x=0, y=0, i=0, j=0, k=0, cmptFrames=0, tmpH=0, dirCollision=FIN;
     int cmptSortie=0, cmptVie=0, cmptRetreci=0, window_x=0, window_y=0, nbrColl=0, nbrCollMechants=0, indices_coll[nbrBlocs], indices_collMechants[nbrMechants];
     int cmptColObjet=0;
-    float zoom_factor = 4;  // Facteur de zoom de 2
+    float zoom_factor = FACTEUR_ZOOM_PERTE_VIE;  // Facteur de zoom animation perte de vie
     progress+=7; afficherBarreProgression(progress);
 
     perso = new User("stickman"); //    choixPerso();
@@ -276,7 +275,6 @@ int main(int argc, char **argv)
     while (!fin) {
         al_wait_for_event(event_queue, &ev);
         al_set_target_bitmap(targetBitmap); // Définit la cible de rendu
-        al_clear_to_color(al_map_rgb(0,0,0));
 
         switch (ev.type) 
         {
@@ -292,15 +290,19 @@ int main(int argc, char **argv)
                     temps=0;
                     sol=base_sol+1;
                     anim_entree=true;
+                    zoom_factor = FACTEUR_ZOOM_PERTE_VIE+2;
                     if(num_map!=0) {
                         perso->setPosX( blocs[entree-1]->getCoord().x + blocs[entree-1]->getW()/2-perso->getW()/2 );
                         perso->setPosY( blocs[entree-1]->getCoord().y + blocs[entree-1]->getH() );
                     }
-                    else
+                    else {
                         perso->setPos(0,0);
+                    }
                 }
-                else
+                else {
+                    zoom_factor = FACTEUR_ZOOM_PERTE_VIE;
                     wallpaper=tracerAccueil(polices[1]);
+                }
                 break;
 
             case ALLEGRO_EVENT_DISPLAY_CLOSE: // clique sur la croix rouge
@@ -311,10 +313,7 @@ int main(int argc, char **argv)
                 switch(ev.keyboard.keycode)
                 {      
                     case ALLEGRO_KEY_ESCAPE : // EXIT
-                        if(enter) 
-                            menu=!menu;
-                        else 
-                            fin=confirmQuit();
+                        menu=!menu;
                         break;
                     case ALLEGRO_KEY_ENTER :    // ACCUEIL
                         if(menu) {
@@ -335,6 +334,8 @@ int main(int argc, char **argv)
                                     break;
                                 case 3 :
                                     fin=true;
+                                    while(!al_is_event_queue_empty(event_queue))
+                                        al_flush_event_queue(event_queue);
                                     break;
                                 default :
                                     break;
@@ -942,7 +943,7 @@ int main(int argc, char **argv)
                         zoom_factor-=0.05;
                         if(zoom_factor <= 1) {
                             cmptVie=0;
-                            zoom_factor=4;
+                            zoom_factor=FACTEUR_ZOOM_PERTE_VIE;
                             anim_perteVie=false;
                             restart();
                         }
@@ -970,10 +971,11 @@ int main(int argc, char **argv)
         }
 
         if(dessine==true && al_is_event_queue_empty(event_queue)){
+
+            // clear
+            al_clear_to_color(NOIR);
+
             if(enter) {
-                // clear
-                al_clear_to_color(NOIR);
-                
                 // actual coord
                 perso->setTaille(AGRANDI_FACT);
                 perso->actualiseSize(perso_num_img);
@@ -1008,16 +1010,6 @@ int main(int argc, char **argv)
                     }
                 }
 
-                // Draw text, vies, score, temps, nomUser
-                afficherTexte(polices[3]);
-                if(blocs[sortie]->getType()==CHATEAU) {
-                    int xaffich, yaffich;
-                    xaffich=blocs[sortie]->getCoord().x+blocs[sortie]->getW()/2;
-                    yaffich=blocs[sortie]->getCoord().y+25;
-                    al_draw_filled_rectangle(xaffich-25, yaffich, xaffich+25, yaffich+20, BLANC);
-                    al_draw_text(polices[3], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
-                }
-
                 // Draw mechants
                 for(i=0;i<nbrMechants;i++)
                     mechants[i]->draw();
@@ -1048,31 +1040,8 @@ int main(int argc, char **argv)
                 else
                     music->stop();
 
-                // Menu pause
-                if(menu)
-                {
-                    // Dessiner le rectangle de flou
-                    al_draw_filled_rectangle(0, 0, window_width, window_height, al_map_rgba(0, 0, 0, 222));
-
-                    // Dessin de MENU
-                    al_draw_text(polices[1], ROUGE, window_width/2, window_height/5/2, ALLEGRO_ALIGN_CENTER, "MENU");
-                    
-                    // Dessin des boutons et rectangles
-                    for (i = 0; i < NBR_BOUT; ++i) {
-                        al_draw_filled_rectangle(listeBut[i].posX, listeBut[i].posY, listeBut[i].posX+listeBut[i].w, listeBut[i].posY+listeBut[i].h, listeBut[i].couleurRect);
-                        if(listeBut[i].nom.compare("SONS")==0) {
-                            if(sounds_on)
-                                al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": ON").c_str());
-                            else
-                                al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": OFF").c_str());
-                        }
-                        else
-                            al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, listeBut[i].nom.c_str());
-                    }
-                }
-
                 // Dessine l'image perte de vie
-                else if(anim_perteVie) {
+                if(anim_perteVie) {
                     // Définir les coordonnées du rectangle source de l'image d'origine
                     int source_x = 0;
                     int source_y = 0;
@@ -1084,32 +1053,74 @@ int main(int argc, char **argv)
                     int dest_height = window_height * zoom_factor;
 
                     // Calculez les coordonnées du point central
-                    int center_x = source_width  / 2;
-                    int center_y = source_height / 2;
-                    int dest_x = center_x - dest_width/2;
-                    int dest_y = center_y - dest_height/2;
+                    int center_x = dest_width  / 2;
+                    int center_y = dest_height / 2;
+                    int dest_x = window_width  / 2 - center_x;
+                    int dest_y = window_height / 2 - center_y;
 
                     // Dessinez l'image zoomée
                     al_draw_scaled_bitmap(img_fin, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, 0);
+                    if(vies>1)
+                        al_draw_text(polices[1], ROUGE, window_width/2, HAUTEUR_TEXTE+20, ALLEGRO_ALIGN_CENTER, "Vies -1");
+                    else
+                        al_draw_text(polices[1], ROUGE, window_width/2, HAUTEUR_TEXTE+20, ALLEGRO_ALIGN_CENTER, "PERDU");
+                }
+
+                // Draw text, vies, score, temps, nomUser
+                afficherTexte(polices[3]);
+                if(blocs[sortie]->getType()==CHATEAU) {
+                    int xaffich, yaffich;
+                    xaffich=blocs[sortie]->getCoord().x+blocs[sortie]->getW()/2;
+                    yaffich=blocs[sortie]->getCoord().y+25;
+                    al_draw_filled_rectangle(xaffich-25, yaffich, xaffich+25, yaffich+20, BLANC);
+                    al_draw_text(polices[3], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
                 }
                 
-                // actualise affichage
-                al_flip_display();
             }
-            else 
+            else {
                 wallpaper=tracerAccueil(polices[1]);
+            }
+            
+            // Menu pause
+            if(menu)
+            {
+                // Dessiner le rectangle de flou
+                al_draw_filled_rectangle(0, 0, window_width, window_height, al_map_rgba(0, 0, 0, 222));
+
+                // Dessin de MENU
+                al_draw_text(polices[1], ROUGE, window_width/2, window_height/5/2, ALLEGRO_ALIGN_CENTER, "MENU");
+                
+                // Dessin des boutons et rectangles
+                for (i = 0; i < NBR_BOUT; ++i) {
+                    al_draw_filled_rectangle(listeBut[i].posX, listeBut[i].posY, listeBut[i].posX+listeBut[i].w, listeBut[i].posY+listeBut[i].h, listeBut[i].couleurRect);
+                    if(listeBut[i].nom.compare("SONS")==0) {
+                        if(sounds_on)
+                            al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": ON").c_str());
+                        else
+                            al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, (listeBut[i].nom+": OFF").c_str());
+                    }
+                    else
+                        al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, listeBut[i].nom.c_str());
+                }
+            }
+
+            // actualise affichage
+            al_flip_display();
 
             dessine=false;
         }
     }
     
     // Destruction des ressources
-    detruitRessources(wallpaper, timer, event_queue, display);
+    // detruitRessources(wallpaper, timer, event_queue, display);
+    al_destroy_bitmap(wallpaper);
+    al_destroy_timer(timer);
+    detruit_polices();
+    al_destroy_event_queue(event_queue);
+    al_destroy_display(display);
     al_destroy_voice(voice);
     al_destroy_mixer(mixer);
     al_uninstall_audio();
 
     return 0;
 }
-
-

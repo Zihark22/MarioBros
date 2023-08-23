@@ -700,19 +700,6 @@ void erreur(const char* txt)
         exit(EXIT_FAILURE);
     } 
 }
-int perdu(int vies)
-{
-    ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
-    int result;
-    if(vies>0) {
-        result = al_show_native_message_box(d, "PERDU", "Dommage", "Il vous reste des vies. Voulez-vous recommencer ?", "OUI|NON", ALLEGRO_MESSAGEBOX_QUESTION); // ALLEGRO_MESSAGEBOX_YES_NO, ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_MESSAGEBOX_ERROR, ALLEGRO_MESSAGEBOX_QUESTION et ALLEGRO_MESSAGEBOX_OK_CANCEL
-        return result;
-    }
-    else {
-        al_show_native_message_box(d, "PERDU", "Dommage", "Il ne vous reste plus de vies. Au revoir !", "OK", ALLEGRO_MESSAGEBOX_QUESTION); // ALLEGRO_MESSAGEBOX_YES_NO, ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_MESSAGEBOX_ERROR, ALLEGRO_MESSAGEBOX_QUESTION et ALLEGRO_MESSAGEBOX_OK_CANCEL
-        return 2;
-    }
-}
 bool confirmQuit(void)
 {
     ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
@@ -825,8 +812,6 @@ ALLEGRO_BITMAP* tracerAccueil(ALLEGRO_FONT* font) {
     al_draw_text(font, ORANGE, textX, posY-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
     if(textX<0)
         al_draw_text(font, ORANGE, window_width+textX, posY-20, ALLEGRO_ALIGN_LEFT, txt.c_str());
-
-    al_flip_display();
 
     return wallpaper;
 }
@@ -1198,6 +1183,19 @@ void afficheTypeBloc(int numBloc) {
         default:
             cout << "bloc inconnu" << endl;
             break;
+    }
+}
+int perdu(int vies)
+{
+    // ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
+    int result;
+    if(vies>0) {
+        // result = al_show_native_message_box(d, "PERDU", "Dommage", "Il vous reste des vies. Voulez-vous recommencer ?", "OUI|NON", ALLEGRO_MESSAGEBOX_QUESTION); // ALLEGRO_MESSAGEBOX_YES_NO, ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_MESSAGEBOX_ERROR, ALLEGRO_MESSAGEBOX_QUESTION et ALLEGRO_MESSAGEBOX_OK_CANCEL
+        return 1;
+    }
+    else {
+        // al_show_native_message_box(d, "PERDU", "Dommage", "Il ne vous reste plus de vies. Au revoir !", "OK", ALLEGRO_MESSAGEBOX_QUESTION); // ALLEGRO_MESSAGEBOX_YES_NO, ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_MESSAGEBOX_ERROR, ALLEGRO_MESSAGEBOX_QUESTION et ALLEGRO_MESSAGEBOX_OK_CANCEL
+        return 2;
     }
 }
 void restart() {
@@ -1876,6 +1874,8 @@ void handleCollisions()
                     tmpNbrObjets--;
                 }
             }
+            if(tmpNbrObjets<0)
+                cout << "erreur" << endl;
 
             // collisions objets avec les mechants
             for (j = 0; j < nbrMechants; ++j)
