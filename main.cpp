@@ -18,6 +18,7 @@ Ameloirations :
     - portes secretes
     - menu sauvegarde progression
     - boule de feu supprimé trop tôt
+    - menu en page d'accueil fonctionne avec souris
 
 */
 
@@ -577,7 +578,7 @@ int main(int argc, char **argv)
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 if(ev.mouse.button==1) {
                     //fprintf(stdout, "Vous avez cliqué à gauche avec la souris.\n");
-                    if(menu && enter) {
+                    if(menu) {
                         switch(boutonSelected)
                         {
                             case 0 :
@@ -612,7 +613,7 @@ int main(int argc, char **argv)
 
             case ALLEGRO_EVENT_MOUSE_AXES:
                 al_get_mouse_state(&mouse_state);
-                if(menu && enter) {
+                if(menu) {
                     if(abs(x-mouse_state.x)>10 || abs(y-mouse_state.y)>10)
                     {
                         x = mouse_state.x;
