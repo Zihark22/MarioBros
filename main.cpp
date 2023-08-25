@@ -18,7 +18,6 @@ Ameloirations :
     - portes secretes
     - menu sauvegarde progression
     - boule de feu supprimé trop tôt
-    - menu en page d'accueil fonctionne avec souris
 
 */
 

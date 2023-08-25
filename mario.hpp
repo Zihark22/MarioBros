@@ -140,7 +140,7 @@ using namespace std; // déclaration qui permet de rendre tous les symboles du n
 enum { KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_Z, KEY_Q, KEY_D, KEY_S, KEY_SPACE, KEY_E, KEY_ENTER, KEY_C, KEY_MAX };
 enum { SUD, EST, OUEST, NORD, RUNR, RUNL, COUCHER, COUCHEL, FIN };
 enum { ONCE, LOOP, BIDIR};
-enum { TERRE, CHATEAU, ESCALIER, MYSTERE, COIN, PERSO, CHAMPI, ETOILE, CHAMPI_GEANT, CHAMPI_MINI, FLEUR, CHAMPI_ROYAL, TUYAU, BLOC, BLOC_VIDE, DOOR_OPEN, DOOR_CLOSED}; // type de bloc
+enum { TERRE, CHATEAU, ESCALIER, MYSTERE, COIN, PERSO, CHAMPI, ETOILE, CHAMPI_GEANT, CHAMPI_MINI, CHAMPI_DOWN, FLEUR, CHAMPI_ROYAL, TUYAU, BLOC, BLOC_VIDE, DOOR_OPEN, DOOR_CLOSED}; // type de bloc
 enum { ZERO, DROITE, GAUCHE, INVERSION };
 
 ///////////////////////////////////////////////
@@ -561,8 +561,8 @@ int createMap0();
 int createMap1();
 int createMap2();
 int createMap3();
-// int createMap4();
-// int createMap5();
+int createMap4();
+int createMap5();
 
 //------------ HACHAGE -------------//
 int hachage(char *chaine);

@@ -1626,6 +1626,10 @@ void handleCollisions()
                             GRAVITY=1;
                             if(sounds_on) son_powerUp->play();
                             break;
+                        case CHAMPI_DOWN :
+                            break;
+                        case ETOILE :
+                            break;
                     }
                 }
             }
@@ -1927,12 +1931,12 @@ int changeMap()
         case 3 : 
             base_sol=createMap3();
             break;
-        // case 4 : 
-        //     base_sol=createMap4();
-        //     break;
-        // case 5 : 
-        //     base_sol=createMap5();
-        //     break;
+        case 4 : 
+            base_sol=createMap4();
+            break;
+        case 5 : 
+            base_sol=createMap5();
+            break;
         default: 
             base_sol=createMap1();
             break;
@@ -2248,6 +2252,134 @@ int createMap3()
         mechants[nbrMechants]->setSpeedX(-3);
         mechants[nbrMechants]->setPos(window_width/2,window_height-sol-mechants[nbrMechants]->getH());
         nbrMechants++;
+
+    return base_sol;
+}
+int createMap4() 
+{
+    int Le,He, diffBords=0;
+    POS newCoord;
+    sol=60;
+    nbrBlocs=0;
+    nbrMechants=0;
+    Bloc *tmpBloc;
+
+    // -------- SOL ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5,false,false,TERRE);
+        indice_sol = nbrBlocs;
+        const int base_sol = blocs[nbrBlocs]->getH();
+        sol = base_sol+1;
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5,false,false,TERRE);
+        nbrBlocs++;
+    
+    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+    {
+        blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+            nbrBlocs++;
+    }
+    nbrBlocsSol = nbrBlocs;
+
+    // ----------- JEU --------------
+
+    blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",window_width/2,window_height-sol-150,ZERO,1,false,true,MYSTERE); 
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/Down_Mushroom.png",0,0,ZERO,0.05,true,false,CHAMPI_DOWN); 
+        newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
+        newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-5;
+        blocs[nbrBlocs]->setCoord(newCoord);
+        blocs[nbrBlocs]->disable();
+        nbrBlocs++;
+        tmpBloc=blocs[nbrBlocs-2];
+        blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
+        blocs[nbrBlocs-1]=tmpBloc;
+
+    // -------- SORTIE ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/Door_closed.png",0,0,ZERO,1,false,false,DOOR_CLOSED); 
+        newCoord.x = (int) ( maps[num_map]->getW() - blocs[nbrBlocs]->getW() ) ;
+        newCoord.y = window_height-sol-blocs[nbrBlocs]->getH();
+        blocs[nbrBlocs]->setCoord(newCoord);
+        sortie=nbrBlocs;
+        nbrBlocs++;
+
+    // -------- ENTREE ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
+        diffBords = blocs[nbrBlocs]->getW();
+    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
+        diffBords -= blocs[nbrBlocs]->getW();
+        diffBords /=2;
+        blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
+        blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
+        entree = nbrBlocs;
+        nbrBlocs++;
+
+    return base_sol;
+}
+int createMap5() 
+{
+    int Le,He, diffBords=0;
+    POS newCoord;
+    sol=60;
+    nbrBlocs=0;
+    nbrMechants=0;
+    Bloc *tmpBloc;
+
+    // -------- SOL ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5,false,false,TERRE);
+        indice_sol = nbrBlocs;
+        const int base_sol = blocs[nbrBlocs]->getH();
+        sol = base_sol+1;
+    blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5,false,false,TERRE);
+        nbrBlocs++;
+    
+    while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+    {
+        blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+            nbrBlocs++;
+    }
+    nbrBlocsSol = nbrBlocs;
+
+    // ----------- JEU --------------
+
+    blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",window_width/2,window_height-sol-150,ZERO,1,false,true,MYSTERE); 
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/etoile.png",0,0,ZERO,0.3,true,false,ETOILE); 
+        newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
+        newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-5;
+        blocs[nbrBlocs]->setCoord(newCoord);
+        blocs[nbrBlocs]->disable();
+        nbrBlocs++;
+        tmpBloc=blocs[nbrBlocs-2];
+        blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
+        blocs[nbrBlocs-1]=tmpBloc;
+
+    // -------- SORTIE ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/Door_closed.png",0,0,ZERO,1,false,false,DOOR_CLOSED); 
+        newCoord.x = (int) ( maps[num_map]->getW() - blocs[nbrBlocs]->getW() ) ;
+        newCoord.y = window_height-sol-blocs[nbrBlocs]->getH();
+        blocs[nbrBlocs]->setCoord(newCoord);
+        sortie=nbrBlocs;
+        nbrBlocs++;
+
+    // -------- ENTREE ---------------
+
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
+        diffBords = blocs[nbrBlocs]->getW();
+    blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
+        diffBords -= blocs[nbrBlocs]->getW();
+        diffBords /=2;
+        blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+        nbrBlocs++;
+    blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
+        blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
+        entree = nbrBlocs;
+        nbrBlocs++;
 
     return base_sol;
 }
