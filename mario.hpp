@@ -340,22 +340,39 @@ class ObjectLance : public Personnage
 class Element
 {
     public:
-    	Element(const char* chemin_img); // constructeur
-    	~Element(); // Destructeur
+    	Element(string chemin_img, float scale) : scale(scale) {
+			this->img=al_load_bitmap(chemin_img.c_str());
+			if(!this->img) {
+				// erreur("chargement du bloc");
+				this->h=0;
+				this->w=0;
+			}
+			else {
+				this->h=al_get_bitmap_height(img)*scale;
+				this->w=al_get_bitmap_width(img)*scale;
+			}
+			this->afficher=true;
+		}; // constructeur
+		Element(const Element& other) : scale(other.scale), afficher(other.afficher), h(other.h), w(other.w), img(al_clone_bitmap(other.img)) {} // Constructeur de copie
+		// ~Element() // Destructeur
+		// {
+		// 	if(al_get_bitmap_height(this->img)>0)
+		// 		al_destroy_bitmap(this->img);
+		// }
 
     // Méthodes (prototypes)
     	// Getters
-    	int getH();
-    	int getW();
-    	float getScale();
-    	ALLEGRO_BITMAP* getImg();
-    	bool is_enable();
+    	int getH() const;
+    	int getW() const;
+    	float getScale() const;
+    	ALLEGRO_BITMAP* getImg() const;
+    	bool is_enable() const;
 
     	// Setters
     	void setH(int newH);
     	void setW(int newW);
     	void setScale(float newScale);
-    	void setImg(const char* chemin);
+    	void setImg(string chemin);
 
     	// Autres
     	void disable(void);
@@ -372,15 +389,21 @@ class Element
 class Bloc : public Element // ex : bloc de terre , tuyau, nuage, sol, ...
 {
     public:
-    	Bloc(const char* chemin_img, int posx, int posy, int angle, float scale, bool object, bool hiding, int type);  // Constructeur
-    	~Bloc(); // Destructeur
+    	Bloc(string chemin_img, int posx, int posy, int angle, float scale, bool object, bool hiding, int type) : Element(chemin_img, scale), angle(angle), object(object), hiding(hiding), type(type) // Constructeur
+		{
+			this->coord.x=posx;
+    		this->coord.y=posy;
+			this->sortie_objet=false;
+    		this->adjust=false;
+		};
+		Bloc(const Bloc& other) : Element(other), coord(other.coord), angle(other.angle), type(other.type), object(other.object), hiding(other.hiding), adjust(other.adjust), sortie_objet(other.sortie_objet) {};
 
     // Méthodes (prototypes)
     	// Getters
-    	POS getCoord();
-    	int getAngle();
-    	int getType();
-    	bool getSortieObjet();
+    	POS getCoord() const;
+    	int getAngle() const;
+    	int getType() const;
+    	bool getSortieObjet() const;
 
     	// Setters
     	void setCoord(POS newCoord);
@@ -423,7 +446,7 @@ class Piege : public Bloc // ex : pics, traits de feu, ...
 class Map : public Element
 {
     public:
-    	Map(const char* chemin_img); // Constructeur
+    	Map(string chemin_img); // Constructeur
     	~Map(); // Destructeur
 
 		// Setters
@@ -451,8 +474,8 @@ class Map : public Element
 extern ALLEGRO_FONT *polices[NBR_FONTS];
 extern User *perso;
 extern Map *maps[NB_MAPS];
-extern Bloc *blocs[MAX_BLOCS];
-extern Bloc *blocsCopy[MAX_BLOCS];
+extern vector<Bloc> blocs;
+extern vector<Bloc> blocsCopy;
 extern Mechant *mechants[MAX_MECHANTS];
 extern ObjectLance *objets[MAX_OBJETS];
 extern bool objetsCol[MAX_OBJETS];
@@ -477,7 +500,6 @@ extern Sound *son_koopa_shell;
 extern int entree;
 extern int sortie;
 extern int nbrBlocsSol;
-extern int nbrBlocs;
 extern int nbrObjets;
 extern int nbrMechants;
 extern int indice_sol;
@@ -508,9 +530,9 @@ extern bool fin, dessine, fullscreen, jump, img_courir, baisse, anim_fin, anim_s
 
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 
-extern string boutons[NBR_BOUT];
+extern string const boutons[NBR_BOUT];
 
-extern string txt;
+extern string const txt;
 extern int longTxt;  // Position de la partie cachée du texte
 extern int textX; // Position de la partie affichée du texte
 
@@ -522,7 +544,6 @@ void erreur(const char* txt);
 int perdu(int vies);
 bool confirmQuit(void);
 int initialisation(void);
-void detruitRessources(ALLEGRO_BITMAP *image, ALLEGRO_TIMER* timer, ALLEGRO_EVENT_QUEUE* event_queue, ALLEGRO_DISPLAY *display);
 ALLEGRO_BITMAP* tracerAccueil(ALLEGRO_FONT* font);
 bool MouseOnButton(int mouseX, int mouseY, bouton monBut);
 void charge_polices();
@@ -558,11 +579,11 @@ void handleCollisions(); // objets et mechants
 //------------ MAPS -------------//
 int changeMap();
 int createMap0();
-int createMap1();
-int createMap2();
-int createMap3();
-int createMap4();
-int createMap5();
+// int createMap1();
+// int createMap2();
+// int createMap3();
+// int createMap4();
+// int createMap5();
 
 //------------ HACHAGE -------------//
 int hachage(char *chaine);

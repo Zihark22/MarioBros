@@ -18,6 +18,7 @@ Ameloirations :
     - portes secretes
     - menu sauvegarde progression
     - boule de feu supprimé trop tôt
+    - passage en full C++
 
 */
 
@@ -31,68 +32,68 @@ ALLEGRO_FONT *polices[NBR_FONTS];
 
 User *perso;
 Map *maps[NB_MAPS];
-Bloc *blocs[MAX_BLOCS];
-Bloc *blocsCopy[MAX_BLOCS];
+vector<Bloc> blocs;
+vector<Bloc> blocsCopy;
 Mechant *mechants[MAX_MECHANTS];
 ObjectLance *objets[MAX_OBJETS];
 bool objetsCol[MAX_OBJETS];
 
-Sound *music=NULL;
-Sound *son_finish=NULL;
-Sound *son_jump=NULL;
-Sound *son_tuyau=NULL;
-Sound *son_sol=NULL;
-Sound *son_mario=NULL;
-Sound *son_luigi=NULL;
-Sound *son_coin=NULL;
-Sound *son_over=NULL;
-Sound *son_powerUp=NULL;
-Sound *son_powerDown=NULL;
-Sound *son_fireBall=NULL;
-Sound *son_fireBallHit=NULL;
-Sound *son_ecrase=NULL;
-Sound *son_koopa_shell=NULL;
+Sound *music(NULL);
+Sound *son_finish(NULL);
+Sound *son_jump(NULL);
+Sound *son_tuyau(NULL);
+Sound *son_sol(NULL);
+Sound *son_mario(NULL);
+Sound *son_luigi(NULL);
+Sound *son_coin(NULL);
+Sound *son_over(NULL);
+Sound *son_powerUp(NULL);
+Sound *son_powerDown(NULL);
+Sound *son_fireBall(NULL);
+Sound *son_fireBallHit(NULL);
+Sound *son_ecrase(NULL);
+Sound *son_koopa_shell(NULL);
 
-int entree=0;
-int sortie=0;
-int nbrBlocs=0;
-int nbrObjets=0;
-int nbrBlocsSol=0;
-int nbrMechants=0;
-int indice_sol=0;
-int sol=0;
-int base_sol=0;
-int window_height=HEIGHT;
-int window_width=WIDTH;
-int anim_tuyau=0;
+int entree(0);
+int sortie(0);
+int nbrObjets(0);
+int nbrBlocsSol(0);
+int nbrMechants(0);
+int indice_sol(0);
+int sol(0);
+int base_sol(0);
+int window_height(HEIGHT);
+int window_width(WIDTH);
+int anim_tuyau(0);
 
-int JUMP_FORCE = -25;
-int GRAVITY = 2;
+int JUMP_FORCE(-25);
+int GRAVITY(2);
 
-int level=0;
-int vies=3;
-int score=0;
-int temps=0, perso_num_img=0;
-string nomUser;
-float AGRANDI_FACT = 1;
-int num_map=0;
-bool key[KEY_MAX]={0};
-bool stop=true;
-bool playSound=false;
-bool enter=false;
-bool lanceObjet=false;
-POS coordCol;
+int level(0);
+int vies(3);
+int score(0);
+int temps(0);
+int perso_num_img(0);
+float AGRANDI_FACT ( 1);
+int num_map(0);
+bool stop(true);
+bool playSound(false);
+bool enter(false);
+bool lanceObjet(false);
+bool key[KEY_MAX]={0}; 
+string nomUser("user1");
+POS coordCol={0,0};
 
-float RATIO_FRAME=window_height/HEIGHT;
+float RATIO_FRAME(window_height/HEIGHT);
 
-bool fin=false, menu=false, dessine=false, fullscreen=false, jump=false, img_courir=false, baisse = false, anim_fin=false, anim_perteVie=false, anim_sortie=false;
-bool anim_entree=false, remonte=true, retreci=false, grabObject=false, sounds_on=true, sortie_objet=false;
+bool fin(false), menu(false), dessine(false), fullscreen(false), jump(false), img_courir(false), baisse ( false), anim_fin(false), anim_perteVie(false), anim_sortie(false);
+bool anim_entree(false), remonte(true), retreci(false), grabObject(false), sounds_on(true), sortie_objet(false);
 
-string boutons[NBR_BOUT] = {"RESUME" , "CONTROLS" , "SOUNDS" , "EXIT"};
+string const boutons[NBR_BOUT] = {"RESUME" , "CONTROLS" , "SOUNDS" , "EXIT"};
 
-string txt = "Bienvenu dans Mario Bros. !! Appuyez sur ENTRER pour JOUER";
-int longTxt;  // Position de la partie cachée du texte
-int textX; // Position de la partie affichée du texte
+string const txt = "Bienvenu dans Mario Bros. !! Appuyez sur ENTRER pour JOUER";
+int longTxt(0);  // Position de la partie cachée du texte
+int textX(0); // Position de la partie affichée du texte
 
 ALLEGRO_EVENT_QUEUE *event_queue=NULL;
 
@@ -139,7 +140,7 @@ int main(int argc, char **argv)
     int boutonSelected = 0;
     float depl = HEIGHT/NBR_BOUT/2-5;
     int orientation = 0, x=0, y=0, i=0, j=0, k=0, cmptFrames=0, tmpH=0, dirCollision=FIN;
-    int cmptSortie=0, cmptVie=0, cmptRetreci=0, window_x=0, window_y=0, nbrColl=0, nbrCollMechants=0, indices_coll[nbrBlocs], indices_collMechants[nbrMechants];
+    int cmptSortie=0, cmptVie=0, cmptRetreci=0, window_x=0, window_y=0, nbrColl=0, nbrCollMechants=0, indices_coll[blocs.size()], indices_collMechants[nbrMechants];
     int cmptColObjet=0;
     float zoom_factor = FACTEUR_ZOOM_PERTE_VIE;  // Facteur de zoom animation perte de vie
     progress+=7; afficherBarreProgression(progress);
@@ -155,11 +156,8 @@ int main(int argc, char **argv)
     // Création de la fenêtre
     al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);  // ALLEGRO_FULLSCREEN_WINDOW
     display = al_create_display(WIDTH, HEIGHT);
-    if (!display) {
-        cout << endl;
-        detruitRessources(wallpaper, timer, event_queue, display);
+    if (!display)
         erreur("initialise affichage");
-    }
     al_set_window_title(display, "Mario Game");
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
     progress++; afficherBarreProgression(progress);
@@ -172,19 +170,14 @@ int main(int argc, char **argv)
 
     // Création de la file d'attente d'événements
     event_queue = al_create_event_queue();
-    if (!event_queue) {
-        cout << endl;
-        detruitRessources(wallpaper, timer, event_queue, display);
+    if (!event_queue)
         erreur("initialise file d'attente d'évènements");
-    }
     progress++; afficherBarreProgression(progress);
 
     // Création d'un timer
     timer = al_create_timer(TIME_STEP);
-    if(!timer) {
-        cout << endl;
+    if(!timer)
         erreur("initialise timer");
-    }
     progress++; afficherBarreProgression(progress);
 
     // Chargement des maps
@@ -193,24 +186,20 @@ int main(int argc, char **argv)
 
     // Création des blocs 
     base_sol=changeMap();
-    perso->setPos(blocs[entree]->getW()/2-perso->getW()/2, blocs[entree]->getH());
+    perso->setPos(blocs[entree].getW()/2-perso->getW()/2, blocs[entree].getH());
     progress++; afficherBarreProgression(progress);
 
     // Init objets Collisions
     for (i = 0; i < MAX_OBJETS; i++)
-    {
         objetsCol[i]=false;
-    }
     ALLEGRO_BITMAP *explose = al_load_bitmap("images/explosion.png");
     if (!explose)
         erreur("initialise image d'accueil");
 
     // Charge l'audio
     voice = al_create_voice(FREQ_ECHANTILLONAGE, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-    if (!voice) {
-        cout << endl;
+    if (!voice)
         erreur("Initialise voice");
-    }
     mixer = al_create_mixer(FREQ_ECHANTILLONAGE, ALLEGRO_AUDIO_DEPTH_FLOAT32,ALLEGRO_CHANNEL_CONF_2);
     al_attach_mixer_to_voice(mixer, voice);
     progress++; afficherBarreProgression(progress);
@@ -235,7 +224,7 @@ int main(int argc, char **argv)
 
     // Liste des boutons
     bouton listeBut[NBR_BOUT];
-    int indice  = 0;
+    int indice = 0;
     listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
     listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
     listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
@@ -250,10 +239,6 @@ int main(int argc, char **argv)
 
     // Début du timer
     al_start_timer(timer);
-    progress++; afficherBarreProgression(progress);
-
-    // Lancement de la musique
-    playSound=false;
     progress++; afficherBarreProgression(progress);
 
     cout << endl;
@@ -292,8 +277,8 @@ int main(int argc, char **argv)
                     anim_entree=true;
                     zoom_factor = FACTEUR_ZOOM_PERTE_VIE+2;
                     if(num_map!=0) {
-                        perso->setPosX( blocs[entree-1]->getCoord().x + blocs[entree-1]->getW()/2-perso->getW()/2 );
-                        perso->setPosY( blocs[entree-1]->getCoord().y + blocs[entree-1]->getH() );
+                        perso->setPosX( blocs[entree-1].getCoord().x + blocs[entree-1].getW()/2-perso->getW()/2 );
+                        perso->setPosY( blocs[entree-1].getCoord().y + blocs[entree-1].getH() );
                     }
                     else {
                         perso->setPos(0,0);
@@ -466,8 +451,8 @@ int main(int argc, char **argv)
                                 sol=base_sol+1;
                                 anim_entree=true;
                                 if(num_map!=0) {
-                                    perso->setPosX( blocs[entree-1]->getCoord().x + blocs[entree-1]->getW()/2-perso->getW()/2 );
-                                    perso->setPosY( blocs[entree-1]->getCoord().y + blocs[entree-1]->getH() );
+                                    perso->setPosX( blocs[entree-1].getCoord().x + blocs[entree-1].getW()/2-perso->getW()/2 );
+                                    perso->setPosY( blocs[entree-1].getCoord().y + blocs[entree-1].getH() );
                                 }
                                 else
                                     perso->setPos(0,0);
@@ -793,16 +778,16 @@ int main(int argc, char **argv)
                             maps[num_map]->setBackgroundX(maps[num_map]->getBackgroundX());
                         else {
                             int bloc_fin = sortie;
-                            if(blocs[sortie-1]->getType()==TUYAU or blocs[sortie-1]->getType()==CHATEAU)
+                            if(blocs[sortie-1].getType()==TUYAU or blocs[sortie-1].getType()==CHATEAU)
                                 bloc_fin = sortie - 1;
-                            if(blocs[entree]->getCoord().x < 10 && blocs[bloc_fin]->getCoord().x+blocs[bloc_fin]->getW() > window_width) {
+                            if(blocs[entree].getCoord().x < 10 && blocs[bloc_fin].getCoord().x+blocs[bloc_fin].getW() > window_width) {
                                 maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 3 );
-                                for (i = 0; i < nbrBlocs; i++) // deplace les blocs
+                                for (i = 0; i < blocs.size(); i++) // deplace les blocs
                                 {
                                     POS newcoord;
-                                    newcoord.x = blocsCopy[i]->getCoord().x - perso->getSpeed().x * 2 / 2;
-                                    newcoord.y = blocsCopy[i]->getCoord().y;
-                                    blocs[i]->setCoord(newcoord);
+                                    newcoord.x = blocsCopy[i].getCoord().x - perso->getSpeed().x * 2 / 2;
+                                    newcoord.y = blocsCopy[i].getCoord().y;
+                                    blocs[i].setCoord(newcoord);
                                 }
                             }
                         }
@@ -837,13 +822,13 @@ int main(int argc, char **argv)
                     if(anim_fin) { // fin de niveau via porte
                         perso->setSpeedY(0);
                         perso->setPosY(window_height-sol-perso->getH());
-                        if(perso->getPos().x+perso->getW()/2>=blocs[sortie]->getCoord().x+blocs[sortie]->getW()/2) { // si perso au nvx de la porte
+                        if(perso->getPos().x+perso->getW()/2>=blocs[sortie].getCoord().x+blocs[sortie].getW()/2) { // si perso au nvx de la porte
                             perso->setSpeedX(0);
                             cmptSortie++;
                         }
                         else
                             perso->setSpeedX(2); // avance jusqu a la porte
-                        if(blocs[sortie]->getType()==CHATEAU) {
+                        if(blocs[sortie].getType()==CHATEAU) {
                             music->setGain(0.2);
                             if(sounds_on) son_finish->play();
                         }
@@ -861,7 +846,7 @@ int main(int argc, char **argv)
                                 num_map++;
                                 base_sol=changeMap();
                                 perso = new User(perso->getNom());
-                                perso->setPos(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2 , blocs[entree-1]->getCoord().y);
+                                perso->setPos(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2 , blocs[entree-1].getCoord().y);
                                 anim_fin=false;
                                 anim_entree=true;
                                 cmptSortie=0;
@@ -881,29 +866,29 @@ int main(int argc, char **argv)
                             son_tuyau->play();
                         }
                         else {
-                            if(blocs[sortie]->getAngle()==GAUCHE) {  // sortie sur le cote du tuyau
+                            if(blocs[i].getAngle()==GAUCHE) {  // sortie sur le cote du tuyau
                                 perso->setSpeed(1,0);
-                                perso->setPosY(blocs[sortie]->getCoord().y+(blocs[sortie]->getH()-perso->getH())/2);
-                                if(blocs[sortie]->getCoord().x<perso->getPos().x) {
+                                perso->setPosY(blocs[i].getCoord().y+(blocs[i].getH()-perso->getH())/2);
+                                if(blocs[i].getCoord().x<perso->getPos().x) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
-                                    perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
-                                    perso->setPosY(blocs[entree-1]->getCoord().y-10);
+                                    perso->setPosX(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2);
+                                    perso->setPosY(blocs[entree-1].getCoord().y-10);
                                     anim_entree=true;
                                     anim_sortie=false;
                                 }
                             }
-                            else if(blocs[sortie]->getAngle()==ZERO) {  // sortie vers le bas du tuyau
+                            else if(blocs[i].getAngle()==ZERO) {  // sortie vers le bas du tuyau
                                 perso->setSpeed(0,1);
                                 perso_num_img=SUD;
-                                perso->setPosX(blocs[sortie]->getCoord().x+(blocs[sortie]->getW()-perso->getW())/2);
-                                if(blocs[sortie]->getCoord().y<perso->getPos().y) {
+                                perso->setPosX(blocs[i].getCoord().x+(blocs[i].getW()-perso->getW())/2);
+                                if(blocs[i].getCoord().y<perso->getPos().y) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
-                                    perso->setPosX(blocs[entree-1]->getCoord().x+blocs[entree-1]->getW()/2-perso->getW()/2);
-                                    perso->setPosY(blocs[entree-1]->getCoord().y);
+                                    perso->setPosX(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2);
+                                    perso->setPosY(blocs[entree-1].getCoord().y);
                                     anim_entree=true;
                                     anim_sortie=false;
                                 }
@@ -918,20 +903,20 @@ int main(int argc, char **argv)
                             // perso->setPosY(blocs[entree]->getCoord().y+10);
                         }
                         else {
-                            if(blocs[entree]->getAngle()==ZERO) {  // entree vers le haut tuyau
+                            if(blocs[i].getAngle()==ZERO) {  // entree vers le haut tuyau
                                 perso->setSpeed(0,-1);
-                                perso->setPosX( blocs[entree]->getCoord().x+(blocs[entree]->getW()-perso->getW())/2 );
+                                perso->setPosX( blocs[i].getCoord().x+(blocs[i].getW()-perso->getW())/2 );
                                 perso->setPosY( perso->getPos().y + perso->getSpeed().y );
-                                if(blocs[entree]->getCoord().y>perso->getPos().y+perso->getH()+1) {
+                                if(blocs[i].getCoord().y>perso->getPos().y+perso->getH()+1) {
                                     anim_tuyau=0;
                                     anim_entree=false;
                                 }
                             }
-                            else if(blocs[entree]->getAngle()==INVERSION) {  // entree vers le bas tuyau
+                            else if(blocs[i].getAngle()==INVERSION) {  // entree vers le bas tuyau
                                 perso->setSpeed(0,1);
-                                perso->setPosX(blocs[entree]->getCoord().x+(blocs[entree]->getW()-perso->getW())/2);
+                                perso->setPosX(blocs[i].getCoord().x+(blocs[i].getW()-perso->getW())/2);
                                 perso->setPosY(perso->getPos().y + perso->getSpeed().y);
-                                if(blocs[entree]->getCoord().y+blocs[entree]->getH()+1<perso->getPos().y) {
+                                if(blocs[i].getCoord().y+blocs[i].getH()+1<perso->getPos().y) {
                                     anim_tuyau=0;
                                     anim_entree=false;
                                 }
@@ -984,28 +969,28 @@ int main(int argc, char **argv)
                 maps[num_map]->draw(window_width, window_height);
                 
                 // draw perso & blocs
-                for (i = 0; i < nbrBlocs; ++i) {
-                    if(blocs[i]->getSortieObjet() && blocs[i]->isObject() && !blocs[i]->isHiding() && blocs[i]->is_enable() &&  !blocs[i+1]->isObject() && !blocs[i+1]->isHiding() && blocs[i+1]->getType()==BLOC_VIDE) 
+                for (i = 0; i < blocs.size(); ++i) {
+                    if(blocs[i].getSortieObjet() && blocs[i].isObject() && !blocs[i].isHiding() && blocs[i].is_enable() &&  !blocs[i+1].isObject() && !blocs[i+1].isHiding() && blocs[i+1].getType()==BLOC_VIDE) 
                     {
-                        blocs[i]->setCoord(blocs[i]->getCoord().x , blocs[i]->getCoord().y-VITY_BONUS);
-                        if(blocs[i]->getCoord().y+blocs[i]->getH()+2<blocs[i+1]->getCoord().y)
-                            blocs[i]->setSortieObjet(false);
+                        blocs[i].setCoord(blocs[i].getCoord().x , blocs[i].getCoord().y-VITY_BONUS);
+                        if(blocs[i].getCoord().y+blocs[i].getH()+2<blocs[i+1].getCoord().y)
+                            blocs[i].setSortieObjet(false);
                     }
                 }
                 
                 if(anim_fin) 
                 {
-                    for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
+                    for (i = 0; i < blocs.size(); ++i) blocs[i].draw(); // draw blocs
                     perso->draw(perso_num_img); // draw perso
                 }
                 else 
                 {
                     if(anim_tuyau>0) { // si sortie par le tuyau
                         perso->draw(perso_num_img); // draw perso
-                        for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
+                        for (i = 0; i < blocs.size(); ++i) blocs[i].draw(); // draw blocs
                     }
                     else {
-                        for (i = 0; i < nbrBlocs; ++i) blocs[i]->draw(); // draw blocs
+                        for (i = 0; i < blocs.size(); ++i) blocs[i].draw(); // draw blocs
                         perso->draw(perso_num_img); // draw perso
                     }
                 }
@@ -1068,10 +1053,10 @@ int main(int argc, char **argv)
 
                 // Draw text, vies, score, temps, nomUser
                 afficherTexte(polices[3]);
-                if(blocs[sortie]->getType()==CHATEAU) {
+                if(blocs[sortie].getType()==CHATEAU) {
                     int xaffich, yaffich;
-                    xaffich=blocs[sortie]->getCoord().x+blocs[sortie]->getW()/2;
-                    yaffich=blocs[sortie]->getCoord().y+25;
+                    xaffich=blocs[sortie].getCoord().x+blocs[sortie].getW()/2;
+                    yaffich=blocs[sortie].getCoord().y+25;
                     al_draw_filled_rectangle(xaffich-25, yaffich, xaffich+25, yaffich+20, BLANC);
                     al_draw_text(polices[3], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
                 }
@@ -1112,7 +1097,6 @@ int main(int argc, char **argv)
     }
     
     // Destruction des ressources
-    // detruitRessources(wallpaper, timer, event_queue, display);
     al_destroy_bitmap(wallpaper);
     al_destroy_timer(timer);
     detruit_polices();
