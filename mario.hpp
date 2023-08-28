@@ -340,7 +340,7 @@ class ObjectLance : public Personnage
 class Element
 {
     public:
-    	Element(string chemin_img, float scale) : scale(scale) {
+    	Element(string chemin_img, float scale) : scale(scale) {  // constructeur
 			this->img=al_load_bitmap(chemin_img.c_str());
 			if(!this->img) {
 				// erreur("chargement du bloc");
@@ -352,7 +352,7 @@ class Element
 				this->w=al_get_bitmap_width(img)*scale;
 			}
 			this->afficher=true;
-		}; // constructeur
+		}; 
 		Element(const Element& other) : scale(other.scale), afficher(other.afficher), h(other.h), w(other.w), img(al_clone_bitmap(other.img)) {} // Constructeur de copie
 		// ~Element() // Destructeur
 		// {
@@ -579,7 +579,7 @@ void handleCollisions(); // objets et mechants
 //------------ MAPS -------------//
 int changeMap();
 int createMap0();
-// int createMap1();
+int createMap1();
 // int createMap2();
 // int createMap3();
 // int createMap4();

@@ -1878,9 +1878,9 @@ int changeMap()
         case 0 : 
             base_sol=createMap0();
             break;
-        // case 1 : 
-        //     base_sol=createMap1();
-        //     break;
+        case 1 : 
+            base_sol=createMap1();
+            break;
         // case 2 : 
         //     base_sol=createMap2();
         //     break;
@@ -1893,11 +1893,19 @@ int changeMap()
         // case 5 : 
         //     base_sol=createMap5();
         //     break;
-        // default: 
-        //     base_sol=createMap1();
-        //     break;
+        default: 
+            base_sol=createMap1();
+            break;
     }
-    blocsCopy=blocs;
+    // blocsCopy=blocs;
+    blocsCopy.clear();
+    // for(Bloc bloc : blocs)
+    //     blocsCopy.push_back(bloc);
+    for (int i = 0; i < blocs.size(); i++)
+    {
+        blocsCopy.push_back(blocs[i]);
+    }
+    
     maps[num_map-1]->setBackgroundX(0);
     return base_sol;
 }
@@ -1906,8 +1914,6 @@ int createMap0()
     int Le,He;
     POS newCoord;
     sol=60;
-
-    indice_sol = 0;
     nbrMechants=0;
 
     blocs.clear(); // efface tous les blocs de la map précédente
@@ -1949,119 +1955,104 @@ int createMap0()
 
     return sol;
 }
-// int createMap1() 
-// {
-//     int tmpH;
-//     POS newCoord;
-//     nbrBlocs=0;
-//     nbrMechants=0;
-//     int diffBords=0;
-//     Bloc *tmpBloc;
+int createMap1() 
+{
+    int tmpH;
+    POS newCoord;
+    nbrMechants=0;
+    int diffBords=0;
 
-//     // -------- SOL ---------------
+    blocs.clear(); // efface tous les blocs de la map précédente
 
-//     blocs[nbrBlocs] = new Bloc("images/sol_terre.png",0,0,ZERO,1,false,false,TERRE);
-//         blocs[nbrBlocs]->setCoord( (POS) { 0, window_height-blocs[nbrBlocs]->getH() } );
-//         indice_sol = nbrBlocs;
-//         const int base_sol = blocs[nbrBlocs]->getH();
-//         sol = base_sol+1;
-//         nbrBlocs++;
+    // -------- SOL ---------------
 
-//     while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
-//     {
-//         blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE);
-//         nbrBlocs++;
-//     }
+    blocs.push_back(Bloc("images/sol_terre.png",0,0,ZERO,1,false,false,TERRE));
+        blocs.back().setCoord( (POS) { 0, window_height-blocs.back().getH() } );
+        const int base_sol = blocs.back().getH();
+        sol = base_sol+1;
+
+    while( blocs.back().getCoord().x + blocs.back().getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+    {
+        blocs.push_back(Bloc("images/sol_terre.png",blocs[blocs.size()-1].getCoord().x+blocs[blocs.size()-1].getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE));
+    }
     
-//     nbrBlocsSol = nbrBlocs;
+    nbrBlocsSol = blocs.size();
 
-//     // -------- JEU ---------------
+    // -------- JEU ---------------
     
-//     blocs[nbrBlocs] = new Bloc("images/bloc.png",350,window_height-sol-150,ZERO,1*RATIO_FRAME,false,false,BLOC); 
-//         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),blocs[nbrBlocs-1]->getCoord().y,ZERO,1*RATIO_FRAME,false,true,MYSTERE);
-//         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN); 
-//         newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
-//         newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-2;
-//         blocs[nbrBlocs]->setCoord(newCoord);
-//         blocs[nbrBlocs]->disable();
-//         nbrBlocs++;
-//         tmpBloc=blocs[nbrBlocs-2];
-//         blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
-//         blocs[nbrBlocs-1]=tmpBloc;
-//     blocs[nbrBlocs] = new Bloc("images/bloc.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs-1]->getH()+5,ZERO,1*RATIO_FRAME,false,false,BLOC); 
-//         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()+200,blocs[nbrBlocs-1]->getCoord().y-20,ZERO,1*RATIO_FRAME,false,true,MYSTERE); 
-//         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/fleur.png",0,0,ZERO,0.4*RATIO_FRAME,true,false,FLEUR);
-//         newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
-//         newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-2;
-//         blocs[nbrBlocs]->setCoord(newCoord);
-//         blocs[nbrBlocs]->disable();
-//         nbrBlocs++;
-//         tmpBloc=blocs[nbrBlocs-2];
-//         blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
-//         blocs[nbrBlocs-1]=tmpBloc;
-//     blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN); 
-//         newCoord.x = 300;
-//         newCoord.y = window_height-sol-100;
-//         blocs[nbrBlocs]->setCoord(newCoord);
-//         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN); 
-//         newCoord.x = 600;
-//         newCoord.y = window_height-sol-150;
-//         blocs[nbrBlocs]->setCoord(newCoord);
-//         nbrBlocs++;
+    blocs.push_back(Bloc("images/bloc.png",350,window_height-sol-150,ZERO,1*RATIO_FRAME,false,false,BLOC));
+    blocs.push_back(Bloc("images/bloc_mystere.png",blocs.back().getCoord().x+blocs.back().getW(),blocs.back().getCoord().y,ZERO,1*RATIO_FRAME,false,true,MYSTERE));
+    blocs.push_back(Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN)); 
+        newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2;
+        newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()-2;
+        blocs.back().setCoord(newCoord);
+        blocs.back().disable();
+        Bloc tmpBloc=blocs[blocs.size()-2];
+        blocs[blocs.size()-2]=blocs.back();
+        blocs.back()=tmpBloc;
+    blocs.push_back(Bloc("images/bloc.png",blocs.back().getCoord().x+blocs.back().getW(),blocs.back().getCoord().y-blocs.back().getH()+5,ZERO,1*RATIO_FRAME,false,false,BLOC));
+    blocs.push_back(Bloc("images/bloc_mystere.png",blocs.back().getCoord().x+blocs.back().getW()+200,blocs.back().getCoord().y-20,ZERO,1*RATIO_FRAME,false,true,MYSTERE));
+    blocs.push_back(Bloc("images/fleur.png",0,0,ZERO,0.4*RATIO_FRAME,true,false,FLEUR));
+        newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2;
+        newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()-2;
+        blocs.back().setCoord(newCoord);
+        blocs.back().disable();
+        tmpBloc=blocs[blocs.size()-2];
+        blocs[blocs.size()-2]=blocs.back();
+        blocs.back()=tmpBloc;
+    blocs.push_back(Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN)); 
+        newCoord.x = 300;
+        newCoord.y = window_height-sol-100;
+        blocs.back().setCoord(newCoord);
+    blocs.push_back(Bloc("images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN)); 
+        newCoord.x = 600;
+        newCoord.y = window_height-sol-150;
+        blocs.back().setCoord(newCoord);
 
-// // -------- ENTREE ---------------
+// -------- ENTREE ---------------
 
-//     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
-//         diffBords = blocs[nbrBlocs]->getW();
-//     blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         diffBords -= blocs[nbrBlocs]->getW();
-//         diffBords /=2;
-//         blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
-//         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
-//         entree = nbrBlocs;
-//         nbrBlocs++;
+    blocs.push_back(Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords = blocs.back().getW();
+    blocs.push_back(Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords -= blocs.back().getW();
+        diffBords /=2;
+        blocs.back().setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+    blocs.push_back(Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU));
+        blocs.back().setCoord( (POS) { 0, blocs[blocs.size()-2].getCoord().y+blocs[blocs.size()-2].getH() } );
+        entree = blocs.size()-1;
 
-// // -------- SORTIE ---------------
+// -------- SORTIE ---------------
 
-//     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU); 
-//         diffBords = blocs[nbrBlocs]->getW();
-//     blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU);
-//         diffBords -= blocs[nbrBlocs]->getW();
-//         diffBords /=2;
-//         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
-//         blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs]->getW()) , window_height-blocs[nbrBlocs]->getH()-sol } );
-//         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU);
-//         tmpH=blocs[nbrBlocs]->getH(); blocs[nbrBlocs]->setH(blocs[nbrBlocs]->getW()); blocs[nbrBlocs]->setW(tmpH);
-//         blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs-1]->getW()-blocs[nbrBlocs]->getW())+20 , window_height-sol-blocs[nbrBlocs]->getH()+diffBords } );
-//         sortie = nbrBlocs;
-//         nbrBlocs++;
+    blocs.push_back(Bloc("images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords = blocs.back().getW();
+    blocs.push_back(Bloc("images/tuyau_bas.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords -= blocs.back().getW();
+        diffBords /=2;
+        tmpH=blocs.back().getH(); blocs.back().setH(blocs.back().getW()); blocs.back().setW(tmpH);
+        blocs.back().setCoord( (POS) { (int) (maps[num_map]->getW() - blocs.back().getW()) , window_height-blocs.back().getH()-sol } );
+    blocs.push_back(Bloc("images/tuyau_haut.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU));
+        tmpH=blocs.back().getH(); blocs.back().setH(blocs.back().getW()); blocs.back().setW(tmpH);
+        blocs.back().setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[blocs.size()-2].getW()-blocs.back().getW())+20 , window_height-sol-blocs.back().getH()+diffBords } );
+        sortie = blocs.size()-1;
 
-// //--------------- MECHANTS -----------------
-// /* 
-//     mechants[nbrMechants] = new Mechant("goomba");
-//         mechants[nbrMechants]->setTaille(0.06*RATIO_FRAME);
-//         mechants[nbrMechants]->actualiseSize(0);
-//         mechants[nbrMechants]->setSpeedX(-3);
-//         mechants[nbrMechants]->setPos(200,window_height-sol-mechants[nbrMechants]->getH()-2);
-//         nbrMechants++;
+//--------------- MECHANTS -----------------
+/* 
+    mechants[nbrMechants] = new Mechant("goomba");
+        mechants[nbrMechants]->setTaille(0.06*RATIO_FRAME);
+        mechants[nbrMechants]->actualiseSize(0);
+        mechants[nbrMechants]->setSpeedX(-3);
+        mechants[nbrMechants]->setPos(200,window_height-sol-mechants[nbrMechants]->getH()-2);
+        nbrMechants++;
 
-//     mechants[nbrMechants] = new Mechant("koopa");
-//         mechants[nbrMechants]->setTaille(0.03*RATIO_FRAME);
-//         mechants[nbrMechants]->actualiseSize(0);
-//         mechants[nbrMechants]->setSpeedX(-3);
-//         mechants[nbrMechants]->setPos(500,window_height-sol-mechants[nbrMechants]->getH());
-//         nbrMechants++;
-//  */
-//     return base_sol;
-// }
+    mechants[nbrMechants] = new Mechant("koopa");
+        mechants[nbrMechants]->setTaille(0.03*RATIO_FRAME);
+        mechants[nbrMechants]->actualiseSize(0);
+        mechants[nbrMechants]->setSpeedX(-3);
+        mechants[nbrMechants]->setPos(500,window_height-sol-mechants[nbrMechants]->getH());
+        nbrMechants++;
+ */
+    return base_sol;
+}
 // int createMap2() 
 // {
 //     int tmpH, trou=0, diffBords=0;
@@ -2072,17 +2063,17 @@ int createMap0()
 //     // -------- SOL ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/sol_terre.png",0,0,ZERO,1,false,false,TERRE);
-//         blocs[nbrBlocs]->setCoord( (POS) { 0, window_height-blocs[nbrBlocs]->getH() } );
+//         blocs.back().setCoord( (POS) { 0, window_height-blocs.back().getH() } );
 //         indice_sol = nbrBlocs;
-//         const int base_sol = blocs[nbrBlocs]->getH();
+//         const int base_sol = blocs.back().getH();
 //         sol = base_sol+1;
 //         nbrBlocs++;
 
-//     while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+//     while( blocs[blocs.size()-2].getCoord().x + blocs[blocs.size()-2].getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
 //     {
 //         if(nbrBlocs ==2) trou = 500;
 //         else trou = 0;
-//         blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()+trou,window_height-sol,ZERO,1,false,false,TERRE);
+//         blocs[nbrBlocs] = new Bloc("images/sol_terre.png",blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()+trou,window_height-sol,ZERO,1,false,false,TERRE);
 //             nbrBlocs++;
 //     }      
 //     nbrBlocsSol = nbrBlocs;
@@ -2091,27 +2082,27 @@ int createMap0()
 
 //     blocs[nbrBlocs] = new Bloc("images/bloc.png",350,window_height-sol-150,ZERO,1,false,false,BLOC); 
 //         nbrBlocs++;
-//     blocs[nbrBlocs] = new Bloc("images/bloc.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()+200,blocs[nbrBlocs-1]->getCoord().y,ZERO,1,false,false,BLOC); 
+//     blocs[nbrBlocs] = new Bloc("images/bloc.png",blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()+200,blocs[blocs.size()-2].getCoord().y,ZERO,1,false,false,BLOC); 
 //         nbrBlocs++;
 
 //     // -------- SORTIE ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU); 
-//         diffBords = blocs[nbrBlocs]->getW();
+//         diffBords = blocs.back().getW();
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU);
-//         diffBords -= blocs[nbrBlocs]->getW();
+//         diffBords -= blocs.back().getW();
 //         diffBords /=2;
-//         blocs[nbrBlocs]->setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[nbrBlocs-1]->getW() - blocs[nbrBlocs]->getW())-diffBords, window_height-sol-blocs[nbrBlocs]->getH()} );
+//         blocs.back().setCoord( (POS) { (int) (maps[num_map]->getW() - blocs[blocs.size()-2].getW() - blocs.back().getW())-diffBords, window_height-sol-blocs.back().getH()} );
 //         nbrBlocs++;
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU);
-//         blocs[nbrBlocs]->setCoord( (POS) { blocs[nbrBlocs-1]->getCoord().x - diffBords, blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH() } );
+//         blocs.back().setCoord( (POS) { blocs[blocs.size()-2].getCoord().x - diffBords, blocs[blocs.size()-2].getCoord().y-blocs.back().getH() } );
 //         sortie = nbrBlocs;
 //         nbrBlocs++;
 
 //     // -------- ENTREE ---------------
     
 //     blocs[nbrBlocs] = new Bloc("images/tuyau.png",0,0,ZERO,1,false,false,TUYAU);
-//         blocs[nbrBlocs]->setCoord( (POS) { 0, window_height-sol-blocs[nbrBlocs]->getH() } );
+//         blocs.back().setCoord( (POS) { 0, window_height-sol-blocs.back().getH() } );
 //         entree=nbrBlocs;
 //         nbrBlocs++;
 
@@ -2130,14 +2121,14 @@ int createMap0()
 
 //     blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5,false,false,TERRE);
 //         indice_sol = nbrBlocs;
-//         const int base_sol = blocs[nbrBlocs]->getH();
+//         const int base_sol = blocs.back().getH();
 //         sol = base_sol+1;
 //     blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5,false,false,TERRE);
 //         nbrBlocs++;
     
-//     while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+//     while( blocs[blocs.size()-2].getCoord().x + blocs[blocs.size()-2].getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
 //     {
-//         blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+//         blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
 //             nbrBlocs++;
 //     }
 //     nbrBlocsSol = nbrBlocs;
@@ -2147,35 +2138,35 @@ int createMap0()
 //     blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",window_width/2,window_height-sol-150,ZERO,1,false,true,MYSTERE); 
 //         nbrBlocs++;
 //     blocs[nbrBlocs] = new Bloc("images/champi.png",0,0,ZERO,1,true,false,CHAMPI); 
-//         newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
-//         newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-5;
-//         blocs[nbrBlocs]->setCoord(newCoord);
-//         blocs[nbrBlocs]->disable();
+//         newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2;
+//         newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()-5;
+//         blocs.back().setCoord(newCoord);
+//         blocs.back().disable();
 //         nbrBlocs++;
 //         tmpBloc=blocs[nbrBlocs-2];
-//         blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
-//         blocs[nbrBlocs-1]=tmpBloc;
+//         blocs[nbrBlocs-2]=blocs[blocs.size()-2];
+//         blocs[blocs.size()-2]=tmpBloc;
 
 //     // -------- SORTIE ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/Door_closed.png",0,0,ZERO,1,false,false,DOOR_CLOSED); 
-//         newCoord.x = (int) ( maps[num_map]->getW() - blocs[nbrBlocs]->getW() ) ;
-//         newCoord.y = window_height-sol-blocs[nbrBlocs]->getH();
-//         blocs[nbrBlocs]->setCoord(newCoord);
+//         newCoord.x = (int) ( maps[num_map]->getW() - blocs.back().getW() ) ;
+//         newCoord.y = window_height-sol-blocs.back().getH();
+//         blocs.back().setCoord(newCoord);
 //         sortie=nbrBlocs;
 //         nbrBlocs++;
 
 //     // -------- ENTREE ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
-//         diffBords = blocs[nbrBlocs]->getW();
+//         diffBords = blocs.back().getW();
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         diffBords -= blocs[nbrBlocs]->getW();
+//         diffBords -= blocs.back().getW();
 //         diffBords /=2;
-//         blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+//         blocs.back().setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
 //         nbrBlocs++;
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
+//         blocs.back().setCoord( (POS) { 0, blocs[blocs.size()-2].getCoord().y+blocs[blocs.size()-2].getH() } );
 //         entree = nbrBlocs;
 //         nbrBlocs++;
 
@@ -2218,14 +2209,14 @@ int createMap0()
 
 //     blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5,false,false,TERRE);
 //         indice_sol = nbrBlocs;
-//         const int base_sol = blocs[nbrBlocs]->getH();
+//         const int base_sol = blocs.back().getH();
 //         sol = base_sol+1;
 //     blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5,false,false,TERRE);
 //         nbrBlocs++;
     
-//     while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+//     while( blocs[blocs.size()-2].getCoord().x + blocs[blocs.size()-2].getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
 //     {
-//         blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+//         blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
 //             nbrBlocs++;
 //     }
 //     nbrBlocsSol = nbrBlocs;
@@ -2235,35 +2226,35 @@ int createMap0()
 //     blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",window_width/2,window_height-sol-150,ZERO,1,false,true,MYSTERE); 
 //         nbrBlocs++;
 //     blocs[nbrBlocs] = new Bloc("images/Down_Mushroom.png",0,0,ZERO,0.05,true,false,CHAMPI_DOWN); 
-//         newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
-//         newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-5;
-//         blocs[nbrBlocs]->setCoord(newCoord);
-//         blocs[nbrBlocs]->disable();
+//         newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2;
+//         newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()-5;
+//         blocs.back().setCoord(newCoord);
+//         blocs.back().disable();
 //         nbrBlocs++;
 //         tmpBloc=blocs[nbrBlocs-2];
-//         blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
-//         blocs[nbrBlocs-1]=tmpBloc;
+//         blocs[nbrBlocs-2]=blocs[blocs.size()-2];
+//         blocs[blocs.size()-2]=tmpBloc;
 
 //     // -------- SORTIE ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/Door_closed.png",0,0,ZERO,1,false,false,DOOR_CLOSED); 
-//         newCoord.x = (int) ( maps[num_map]->getW() - blocs[nbrBlocs]->getW() ) ;
-//         newCoord.y = window_height-sol-blocs[nbrBlocs]->getH();
-//         blocs[nbrBlocs]->setCoord(newCoord);
+//         newCoord.x = (int) ( maps[num_map]->getW() - blocs.back().getW() ) ;
+//         newCoord.y = window_height-sol-blocs.back().getH();
+//         blocs.back().setCoord(newCoord);
 //         sortie=nbrBlocs;
 //         nbrBlocs++;
 
 //     // -------- ENTREE ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
-//         diffBords = blocs[nbrBlocs]->getW();
+//         diffBords = blocs.back().getW();
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         diffBords -= blocs[nbrBlocs]->getW();
+//         diffBords -= blocs.back().getW();
 //         diffBords /=2;
-//         blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+//         blocs.back().setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
 //         nbrBlocs++;
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
+//         blocs.back().setCoord( (POS) { 0, blocs[blocs.size()-2].getCoord().y+blocs[blocs.size()-2].getH() } );
 //         entree = nbrBlocs;
 //         nbrBlocs++;
 
@@ -2282,14 +2273,14 @@ int createMap0()
 
 //     blocs[nbrBlocs] = new Bloc("images/terre.png",0,0,ZERO,0.5,false,false,TERRE);
 //         indice_sol = nbrBlocs;
-//         const int base_sol = blocs[nbrBlocs]->getH();
+//         const int base_sol = blocs.back().getH();
 //         sol = base_sol+1;
 //     blocs[nbrBlocs] = new Bloc("images/terre.png",0,window_height-sol,ZERO,0.5,false,false,TERRE);
 //         nbrBlocs++;
     
-//     while( blocs[nbrBlocs-1]->getCoord().x + blocs[nbrBlocs-1]->getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
+//     while( blocs[blocs.size()-2].getCoord().x + blocs[blocs.size()-2].getW() < maps[num_map]->getW()*maps[num_map]->getBackgroundScale() )
 //     {
-//         blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
+//         blocs[nbrBlocs] = new Bloc("images/terre.png",blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW(),window_height-sol,ZERO,0.5,false,false,TERRE);
 //             nbrBlocs++;
 //     }
 //     nbrBlocsSol = nbrBlocs;
@@ -2299,35 +2290,35 @@ int createMap0()
 //     blocs[nbrBlocs] = new Bloc("images/bloc_mystere.png",window_width/2,window_height-sol-150,ZERO,1,false,true,MYSTERE); 
 //         nbrBlocs++;
 //     blocs[nbrBlocs] = new Bloc("images/etoile.png",0,0,ZERO,0.3,true,false,ETOILE); 
-//         newCoord.x = blocs[nbrBlocs-1]->getCoord().x+blocs[nbrBlocs-1]->getW()/2-blocs[nbrBlocs]->getW()/2;
-//         newCoord.y = blocs[nbrBlocs-1]->getCoord().y-blocs[nbrBlocs]->getH()-5;
-//         blocs[nbrBlocs]->setCoord(newCoord);
-//         blocs[nbrBlocs]->disable();
+//         newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2;
+//         newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()-5;
+//         blocs.back().setCoord(newCoord);
+//         blocs.back().disable();
 //         nbrBlocs++;
 //         tmpBloc=blocs[nbrBlocs-2];
-//         blocs[nbrBlocs-2]=blocs[nbrBlocs-1];
-//         blocs[nbrBlocs-1]=tmpBloc;
+//         blocs[nbrBlocs-2]=blocs[blocs.size()-2];
+//         blocs[blocs.size()-2]=tmpBloc;
 
 //     // -------- SORTIE ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/Door_closed.png",0,0,ZERO,1,false,false,DOOR_CLOSED); 
-//         newCoord.x = (int) ( maps[num_map]->getW() - blocs[nbrBlocs]->getW() ) ;
-//         newCoord.y = window_height-sol-blocs[nbrBlocs]->getH();
-//         blocs[nbrBlocs]->setCoord(newCoord);
+//         newCoord.x = (int) ( maps[num_map]->getW() - blocs.back().getW() ) ;
+//         newCoord.y = window_height-sol-blocs.back().getH();
+//         blocs.back().setCoord(newCoord);
 //         sortie=nbrBlocs;
 //         nbrBlocs++;
 
 //     // -------- ENTREE ---------------
 
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU); 
-//         diffBords = blocs[nbrBlocs]->getW();
+//         diffBords = blocs.back().getW();
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         diffBords -= blocs[nbrBlocs]->getW();
+//         diffBords -= blocs.back().getW();
 //         diffBords /=2;
-//         blocs[nbrBlocs]->setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+//         blocs.back().setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
 //         nbrBlocs++;
 //     blocs[nbrBlocs] = new Bloc("images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU);
-//         blocs[nbrBlocs]->setCoord( (POS) { 0, blocs[nbrBlocs-1]->getCoord().y+blocs[nbrBlocs-1]->getH() } );
+//         blocs.back().setCoord( (POS) { 0, blocs[blocs.size()-2].getCoord().y+blocs[blocs.size()-2].getH() } );
 //         entree = nbrBlocs;
 //         nbrBlocs++;
 

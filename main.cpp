@@ -229,6 +229,7 @@ int main(int argc, char **argv)
     listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
     listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
     listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    progress++; afficherBarreProgression(progress);
 
     // Définir l'événement de redimensionnement de fenêtre
     al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -772,21 +773,21 @@ int main(int argc, char **argv)
                     // si deplacement, bouge les blocs et map
                     if((key[KEY_RIGHT] or key[KEY_LEFT]) and num_map>0) 
                     {
-                        if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 > 0) // limite bord gauche
+                        if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 > 0 and key[KEY_LEFT]==true) // limite bord gauche
                             maps[num_map]->setBackgroundX(0);
-                        else if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 - window_width < -maps[num_map]->getW() * maps[num_map]->getBackgroundScale()) // limite bord droit
+                        else if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 - window_width < -maps[num_map]->getW() * maps[num_map]->getBackgroundScale() and key[KEY_RIGHT]==true) // limite bord droit
                             maps[num_map]->setBackgroundX(maps[num_map]->getBackgroundX());
                         else {
                             int bloc_fin = sortie;
-                            if(blocs[sortie-1].getType()==TUYAU or blocs[sortie-1].getType()==CHATEAU)
+                            if(blocs[sortie-1].getType()==TUYAU or blocs[sortie-1].getType()==CHATEAU) // comme la sortie est divisé en deux on prend l'autre bloc
                                 bloc_fin = sortie - 1;
-                            if(blocs[entree].getCoord().x < 10 && blocs[bloc_fin].getCoord().x+blocs[bloc_fin].getW() > window_width) {
+                            if(blocs[entree].getCoord().x < 50 && (blocs[bloc_fin].getCoord().x+blocs[bloc_fin].getW() > window_width or key[KEY_LEFT]==true)) {
                                 maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 3 );
                                 for (i = 0; i < blocs.size(); i++) // deplace les blocs
                                 {
                                     POS newcoord;
-                                    newcoord.x = blocsCopy[i].getCoord().x - perso->getSpeed().x * 2 / 2;
-                                    newcoord.y = blocsCopy[i].getCoord().y;
+                                    newcoord.x = blocs[i].getCoord().x - perso->getSpeed().x * 2 / 2;
+                                    newcoord.y = blocs[i].getCoord().y;
                                     blocs[i].setCoord(newcoord);
                                 }
                             }
@@ -866,10 +867,10 @@ int main(int argc, char **argv)
                             son_tuyau->play();
                         }
                         else {
-                            if(blocs[i].getAngle()==GAUCHE) {  // sortie sur le cote du tuyau
+                            if(blocs[sortie].getAngle()==GAUCHE) {  // sortie sur le cote du tuyau
                                 perso->setSpeed(1,0);
-                                perso->setPosY(blocs[i].getCoord().y+(blocs[i].getH()-perso->getH())/2);
-                                if(blocs[i].getCoord().x<perso->getPos().x) {
+                                perso->setPosY(blocs[sortie].getCoord().y+(blocs[sortie].getH()-perso->getH())/2);
+                                if(blocs[sortie].getCoord().x<perso->getPos().x) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
@@ -879,11 +880,11 @@ int main(int argc, char **argv)
                                     anim_sortie=false;
                                 }
                             }
-                            else if(blocs[i].getAngle()==ZERO) {  // sortie vers le bas du tuyau
+                            else if(blocs[sortie].getAngle()==ZERO) {  // sortie vers le bas du tuyau
                                 perso->setSpeed(0,1);
                                 perso_num_img=SUD;
-                                perso->setPosX(blocs[i].getCoord().x+(blocs[i].getW()-perso->getW())/2);
-                                if(blocs[i].getCoord().y<perso->getPos().y) {
+                                perso->setPosX(blocs[sortie].getCoord().x+(blocs[sortie].getW()-perso->getW())/2);
+                                if(blocs[sortie].getCoord().y<perso->getPos().y) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
@@ -903,20 +904,20 @@ int main(int argc, char **argv)
                             // perso->setPosY(blocs[entree]->getCoord().y+10);
                         }
                         else {
-                            if(blocs[i].getAngle()==ZERO) {  // entree vers le haut tuyau
+                            if(blocs[entree].getAngle()==ZERO) {  // entree vers le haut tuyau
                                 perso->setSpeed(0,-1);
-                                perso->setPosX( blocs[i].getCoord().x+(blocs[i].getW()-perso->getW())/2 );
+                                perso->setPosX( blocs[entree].getCoord().x+(blocs[entree].getW()-perso->getW())/2 );
                                 perso->setPosY( perso->getPos().y + perso->getSpeed().y );
-                                if(blocs[i].getCoord().y>perso->getPos().y+perso->getH()+1) {
+                                if(blocs[entree].getCoord().y>perso->getPos().y+perso->getH()+1) {
                                     anim_tuyau=0;
                                     anim_entree=false;
                                 }
                             }
-                            else if(blocs[i].getAngle()==INVERSION) {  // entree vers le bas tuyau
+                            else if(blocs[entree].getAngle()==INVERSION) {  // entree vers le bas tuyau
                                 perso->setSpeed(0,1);
-                                perso->setPosX(blocs[i].getCoord().x+(blocs[i].getW()-perso->getW())/2);
+                                perso->setPosX(blocs[entree].getCoord().x+(blocs[entree].getW()-perso->getW())/2);
                                 perso->setPosY(perso->getPos().y + perso->getSpeed().y);
-                                if(blocs[i].getCoord().y+blocs[i].getH()+1<perso->getPos().y) {
+                                if(blocs[entree].getCoord().y+blocs[entree].getH()+1<perso->getPos().y) {
                                     anim_tuyau=0;
                                     anim_entree=false;
                                 }
