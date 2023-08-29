@@ -2,11 +2,9 @@
 
 Compilation+Execution : 
 -----------------------
-
     ./compileExecute.sh main fonctions
 
-
-Ameloirations :
+Ameliorations :
 ---------------
     - ajout joueur 2
     - saut écrase bloc avec fleche du bas
@@ -34,7 +32,6 @@ ALLEGRO_FONT *polices[NBR_FONTS];
 User *perso;
 Map *maps[NB_MAPS];
 vector<Bloc> blocs;
-vector<Bloc> blocsCopy;
 Mechant *mechants[MAX_MECHANTS];
 ObjectLance *objets[MAX_OBJETS];
 bool objetsCol[MAX_OBJETS];
@@ -935,7 +932,7 @@ int main(int argc, char **argv)
                     }
                     else if(anim_perteVie) { // dézoom image tete mario sur fond noir
                         cmptVie++;
-                        zoom_factor-=0.05;
+                        zoom_factor-=0.02;
                         if(zoom_factor <= 1) {
                             cmptVie=0;
                             zoom_factor=FACTEUR_ZOOM_PERTE_VIE;
@@ -965,7 +962,7 @@ int main(int argc, char **argv)
                 break;
         }
 
-        if(dessine==true && al_is_event_queue_empty(event_queue)){
+        if(dessine==true && al_is_event_queue_empty(event_queue) && fin==false){
 
             // clear
             al_clear_to_color(NOIR);
@@ -1107,6 +1104,7 @@ int main(int argc, char **argv)
     }
     
     // Destruction des ressources
+    blocs.clear();
     al_destroy_bitmap(wallpaper);
     al_destroy_timer(timer);
     detruit_polices();

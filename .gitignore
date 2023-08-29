@@ -1,0 +1,12 @@
+.DS_Store
+/images
+/maps
+/musiques
+/persos
+/polices
+/trier
+*.o
+*.mp4
+exec.o
+*.dSYM
+/*.dSYM

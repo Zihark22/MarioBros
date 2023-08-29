@@ -1599,7 +1599,6 @@ void handleCollisions()
                     blocs[sortie].setCoord(coordSortie);
                     perso->setPosX(blocs[sortie].getCoord().x+blocs[sortie].getW()/2-perso->getW()/2);
                     anim_fin=true;
-                    blocsCopy[sortie]=blocs[sortie]; // actualise blocsCopy
                 }
             }
             else if(dirCollision!=FIN && blocs[i].getType()==DOOR_OPEN) {
@@ -1671,7 +1670,6 @@ void handleCollisions()
                             blocs[i-1].setSortieObjet(true);
                             blocs[i-1].setCoord(blocs[i-1].getCoord().x , blocs[i].getCoord().y);
                             blocs[i].setHiding(false);
-                            blocsCopy[i]=blocs[i]; // actualise blocsCopy
                         }
                         break;
 
@@ -1898,9 +1896,6 @@ int changeMap()
             base_sol=createMap1();
             break;
     }
-    blocsCopy.clear();
-    blocsCopy=blocs;
-    
     maps[num_map-1]->setBackgroundX(0);
     return base_sol;
 }

@@ -475,7 +475,6 @@ extern ALLEGRO_FONT *polices[NBR_FONTS];
 extern User *perso;
 extern Map *maps[NB_MAPS];
 extern vector<Bloc> blocs;
-extern vector<Bloc> blocsCopy;
 extern Mechant *mechants[MAX_MECHANTS];
 extern ObjectLance *objets[MAX_OBJETS];
 extern bool objetsCol[MAX_OBJETS];
