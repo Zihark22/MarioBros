@@ -19,6 +19,7 @@ Ameloirations :
     - menu sauvegarde progression
     - boule de feu supprimé trop tôt
     - passage en full C++
+    - sounds_on(false) -> true
 
 */
 
@@ -87,7 +88,7 @@ POS coordCol={0,0};
 float RATIO_FRAME(window_height/HEIGHT);
 
 bool fin(false), menu(false), dessine(false), fullscreen(false), jump(false), img_courir(false), baisse ( false), anim_fin(false), anim_perteVie(false), anim_sortie(false);
-bool anim_entree(false), remonte(true), retreci(false), grabObject(false), sounds_on(true), sortie_objet(false);
+bool anim_entree(false), remonte(true), retreci(false), grabObject(false), sounds_on(false), sortie_objet(false);
 
 string const boutons[NBR_BOUT] = {"RESUME" , "CONTROLS" , "SOUNDS" , "EXIT"};
 
@@ -820,23 +821,30 @@ int main(int argc, char **argv)
 
             // ------------------------------- ANIMATIONS -------------------------------------------
                     //  sortie
-                    if(anim_fin) { // fin de niveau via porte
+                    if(anim_fin) { // fin de niveau via porte ou chateau
                         perso->setSpeedY(0);
                         perso->setPosY(window_height-sol-perso->getH());
-                        if(perso->getPos().x+perso->getW()/2>=blocs[sortie].getCoord().x+blocs[sortie].getW()/2) { // si perso au nvx de la porte
-                            perso->setSpeedX(0);
-                            cmptSortie++;
-                        }
-                        else
-                            perso->setSpeedX(2); // avance jusqu a la porte
-                        if(blocs[sortie].getType()==CHATEAU) {
+                        if(blocs[sortie].getType()==CHATEAU) 
+                        {
                             music->setGain(0.2);
-                            if(sounds_on) son_finish->play();
+                            if(sounds_on) 
+                                son_finish->play();
+                            if(perso->getPos().x+perso->getW()/2>=blocs[sortie].getCoord().x+blocs[sortie].getW()/2) { // si perso au nvx de la porte
+                                perso_num_img=NORD;
+                                perso->setSpeedX(0);
+                                cmptSortie++;
+                            }
+                            else
+                                perso->setSpeedX(2); // avance jusqu a la porte
                         }
-                        if(cmptSortie>0) {
+                        else  // porte
+                        {
+                            cmptSortie++;
                             perso_num_img=NORD;
+                            perso->setSpeedX(0);
                         }
-                        if(cmptSortie>20) {
+                        
+                        if(cmptSortie>50) {
                             if(num_map>=NB_MAPS-1) {
                                 finish();
                                 anim_fin=false;
@@ -882,7 +890,7 @@ int main(int argc, char **argv)
                             }
                             else if(blocs[sortie].getAngle()==ZERO) {  // sortie vers le bas du tuyau
                                 perso->setSpeed(0,1);
-                                perso_num_img=SUD;
+                                perso_num_img=NORD;
                                 perso->setPosX(blocs[sortie].getCoord().x+(blocs[sortie].getW()-perso->getW())/2);
                                 if(blocs[sortie].getCoord().y<perso->getPos().y) {
                                     anim_tuyau=0;
@@ -897,6 +905,7 @@ int main(int argc, char **argv)
                         }
                     }
                     else if (anim_entree) { // entree via tuyau
+                        perso_num_img=SUD;
                         anim_tuyau++;
                         music->setGain(0.4);
                         if(anim_tuyau==1 && sounds_on) {
@@ -924,7 +933,7 @@ int main(int argc, char **argv)
                             }
                         }
                     }
-                    else if(anim_perteVie) {
+                    else if(anim_perteVie) { // dézoom image tete mario sur fond noir
                         cmptVie++;
                         zoom_factor-=0.05;
                         if(zoom_factor <= 1) {

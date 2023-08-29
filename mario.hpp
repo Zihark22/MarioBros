@@ -580,10 +580,10 @@ void handleCollisions(); // objets et mechants
 int changeMap();
 int createMap0();
 int createMap1();
-// int createMap2();
-// int createMap3();
-// int createMap4();
-// int createMap5();
+int createMap2();
+int createMap3();
+int createMap4();
+int createMap5();
 
 //------------ HACHAGE -------------//
 int hachage(char *chaine);
