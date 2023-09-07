@@ -29,7 +29,7 @@ Ameliorations :
 
 ALLEGRO_FONT *polices[NBR_FONTS];
 
-User *perso;
+User perso;
 Map *maps[NB_MAPS];
 vector<Bloc> blocs;
 Mechant *mechants[MAX_MECHANTS];
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
     float zoom_factor = FACTEUR_ZOOM_PERTE_VIE;  // Facteur de zoom animation perte de vie
     progress+=7; afficherBarreProgression(progress);
 
-    perso = new User("stickman"); //    choixPerso();
+    perso = User("stickman"); //    choixPerso();
     POS newPosition={0,0};
     progress+=2; afficherBarreProgression(progress);
 
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
 
     // Création des blocs 
     base_sol=changeMap();
-    perso->setPos(blocs[entree].getW()/2-perso->getW()/2, blocs[entree].getH());
+    perso.setPos(blocs[entree].getW()/2-perso.getW()/2, blocs[entree].getH());
     progress++; afficherBarreProgression(progress);
 
     // Init objets Collisions
@@ -276,11 +276,11 @@ int main(int argc, char **argv)
                     anim_entree=true;
                     zoom_factor = FACTEUR_ZOOM_PERTE_VIE+2;
                     if(num_map!=0) {
-                        perso->setPosX( blocs[entree-1].getCoord().x + blocs[entree-1].getW()/2-perso->getW()/2 );
-                        perso->setPosY( blocs[entree-1].getCoord().y + blocs[entree-1].getH() );
+                        perso.setPosX( blocs[entree-1].getCoord().x + blocs[entree-1].getW()/2-perso.getW()/2 );
+                        perso.setPosY( blocs[entree-1].getCoord().y + blocs[entree-1].getH() );
                     }
                     else {
-                        perso->setPos(0,0);
+                        perso.setPos(0,0);
                     }
                 }
                 else {
@@ -388,13 +388,13 @@ int main(int argc, char **argv)
                         else {
                             key[KEY_UP]=true;
                             key[KEY_Z]=true;
-                            if(perso->getPos().y+perso->getH()>window_height-sol-5) jump=true;
+                            if(perso.getPos().y+perso.getH()>window_height-sol-5) jump=true;
                         }
                         break;
                     case ALLEGRO_KEY_SPACE :
                         if(!menu) {
                             key[KEY_SPACE]=true;
-                            if(perso->getPos().y+perso->getH()>window_height-sol-5) jump=true;
+                            if(perso.getPos().y+perso.getH()>window_height-sol-5) jump=true;
                         }
                         break;
                     case ALLEGRO_KEY_RIGHT :    // deplacement droite
@@ -420,9 +420,9 @@ int main(int argc, char **argv)
                             base_sol=changeMap();
                             temps=0;
                             sol=base_sol+1;
-                            perso = new User("stickman");
-                            perso->setPos(0,0);
-                            perso->setTaille(1);
+                            perso = User("stickman");
+                            perso.setPos(0,0);
+                            perso.setTaille(1);
                             for (int i = 0; i < NB_MAPS; i++)
                             {
                                 maps[i]->setBackgroundX(0);
@@ -450,11 +450,11 @@ int main(int argc, char **argv)
                                 sol=base_sol+1;
                                 anim_entree=true;
                                 if(num_map!=0) {
-                                    perso->setPosX( blocs[entree-1].getCoord().x + blocs[entree-1].getW()/2-perso->getW()/2 );
-                                    perso->setPosY( blocs[entree-1].getCoord().y + blocs[entree-1].getH() );
+                                    perso.setPosX( blocs[entree-1].getCoord().x + blocs[entree-1].getW()/2-perso.getW()/2 );
+                                    perso.setPosY( blocs[entree-1].getCoord().y + blocs[entree-1].getH() );
                                 }
                                 else
-                                    perso->setPos(0,0);
+                                    perso.setPos(0,0);
                             }
                             else
                                 wallpaper=tracerAccueil(polices[1]);
@@ -477,7 +477,7 @@ int main(int argc, char **argv)
                             }
                             base_sol=changeMap();
                             sol=base_sol;
-                            perso->setSpeed(0,0);
+                            perso.setSpeed(0,0);
                         }
                         break;
                     case KEYBOARD_A :
@@ -488,14 +488,14 @@ int main(int argc, char **argv)
                             key[KEY_C]=true;
                         break;
                     case KEYBOARD_B :
-                        if(perso->getNom().compare("marioFire")==0 && nbrObjets<MAX_OBJETS && enter && !menu) {
+                        if(perso.getNom().compare("marioFire")==0 && nbrObjets<MAX_OBJETS && enter && !menu) {
                             lanceObjet=true;
                             objets[nbrObjets] = new ObjectLance("boule_feu3");
                             if(sounds_on) son_fireBall->play();
                             objets[nbrObjets]->setAfficher(true);
                             objets[nbrObjets]->setTaille(AGRANDI_FACT/2);
                             objets[nbrObjets]->actualiseSize();
-                            objets[nbrObjets]->setPos(perso->getPos().x+2,perso->getPos().y+perso->getH()/2-20);
+                            objets[nbrObjets]->setPos(perso.getPos().x+2,perso.getPos().y+perso.getH()/2-20);
                             if(perso_num_img==EST || perso_num_img==RUNR || perso_num_img==COUCHER)
                                 objets[i]->setSpeedX(10);
                             else if(perso_num_img==OUEST || perso_num_img==RUNL || perso_num_img==COUCHEL)
@@ -641,18 +641,18 @@ int main(int argc, char **argv)
                         if (stop) // continuer le mouvement en x après arret
                         {   
                             if(orientation==EST || orientation==RUNR || orientation==COUCHER || jump==true) {
-                                if (perso->getSpeed().x > 0)
-                                    perso->setSpeedX(perso->getSpeed().x-FREIN);
+                                if (perso.getSpeed().x > 0)
+                                    perso.setSpeedX(perso.getSpeed().x-FREIN);
                                 else {
-                                    perso->setSpeedX(0);
+                                    perso.setSpeedX(0);
                                     stop = false;
                                 }
                             }
                             if(orientation==OUEST || orientation==RUNL || orientation==COUCHEL || jump==true) {
-                                if (perso->getSpeed().x < 0)
-                                    perso->setSpeedX(perso->getSpeed().x+FREIN);
+                                if (perso.getSpeed().x < 0)
+                                    perso.setSpeedX(perso.getSpeed().x+FREIN);
                                 else {
-                                    perso->setSpeedX(0);
+                                    perso.setSpeedX(0);
                                     stop = false;
                                 }
                             }
@@ -665,17 +665,17 @@ int main(int argc, char **argv)
                             {
                                 if(orientation==EST || orientation==RUNR) 
                                 {
-                                    perso->setSpeedX(perso->getSpeed().x + ACCELERATION);
-                                    if(perso->getSpeed().x > MAX_SPEED)
-                                        perso->setSpeedX(MAX_SPEED);
+                                    perso.setSpeedX(perso.getSpeed().x + ACCELERATION);
+                                    if(perso.getSpeed().x > MAX_SPEED)
+                                        perso.setSpeedX(MAX_SPEED);
                                     if(img_courir) 
                                         perso_num_img=RUNR;
                                 }
                                 else if(orientation==OUEST || orientation==RUNL ) 
                                 {
-                                    perso->setSpeedX(perso->getSpeed().x - ACCELERATION);
-                                    if(perso->getSpeed().x < -MAX_SPEED)
-                                        perso->setSpeedX(-MAX_SPEED);
+                                    perso.setSpeedX(perso.getSpeed().x - ACCELERATION);
+                                    if(perso.getSpeed().x < -MAX_SPEED)
+                                        perso.setSpeedX(-MAX_SPEED);
                                     if(img_courir) 
                                         perso_num_img=RUNL;
                                 }
@@ -703,21 +703,21 @@ int main(int argc, char **argv)
                                     {
                                         if(perso_num_img==EST || perso_num_img==RUNR) {
                                             if(key[KEY_C])
-                                                mechants[i]->setPos(perso->getPos().x+perso->getW()/2,perso->getPos().y+perso->getH()/2);
+                                                mechants[i]->setPos(perso.getPos().x+perso.getW()/2,perso.getPos().y+perso.getH()/2);
                                             else {
                                                 mechants[i]->setSpeedX(4);
                                                 mechants[i]->setSpeedY(GRAVITY);
-                                                mechants[i]->setPos(perso->getPos().x+perso->getW()+1,perso->getPos().y+GRAVITY);
+                                                mechants[i]->setPos(perso.getPos().x+perso.getW()+1,perso.getPos().y+GRAVITY);
                                                 grabObject=false;
                                             }
                                         }
                                         else if(perso_num_img==OUEST || perso_num_img==RUNL) {
                                             if(key[KEY_C])
-                                                mechants[i]->setPos(perso->getPos().x-mechants[i]->getW()/2,perso->getPos().y+perso->getH()/2);
+                                                mechants[i]->setPos(perso.getPos().x-mechants[i]->getW()/2,perso.getPos().y+perso.getH()/2);
                                             else {
                                                 mechants[i]->setSpeedX(-4);
                                                 mechants[i]->setSpeedY(GRAVITY);
-                                                mechants[i]->setPos(perso->getPos().x-mechants[i]->getW()-1,perso->getPos().y+GRAVITY);
+                                                mechants[i]->setPos(perso.getPos().x-mechants[i]->getW()-1,perso.getPos().y+GRAVITY);
                                                 grabObject=false;
                                             }
                                         }
@@ -728,7 +728,7 @@ int main(int argc, char **argv)
                         }
 
                         // Vitesse Y
-                        perso->setSpeedY(perso->getSpeed().y + GRAVITY);
+                        perso.setSpeedY(perso.getSpeed().y + GRAVITY);
                         sol=base_sol+1;
                         
                         handleCollisions(); // Gestion des collisions
@@ -736,9 +736,9 @@ int main(int argc, char **argv)
 
                         if(jump) {
                             if(key[KEY_SPACE])
-                                perso->setSpeedY( perso->getSpeed().y + JUMP_FORCE - 2);
+                                perso.setSpeedY( perso.getSpeed().y + JUMP_FORCE - 2);
                             else
-                                perso->setSpeedY( perso->getSpeed().y + JUMP_FORCE );
+                                perso.setSpeedY( perso.getSpeed().y + JUMP_FORCE );
                             jump = false;
                             if(sounds_on) son_jump->play();
                         }
@@ -746,9 +746,9 @@ int main(int argc, char **argv)
                         // rétrécissement après collision avec un méchant
                         if (retreci) {
                             if(cmptRetreci%2==0 || cmptRetreci%3==0)
-                                perso->setAfficher(false);
+                                perso.setAfficher(false);
                             else
-                                perso->setAfficher(true);
+                                perso.setAfficher(true);
                             if(cmptRetreci > 100) {
                                 retreci=false;
                                 cmptRetreci=0;
@@ -758,33 +758,33 @@ int main(int argc, char **argv)
 
                         // ajuste position si baisse
                         if(baisse)
-                            perso->setPosY(perso->getPos().y + abs(perso->getH()-al_get_bitmap_height(perso->getImg(COUCHEL))*AGRANDI_FACT));
+                            perso.setPosY(perso.getPos().y + abs(perso.getH()-al_get_bitmap_height(perso.getImg(COUCHEL))*AGRANDI_FACT));
                         else if(remonte) {
-                            perso->setPosY(perso->getPos().y - abs(perso->getH()-al_get_bitmap_height(perso->getImg(OUEST))*AGRANDI_FACT));
+                            perso.setPosY(perso.getPos().y - abs(perso.getH()-al_get_bitmap_height(perso.getImg(OUEST))*AGRANDI_FACT));
                             remonte=false;
                         }
                     } // fin conditions anim
                     
                     // acualise coord
-                    perso->actualisePos();
+                    perso.actualisePos();
 
                     // si deplacement, bouge les blocs et map
                     if((key[KEY_RIGHT] or key[KEY_LEFT]) and num_map>0) 
                     {
-                        if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 > 0 and key[KEY_LEFT]==true) // limite bord gauche
+                        if(maps[num_map]->getBackgroundX() - perso.getSpeed().x * 2 > 0 and key[KEY_LEFT]==true) // limite bord gauche
                             maps[num_map]->setBackgroundX(0);
-                        else if(maps[num_map]->getBackgroundX() - perso->getSpeed().x * 2 - window_width < -maps[num_map]->getW() * maps[num_map]->getBackgroundScale() and key[KEY_RIGHT]==true) // limite bord droit
+                        else if(maps[num_map]->getBackgroundX() - perso.getSpeed().x * 2 - window_width < -maps[num_map]->getW() * maps[num_map]->getBackgroundScale() and key[KEY_RIGHT]==true) // limite bord droit
                             maps[num_map]->setBackgroundX(maps[num_map]->getBackgroundX());
                         else {
                             int bloc_fin = sortie;
                             if(blocs[sortie-1].getType()==TUYAU or blocs[sortie-1].getType()==CHATEAU) // comme la sortie est divisé en deux on prend l'autre bloc
                                 bloc_fin = sortie - 1;
                             if(blocs[entree].getCoord().x < 50 && (blocs[bloc_fin].getCoord().x+blocs[bloc_fin].getW() > window_width or key[KEY_LEFT]==true)) {
-                                maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso->getSpeed().x * 3 );
+                                maps[num_map]->setBackgroundX( maps[num_map]->getBackgroundX() - perso.getSpeed().x * 3 );
                                 for (i = 0; i < blocs.size(); i++) // deplace les blocs
                                 {
                                     POS newcoord;
-                                    newcoord.x = blocs[i].getCoord().x - perso->getSpeed().x * 2 / 2;
+                                    newcoord.x = blocs[i].getCoord().x - perso.getSpeed().x * 2 / 2;
                                     newcoord.y = blocs[i].getCoord().y;
                                     blocs[i].setCoord(newcoord);
                                 }
@@ -793,25 +793,25 @@ int main(int argc, char **argv)
                     }
 
                     // Limites de bords
-                    if (perso->getPos().x < 0) {
+                    if (perso.getPos().x < 0) {
                         if(entree!=0 || num_map==0)
-                            perso->setPosX(0);
+                            perso.setPosX(0);
                         else {
-                            perso->setPosX(window_width-perso->getW()-1);
+                            perso.setPosX(window_width-perso.getW()-1);
                             num_map = num_map <= 0 ? NB_MAPS-1 : num_map-1;
                             base_sol=changeMap();
                         }
                     }
-                    else if (perso->getPos().x > window_width-perso->getW()) {
+                    else if (perso.getPos().x > window_width-perso.getW()) {
                         if(sortie!=0)
-                            perso->setPosX(window_width-perso->getW());
+                            perso.setPosX(window_width-perso.getW());
                         else {
-                            perso->setPosX(0);
+                            perso.setPosX(0);
                             num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                             base_sol=changeMap();
                         }
                     }
-                    if (perso->getPos().y > window_height) { // si tombe dans un trou
+                    if (perso.getPos().y > window_height) { // si tombe dans un trou
                         anim_perteVie=true;
                         if(sounds_on) son_over->play();
                     }
@@ -819,26 +819,26 @@ int main(int argc, char **argv)
             // ------------------------------- ANIMATIONS -------------------------------------------
                     //  sortie
                     if(anim_fin) { // fin de niveau via porte ou chateau
-                        perso->setSpeedY(0);
-                        perso->setPosY(window_height-sol-perso->getH());
+                        perso.setSpeedY(0);
+                        perso.setPosY(window_height-sol-perso.getH());
                         if(blocs[sortie].getType()==CHATEAU) 
                         {
                             music->setGain(0.2);
                             if(sounds_on) 
                                 son_finish->play();
-                            if(perso->getPos().x+perso->getW()/2>=blocs[sortie].getCoord().x+blocs[sortie].getW()/2) { // si perso au nvx de la porte
+                            if(perso.getPos().x+perso.getW()/2>=blocs[sortie].getCoord().x+blocs[sortie].getW()/2) { // si perso au nvx de la porte
                                 perso_num_img=NORD;
-                                perso->setSpeedX(0);
+                                perso.setSpeedX(0);
                                 cmptSortie++;
                             }
                             else
-                                perso->setSpeedX(2); // avance jusqu a la porte
+                                perso.setSpeedX(2); // avance jusqu a la porte
                         }
                         else  // porte
                         {
                             cmptSortie++;
                             perso_num_img=NORD;
-                            perso->setSpeedX(0);
+                            perso.setSpeedX(0);
                         }
                         
                         if(cmptSortie>50) {
@@ -851,19 +851,19 @@ int main(int argc, char **argv)
                             else {
                                 num_map++;
                                 base_sol=changeMap();
-                                perso = new User(perso->getNom());
-                                perso->setPos(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2 , blocs[entree-1].getCoord().y);
+                                perso = User(perso.getNom());
+                                perso.setPos(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso.getW()/2 , blocs[entree-1].getCoord().y);
                                 anim_fin=false;
                                 anim_entree=true;
                                 cmptSortie=0;
                             }
                         }
                         else if(cmptSortie>15)
-                            masqueRGB(display, perso->getImg(perso_num_img), true, true, true);
+                            masqueRGB(display, perso.getImg(perso_num_img), true, true, true);
                         else if(cmptSortie>10)
-                            masqueRGB(display, perso->getImg(perso_num_img), true, true, false);
+                            masqueRGB(display, perso.getImg(perso_num_img), true, true, false);
                         else if(cmptSortie>5)
-                            masqueRGB(display, perso->getImg(perso_num_img), true, false, false);
+                            masqueRGB(display, perso.getImg(perso_num_img), true, false, false);
                     }
                     else if(anim_sortie) { // fin de map via tuyau
                         anim_tuyau++;
@@ -873,28 +873,28 @@ int main(int argc, char **argv)
                         }
                         else {
                             if(blocs[sortie].getAngle()==GAUCHE) {  // sortie sur le cote du tuyau
-                                perso->setSpeed(1,0);
-                                perso->setPosY(blocs[sortie].getCoord().y+(blocs[sortie].getH()-perso->getH())/2);
-                                if(blocs[sortie].getCoord().x<perso->getPos().x) {
+                                perso.setSpeed(1,0);
+                                perso.setPosY(blocs[sortie].getCoord().y+(blocs[sortie].getH()-perso.getH())/2);
+                                if(blocs[sortie].getCoord().x<perso.getPos().x) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
-                                    perso->setPosX(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2);
-                                    perso->setPosY(blocs[entree-1].getCoord().y-10);
+                                    perso.setPosX(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso.getW()/2);
+                                    perso.setPosY(blocs[entree-1].getCoord().y-10);
                                     anim_entree=true;
                                     anim_sortie=false;
                                 }
                             }
                             else if(blocs[sortie].getAngle()==ZERO) {  // sortie vers le bas du tuyau
-                                perso->setSpeed(0,1);
+                                perso.setSpeed(0,1);
                                 perso_num_img=NORD;
-                                perso->setPosX(blocs[sortie].getCoord().x+(blocs[sortie].getW()-perso->getW())/2);
-                                if(blocs[sortie].getCoord().y<perso->getPos().y) {
+                                perso.setPosX(blocs[sortie].getCoord().x+(blocs[sortie].getW()-perso.getW())/2);
+                                if(blocs[sortie].getCoord().y<perso.getPos().y) {
                                     anim_tuyau=0;
                                     num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
                                     base_sol=changeMap();
-                                    perso->setPosX(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2);
-                                    perso->setPosY(blocs[entree-1].getCoord().y);
+                                    perso.setPosX(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso.getW()/2);
+                                    perso.setPosY(blocs[entree-1].getCoord().y);
                                     anim_entree=true;
                                     anim_sortie=false;
                                 }
@@ -907,23 +907,23 @@ int main(int argc, char **argv)
                         music->setGain(0.4);
                         if(anim_tuyau==1 && sounds_on) {
                             son_tuyau->play();
-                            // perso->setPosY(blocs[entree]->getCoord().y+10);
+                            // perso.setPosY(blocs[entree]->getCoord().y+10);
                         }
                         else {
                             if(blocs[entree].getAngle()==ZERO) {  // entree vers le haut tuyau
-                                perso->setSpeed(0,-1);
-                                perso->setPosX( blocs[entree].getCoord().x+(blocs[entree].getW()-perso->getW())/2 );
-                                perso->setPosY( perso->getPos().y + perso->getSpeed().y );
-                                if(blocs[entree].getCoord().y>perso->getPos().y+perso->getH()+1) {
+                                perso.setSpeed(0,-1);
+                                perso.setPosX( blocs[entree].getCoord().x+(blocs[entree].getW()-perso.getW())/2 );
+                                perso.setPosY( perso.getPos().y + perso.getSpeed().y );
+                                if(blocs[entree].getCoord().y>perso.getPos().y+perso.getH()+1) {
                                     anim_tuyau=0;
                                     anim_entree=false;
                                 }
                             }
                             else if(blocs[entree].getAngle()==INVERSION) {  // entree vers le bas tuyau
-                                perso->setSpeed(0,1);
-                                perso->setPosX(blocs[entree].getCoord().x+(blocs[entree].getW()-perso->getW())/2);
-                                perso->setPosY(perso->getPos().y + perso->getSpeed().y);
-                                if(blocs[entree].getCoord().y+blocs[entree].getH()+1<perso->getPos().y) {
+                                perso.setSpeed(0,1);
+                                perso.setPosX(blocs[entree].getCoord().x+(blocs[entree].getW()-perso.getW())/2);
+                                perso.setPosY(perso.getPos().y + perso.getSpeed().y);
+                                if(blocs[entree].getCoord().y+blocs[entree].getH()+1<perso.getPos().y) {
                                     anim_tuyau=0;
                                     anim_entree=false;
                                 }
@@ -944,7 +944,7 @@ int main(int argc, char **argv)
                     cmptFrames++;
                     if(cmptFrames>=1000) cmptFrames=0;
                     if(cmptFrames%FRAME_RATE==0 && num_map>0) temps++;
-                    if(cmptFrames%33==0) perso->setMessage("");
+                    if(cmptFrames%33==0) perso.setMessage("");
 
                     dessine=true;
                 }
@@ -969,8 +969,8 @@ int main(int argc, char **argv)
 
             if(enter) {
                 // actual coord
-                perso->setTaille(AGRANDI_FACT);
-                perso->actualiseSize(perso_num_img);
+                perso.setTaille(AGRANDI_FACT);
+                perso.actualiseSize(perso_num_img);
 
                 // draw wallpaper
                 maps[num_map]->draw(window_width, window_height);
@@ -988,17 +988,17 @@ int main(int argc, char **argv)
                 if(anim_fin) 
                 {
                     for (i = 0; i < blocs.size(); ++i) blocs[i].draw(); // draw blocs
-                    perso->draw(perso_num_img); // draw perso
+                    perso.draw(perso_num_img); // draw perso
                 }
                 else 
                 {
                     if(anim_tuyau>0) { // si sortie par le tuyau
-                        perso->draw(perso_num_img); // draw perso
+                        perso.draw(perso_num_img); // draw perso
                         for (i = 0; i < blocs.size(); ++i) blocs[i].draw(); // draw blocs
                     }
                     else {
                         for (i = 0; i < blocs.size(); ++i) blocs[i].draw(); // draw blocs
-                        perso->draw(perso_num_img); // draw perso
+                        perso.draw(perso_num_img); // draw perso
                     }
                 }
 
@@ -1007,7 +1007,7 @@ int main(int argc, char **argv)
                     mechants[i]->draw();
 
                 // Afficher message +1 ou Zup
-                perso->afficherMessage(polices[3]);
+                perso.afficherMessage(polices[3]);
 
                 // Draw objets (boules de feu, boomerang) et explosion
                 for ( i = 0; i < MAX_OBJETS; ++i) {

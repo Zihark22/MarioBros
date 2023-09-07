@@ -13,7 +13,7 @@
 ///////////// VARIABLE GLOBALES //////////////
 //////////////////////////////////////////////
 extern ALLEGRO_FONT *polices[NBR_FONTS];
-extern User *perso;
+extern User perso;
 extern Map *maps[NB_MAPS];
 extern vector<Bloc> blocs;
 extern Mechant *mechants[MAX_MECHANTS];
