@@ -7,6 +7,6 @@
 /trier
 *.o
 *.mp4
-exec.o
+exec
 *.dSYM
 /*.dSYM
