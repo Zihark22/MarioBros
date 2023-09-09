@@ -99,10 +99,10 @@ Game::~Game() {
 
         if(wallpaper)
             al_destroy_bitmap(wallpaper);
-        if(voice)
-            al_destroy_voice(voice);
         if(mixer)
             al_destroy_mixer(mixer);
+        if(voice)
+            al_destroy_voice(voice);
 
     }
     catch(exception const& e)	 //On rattrape les exceptions standard de tous types
@@ -146,7 +146,12 @@ void Game::setGameOver(bool isOver) {
 }
 
 /////////////   METHODES AUTRES   ////////////////////
-
+void Game::begin() {
+    while (nomUser.size()<2)
+    {
+        nomUser = saisirUserName();
+    }
+}
 void Game::erreur(const char* txt)
 {
     ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
@@ -188,14 +193,7 @@ void Game::tracerAccueil() {
 
     assert(logo != 0) ;
 
-    try 
-    {
-        al_clear_to_color(al_map_rgb(0, 0, 0));
-    }
-    catch(exception const& e)	 //On rattrape les exceptions standard de tous types
-    {
-        cerr << "ERREUR : " << e.what() << endl; //On affiche la description de l'erreur
-    }
+    al_clear_to_color(al_map_rgb(0, 0, 0));
     al_draw_scaled_bitmap(wallpaper, 0, 0, al_get_bitmap_width(wallpaper), al_get_bitmap_height(wallpaper), 0, 0, window_width, window_height, 0);
     int facteur = 4;
     al_draw_scaled_bitmap(logo, 0, 0, al_get_bitmap_width(logo), al_get_bitmap_height(logo), window_width/2-al_get_bitmap_width(logo)/facteur/2, 3*window_height/4-al_get_bitmap_height(logo)/facteur/2, al_get_bitmap_width(logo)/facteur, al_get_bitmap_height(logo)/facteur, 0);
@@ -204,6 +202,8 @@ void Game::tracerAccueil() {
     al_draw_text(font, ORANGE, posPrintPart, posY-20, ALLEGRO_ALIGN_LEFT, msg_accueil.c_str());
     if(posPrintPart<0)
         al_draw_text(font, ORANGE, window_width+posPrintPart, posY-20, ALLEGRO_ALIGN_LEFT, msg_accueil.c_str());
+    
+    al_flip_display();
 }
 
 void Game::load_maps() {
@@ -255,6 +255,8 @@ string Game::saisirUserName(void)
 
     ALLEGRO_EVENT evt;
     string nom="_";
+    
+    al_set_target_backbuffer(d);
 
     while (1) {
         al_clear_to_color(NOIR);
@@ -296,5 +298,8 @@ string Game::saisirUserName(void)
     al_destroy_event_queue(evt_queue);
     al_destroy_font(font);
     al_destroy_display(d);
+
+    al_set_target_backbuffer(display);
+
     return nom;
 }

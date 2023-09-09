@@ -1,6 +1,5 @@
 .DS_Store
 /datas
-/build
 *.o
 *.mp4
 exec

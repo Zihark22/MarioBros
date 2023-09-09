@@ -26,6 +26,7 @@ class Game
 
 
     	// Autres
+        void begin(); // début du jeu (saisie du nom puis lancement du jeu sur map0)
         void erreur(const char* txt);
         string saisirUserName(void);
         void load_maps(void);

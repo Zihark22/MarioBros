@@ -32,6 +32,7 @@
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
+                "-g",
                 "build/obj/*.o",
                 "-o",
                 "build/exec",
@@ -47,11 +48,12 @@
                 "-lallegro_acodec",
                 "-lallegro_video"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
+            "options": {
+                "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": [],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "dependsOn":["erase_unwanted_files"]
         }
     ]

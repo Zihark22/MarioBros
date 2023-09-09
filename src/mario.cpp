@@ -38,7 +38,6 @@ void printAllegroVersion() {
     // Print the version
     cout << "Allegro version: " << major << "." << minor << "." << revision << "." << release << endl;
 }
-
 int init(void) {
     try 
     {
@@ -72,22 +71,16 @@ int main(int argc, char **argv)
     ALLEGRO_MOUSE_STATE mouse_state;
     ALLEGRO_EVENT_QUEUE *event_queue=NULL;
 
-    bool dessine = true;
-
-
+    bool dessine = false;
 
     printAllegroVersion();
-
 
     // Création de la fenêtre
     al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);  // ALLEGRO_FULLSCREEN_WINDOW
     display = al_create_display(WIDTH, HEIGHT);
-
     assert(display != 0) ;
-
     al_set_window_title(display, "Mario Game");
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA); // effet de transparence
 
     // Déclaration du jeu
     Game jeu(display);
@@ -101,12 +94,10 @@ int main(int argc, char **argv)
 
     // Création de la file d'attente d'événements
     event_queue = al_create_event_queue();
-    
     assert(event_queue != 0) ;
 
     // Création d'un timer
     timer = al_create_timer(TIME_STEP);
-    
     assert(timer != 0) ;
 
     // Liste des types d'événements
@@ -115,11 +106,12 @@ int main(int argc, char **argv)
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_display_event_source(display));
 
-    ALLEGRO_BITMAP *targetBitmap = al_get_backbuffer(display); // Obtient la cible de rendu par défaut
-
     // Remet fenetre au centre
     wx-=1000;
     jeu.setWindowPOS(wx,wy,display);
+
+    // Défini la cible de rendu
+    al_set_target_backbuffer(display);
 
     // Début du timer
     al_start_timer(timer);
@@ -128,7 +120,6 @@ int main(int argc, char **argv)
     while(!jeu.isGameOver())
     {
         al_wait_for_event(event_queue, &ev); // attente d'un des événements
-        al_set_target_bitmap(targetBitmap); // Définit la cible de rendu
 
         jeu.update();
 
@@ -148,9 +139,10 @@ int main(int argc, char **argv)
                         jeu.setGameOver(true);
                         break;
                     case ALLEGRO_KEY_ENTER :    // ACCUEIL
-                        jeu.setNomUser(jeu.saisirUserName());
+                        jeu.begin();
                         while(!al_is_event_queue_empty(event_queue))
                             al_flush_event_queue(event_queue);
+                        dessine = true;
                         break;
                     case ALLEGRO_KEY_DOWN :    // deplacement bas
                     case KEYBOARD_S :
@@ -245,7 +237,7 @@ int main(int argc, char **argv)
         if(dessine==true && al_is_event_queue_empty(event_queue)){
 
             // clear
-            // al_clear_to_color(NOIR);
+            al_clear_to_color(NOIR);
 
             // actualise affichage
             al_flip_display();
@@ -254,6 +246,7 @@ int main(int argc, char **argv)
         }
     }
     try {
+        jeu.~Game();
         al_destroy_timer(timer);
         al_destroy_event_queue(event_queue);
         al_destroy_display(display);
