@@ -113,7 +113,6 @@ Game::~Game() {
 }
 
 
-
 //////////////////   GETTERS   ///////////////////////
 bool Game::isGameOver() {
     return gameOver;
