@@ -56,7 +56,7 @@ class Game
         int window_y;
      
         // Jeu
-        User perso;
+        User *perso;
         int level;
         bool fullscreen;
         bool playsound;
@@ -79,21 +79,7 @@ class Game
         // Musiques
         ALLEGRO_VOICE *voice;
         ALLEGRO_MIXER *mixer;
-        Sound music;
-        Sound son_finish;
-        Sound son_jump;
-        Sound son_tuyau;
-        Sound son_sol;
-        Sound son_mario;
-        Sound son_luigi;
-        Sound son_coin;
-        Sound son_over;
-        Sound son_powerUp;
-        Sound son_powerDown;
-        Sound son_fireBall;
-        Sound son_fireBallHit;
-        Sound son_ecrase;
-        Sound son_koopa_shell;
+        map <string,Sound*> mesSons;
 
 
         // Images

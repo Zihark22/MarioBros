@@ -17,7 +17,7 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     window_y = 0;
 
     // Jeu
-    perso = User("_");
+    perso = new User("_");
     gameOver = false;
     level = 0;
     fullscreen = false;
@@ -57,21 +57,22 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     al_attach_mixer_to_voice(mixer, voice);
 
     // Charge les musiques -> Sound(const char* newChemin, int playmode, float gain, float vitesse, ALLEGRO_MIXER *mixer)
-    music           = Sound("datas/musiques/new super mario bros (world 1-1).wav", LOOP, 0.5, 1.0, mixer);
-    son_finish      = Sound("datas/musiques/Super Mario Bros Music-Level Complete.wav", ONCE, 1.0, 1.2, mixer);
-    son_jump        = Sound("datas/musiques/ClassicSmallJump.wav", ONCE, 1.0, 1.0, mixer);
-    son_tuyau       = Sound("datas/musiques/MultiplayerTeamFinish.wav", ONCE, 1.0, 1.0, mixer);
-    son_mario       = Sound("datas/musiques/Mario_sounds/Sample_0721-mario number one wouhou.wav", ONCE, 1.0, 1.0, mixer);
-    son_luigi       = Sound("datas/musiques/luigi_okey-dokey.wav", ONCE, 1.0, 1.0, mixer);
-    son_coin        = Sound("datas/musiques/RedCoin.wav", ONCE, 1.0, 1.0, mixer);
-    son_sol         = Sound("datas/musiques/FootStepBlock2.wav", ONCE, 2.0, 1.0, mixer);
-    son_over        = Sound("datas/musiques/game_over.wav", ONCE, 1.0, 1.0, mixer);
-    son_powerUp     = Sound("datas/musiques/power_up.wav", ONCE, 1.0, 1.0, mixer);
-    son_powerDown   = Sound("datas/musiques/Power_Down_sound.wav", ONCE, 1.0, 1.0, mixer);
-    son_fireBall    = Sound("datas/musiques/FireBall.wav", ONCE, 1.0, 1.0, mixer);
-    son_fireBallHit = Sound("datas/musiques/FireBallHit1.wav", ONCE, 1.0, 1.0, mixer);
-    son_ecrase      = Sound("datas/musiques/Goomba_Stomp_Sound.wav", ONCE, 2.0, 1.0, mixer);
-    son_koopa_shell = Sound("datas/musiques/Koopa_Troopa_Kick_Shell.wav", ONCE, 0.5, 1.0, mixer);
+    mesSons["music"]           = new Sound("datas/musiques/new super mario bros (world 1-1).wav", LOOP, 0.5, 1.0, mixer);
+    mesSons["son_finish"]      = new Sound("datas/musiques/Super Mario Bros Music-Level Complete.wav", ONCE, 1.0, 1.2, mixer);
+    mesSons["son_jump "]       = new Sound("datas/musiques/ClassicSmallJump.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_tuyau"]       = new Sound("datas/musiques/MultiplayerTeamFinish.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_mario"]       = new Sound("datas/musiques/Mario_sounds/Sample_0721-mario number one wouhou.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_luigi"]       = new Sound("datas/musiques/luigi_okey-dokey.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_coin "]       = new Sound("datas/musiques/RedCoin.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_sol"]         = new Sound("datas/musiques/FootStepBlock2.wav", ONCE, 2.0, 1.0, mixer);
+    mesSons["son_over"]        = new Sound("datas/musiques/game_over.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_powerUp"]     = new Sound("datas/musiques/power_up.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_powerDown"]   = new Sound("datas/musiques/Power_Down_sound.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_fireBall"]    = new Sound("datas/musiques/FireBall.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_fireBallHit"] = new Sound("datas/musiques/FireBallHit1.wav", ONCE, 1.0, 1.0, mixer);
+    mesSons["son_ecrase"]      = new Sound("datas/musiques/Goomba_Stomp_Sound.wav", ONCE, 2.0, 1.0, mixer);
+    mesSons["son_koopa_shell"] = new Sound("datas/musiques/Koopa_Troopa_Kick_Shell.wav", ONCE, 0.5, 1.0, mixer);
+
 
     // Initialisation des boutons
     listeBut.push_back( (bouton) { "CONTINUER" , window_width/4, (int)((listeBut.size())*window_height/(NBR_BOUT+2)+(listeBut.size()*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR } );
@@ -94,6 +95,13 @@ Game::~Game() {
         mechants.clear();
         objets.clear();
 
+		map<string,Sound*>::iterator it;  //Un itérateur
+        // for (const auto& pair : mesSons) {
+        for (it = mesSons.begin(); it!=mesSons.end(); ++it) {
+            delete(it->second); // Libération de chaque instance de Sound
+        }
+        mesSons.clear();
+
         // Affichage
         detruit_polices();
 
@@ -103,6 +111,8 @@ Game::~Game() {
             al_destroy_mixer(mixer);
         if(voice)
             al_destroy_voice(voice);
+        
+        delete(perso);
 
     }
     catch(exception const& e)	 //On rattrape les exceptions standard de tous types
@@ -123,7 +133,7 @@ string Game::getNomUser() {
 
 //////////////////   SETTERS   ///////////////////////
 void Game::setPerso(string nom) {
-    perso = User(nom.c_str());
+    perso = new User(nom.c_str());
 }
 void Game::setNomUser(string nom) {
     nomUser = nom;

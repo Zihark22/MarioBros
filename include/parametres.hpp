@@ -11,6 +11,9 @@
 #include <unistd.h>	    // sleep
 #include <cassert>      // assertion
 #include <exception>    // exception
+#include <iterator>     // iterateurs
+#include <map> 			// dictionnaire ou association clé/valeur : map<clé_type, valeur_type> nom_var;  éléments triés selon leur clé. C'est en fait des pairs accessible via <utility>
+#include <utility>      // accèder clé/valeur de map
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>

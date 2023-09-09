@@ -49,9 +49,8 @@ Sound::Sound(const char* newChemin, int playmode, float gain, float vitesse, ALL
     this->spl = al_create_sample_instance(NULL);
     al_attach_sample_instance_to_mixer(this->spl,mixer);
     this->son = al_load_sample(this->chemin.c_str());
-    if (!son)
+    if(!son)
         cerr << "Erreur : chargement audio" << endl;
-        // erreur("chargement audio");
 
     rc = al_set_sample(this->spl, this->son);
     if(rc) {
@@ -63,15 +62,18 @@ Sound::Sound(const char* newChemin, int playmode, float gain, float vitesse, ALL
     }
     else
         cerr << "Erreur : attachement audio" << endl;
-        // erreur("attachement audio");
 }
 Sound::~Sound() // Destructeur
 {
-    if(son)
+
+    if(son) {
         al_destroy_sample(son);
-        
-    if(spl)
+        son = nullptr; // Réinitialiser le pointeur après libération
+    }
+    if(spl) {
         al_destroy_sample_instance(spl);
+        spl = nullptr; // Réinitialiser le pointeur après libération
+    }
 }
 int Sound::getGain() const {
     return this->gain;

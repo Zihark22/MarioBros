@@ -6,7 +6,11 @@
         "cstdlib": "cpp",
         "iostream": "cpp",
         "__locale": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "map": "cpp",
+        "memory": "cpp",
+        "utility": "cpp",
+        "chrono": "cpp"
     },
     "C_Cpp.dimInactiveRegions": false
 }

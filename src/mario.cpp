@@ -83,14 +83,14 @@ int main(int argc, char **argv)
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA); // effet de transparence
 
     // Déclaration du jeu
-    Game jeu(display);
-    jeu.setPerso("stickman");
+    Game *jeu = new Game(display);
+    jeu->setPerso("stickman");
 
     // Change position fenetre
     int wx=0, wy=0;
     al_get_window_position(display, &wx, &wy);
     wx+=1000;
-    jeu.setWindowPOS(wx,wy,display);
+    jeu->setWindowPOS(wx,wy,display);
 
     // Création de la file d'attente d'événements
     event_queue = al_create_event_queue();
@@ -108,20 +108,20 @@ int main(int argc, char **argv)
 
     // Remet fenetre au centre
     wx-=1000;
-    jeu.setWindowPOS(wx,wy,display);
+    jeu->setWindowPOS(wx,wy,display);
 
     // Défini la cible de rendu
     al_set_target_backbuffer(display);
 
     // Début du timer
     al_start_timer(timer);
-    jeu.tracerAccueil();
+    jeu->tracerAccueil();
 
-    while(!jeu.isGameOver())
+    while(!jeu->isGameOver())
     {
         al_wait_for_event(event_queue, &ev); // attente d'un des événements
 
-        jeu.update();
+        jeu->update();
 
         switch (ev.type) 
         {
@@ -129,17 +129,17 @@ int main(int argc, char **argv)
                 break;
 
             case ALLEGRO_EVENT_DISPLAY_CLOSE: // clique sur la croix rouge
-                jeu.setGameOver(true);
+                jeu->setGameOver(true);
                 break;
 
             case ALLEGRO_EVENT_KEY_DOWN:
                 switch(ev.keyboard.keycode)
                 {      
                     case ALLEGRO_KEY_ESCAPE : // EXIT
-                        jeu.setGameOver(true);
+                        jeu->setGameOver(true);
                         break;
                     case ALLEGRO_KEY_ENTER :    // ACCUEIL
-                        jeu.begin();
+                        jeu->begin();
                         while(!al_is_event_queue_empty(event_queue))
                             al_flush_event_queue(event_queue);
                         dessine = true;
@@ -246,7 +246,7 @@ int main(int argc, char **argv)
         }
     }
     try {
-        jeu.~Game();
+        delete(jeu);
         al_destroy_timer(timer);
         al_destroy_event_queue(event_queue);
         al_destroy_display(display);
