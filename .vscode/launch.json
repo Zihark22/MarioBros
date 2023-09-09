@@ -5,17 +5,18 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "C/C++: clang++ build and debug active file",
+        "name": "Déboguer le programme Mario Bros.",
         "type": "cppdbg",
         "request": "launch",
-        "program": "${fileDirname}/${fileBasenameNoExtension}",
+        "program": "${workspaceFolder}/build/exec",
         "args": [],
-        "stopAtEntry": true,
+        "stopAtEntry": false, // true donne l'arrêt donc on doit appuyer sur continuer pour lancer
         "cwd": "${workspaceFolder}",
         "environment": [],
         "externalConsole": false,
         "MIMode": "lldb",
-        "preLaunchTask": "C/C++: clang++ build active file"
+        "preLaunchTask": "link_object_to_executable",
+        "serverLaunchTimeout": 5000
       }
     ]
   }

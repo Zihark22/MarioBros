@@ -4,7 +4,9 @@
         "iosfwd": "cpp",
         "vector": "cpp",
         "cstdlib": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "__locale": "cpp",
+        "fstream": "cpp"
     },
     "C_Cpp.dimInactiveRegions": false
 }

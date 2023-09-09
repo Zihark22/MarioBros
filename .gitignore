@@ -1,12 +1,9 @@
 .DS_Store
-/images
-/maps
-/musiques
-/persos
-/polices
-/trier
+/datas
+/build
 *.o
 *.mp4
 exec
 *.dSYM
 /*.dSYM
+*.bak_*
