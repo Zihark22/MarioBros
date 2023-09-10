@@ -15,6 +15,7 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     window_width  = 1280;
     window_x = 0;
     window_y = 0;
+    RATIO_FRAME = window_height/HEIGHT;
 
     // Jeu
     perso = new User("_");
@@ -28,6 +29,9 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     blocs.clear();
     mechants.clear();
     objets.clear();
+
+    // Repères
+    base_sol = nbrBlocsSol = entree = sortie = num_map = 0;
 
     // Accueil
     msg_accueil = "Bienvenu dans Mario Bros. !! Appuyez sur ENTRER pour JOUER";
@@ -155,10 +159,13 @@ void Game::setGameOver(bool isOver) {
 }
 
 /////////////   METHODES AUTRES   ////////////////////
-void Game::begin() {
+void Game::begin(ALLEGRO_EVENT_QUEUE *event_queue) {
     do {
         nomUser = saisirUserName();
     } while (nomUser.size()<2);
+    while(!al_is_event_queue_empty(event_queue))
+        al_flush_event_queue(event_queue);
+    changeMap();
 }
 void Game::erreur(const char* txt)
 {
@@ -227,7 +234,10 @@ void Game::load_maps() {
     }
 }
 void Game::update() {
-
+    maps[num_map].draw(window_width, window_height);
+    perso->draw(0); // draw perso
+    for (int i = 0; i < blocs.size(); ++i) 
+        blocs[i].draw(); // draw blocs
 }
 
 
@@ -303,6 +313,8 @@ string Game::saisirUserName(void)
             }
         }
     }
+    while(!al_is_event_queue_empty(evt_queue))
+        al_flush_event_queue(evt_queue);
     al_destroy_event_queue(evt_queue);
     al_destroy_font(font);
     al_destroy_display(d);
@@ -310,4 +322,85 @@ string Game::saisirUserName(void)
     al_set_target_backbuffer(display);
 
     return nom;
+}
+
+
+
+// ---------------  MAPS ------------------//
+void Game::changeMap() 
+{
+    if(num_map>0) {
+        maps[num_map].setMap0(false);
+        maps[num_map].setBackgroundScale(2);
+    }
+    switch(num_map) 
+    {
+        case 0 : 
+            base_sol=createMap0();
+            break;
+        // case 1 : 
+        //     base_sol=createMap1();
+        //     break;
+        // case 2 : 
+        //     base_sol=createMap2();
+        //     break;
+        // case 3 : 
+        //     base_sol=createMap3();
+        //     break;
+        // case 4 : 
+        //     base_sol=createMap4();
+        //     break;
+        // case 5 : 
+        //     base_sol=createMap5();
+        //     break;
+        default: 
+            base_sol=createMap0();
+            break;
+    }
+    maps[num_map-1].setBackgroundX(0);
+}
+int Game::createMap0() 
+{
+    int Le,He;
+    POS newCoord;
+    sol=60;
+
+    blocs.clear(); // efface tous les blocs de la map précédente
+
+    // SOL
+    blocs.push_back(Bloc("datas/images/terre.png",0,0,ZERO,0.5*RATIO_FRAME,false,false,TERRE));
+        sol=blocs.at(0).getH();
+    blocs.pop_back();
+    blocs.push_back(Bloc("datas/images/terre.png",0,window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE));
+
+    while( blocs.back().getCoord().x + blocs.back().getW() < window_width )
+        blocs.push_back(Bloc("datas/images/terre.png",blocs.back().getCoord().x+blocs.back().getW(),window_height-sol,ZERO,0.5*RATIO_FRAME,false,false,TERRE));
+
+    nbrBlocsSol = blocs.size();
+
+    blocs.push_back((Bloc("datas/images/logo_mario2.png",window_width/2-150,window_height-sol-150,ZERO,0.1*RATIO_FRAME,false,false,PERSO)));
+    blocs.push_back((Bloc("datas/images/logo_luigi2.png",window_width/2+150-blocs.back().getW(),blocs.back().getCoord().y,ZERO,0.1*RATIO_FRAME,false,false,PERSO)));
+
+// --- CHATEAU --------
+    blocs.push_back((Bloc("datas/images/chateau_bas.png",0,0,ZERO,0.2*RATIO_FRAME,false,false,CHATEAU)));
+        newCoord.x = window_width-blocs.back().getW(); 
+        newCoord.y = window_height-sol-blocs.back().getH();
+        blocs.back().setCoord(newCoord);
+    blocs.push_back((Bloc("datas/images/chateau_haut.png",0,0,ZERO,0.2*RATIO_FRAME,false,false,CHATEAU)));
+        newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2; 
+        newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()+20;
+        blocs.back().setCoord(newCoord);
+
+    Bloc tmp1=blocs[blocs.size()-2];
+    Bloc tmp2=blocs.back();
+    blocs.pop_back();
+    blocs.pop_back();
+    blocs.push_back(tmp2);
+    blocs.push_back(tmp1);
+    sortie=blocs.size()-1;
+
+// ----- ENTREE ----------
+    entree=0;
+
+    return sol;
 }

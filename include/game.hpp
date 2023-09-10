@@ -26,16 +26,18 @@ class Game
 
 
     	// Autres
-        void begin(); // début du jeu (saisie du nom puis lancement du jeu sur map0)
+        void begin(ALLEGRO_EVENT_QUEUE *event_queue); // début du jeu (saisie du nom puis lancement du jeu sur map0)
         void erreur(const char* txt);
         string saisirUserName(void);
         void load_maps(void);
         void update();
         void tracerAccueil();
+        void changeMap();
 
     private :
         void charge_polices();
         void detruit_polices();
+        int createMap0();
 
 
     protected:
@@ -54,6 +56,7 @@ class Game
         int window_width;
         int window_x;
         int window_y;
+        float RATIO_FRAME;
      
         // Jeu
         User *perso;
@@ -67,6 +70,14 @@ class Game
         vector<Bloc> blocs;
         vector<Mechant> mechants;
         vector<ObjectLance> objets;
+
+        // Repères
+        int base_sol;    // position de base du sol au niveau de la creation de la map
+        int sol;         // position actuelle du sol, la limite de descente verticale du perso (le dessus d'un bloc mystère par exemple)
+        int nbrBlocsSol; // nbr de blocs constituant le sol (de 0 a nbrBlocsSol dans blocs)
+        int num_map;     // numéro de la map actuelle
+        int entree;      // indice du bloc d'entree
+        int sortie;      // indice du bloc de sortie
 
         // Accueil
         string msg_accueil;
@@ -83,7 +94,7 @@ class Game
 
 
         // Images
-        ALLEGRO_BITMAP * wallpaper;
+        ALLEGRO_BITMAP *wallpaper;
         ALLEGRO_BITMAP *logo;
 
 

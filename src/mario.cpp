@@ -115,13 +115,13 @@ int main(int argc, char **argv)
 
     // Début du timer
     al_start_timer(timer);
+
+    // Affichage de l'écran d'accueil
     jeu->tracerAccueil();
 
     while(!jeu->isGameOver())
     {
         al_wait_for_event(event_queue, &ev); // attente d'un des événements
-
-        jeu->update();
 
         switch (ev.type) 
         {
@@ -139,9 +139,7 @@ int main(int argc, char **argv)
                         jeu->setGameOver(true);
                         break;
                     case ALLEGRO_KEY_ENTER :    // ACCUEIL
-                        jeu->begin();
-                        while(!al_is_event_queue_empty(event_queue))
-                            al_flush_event_queue(event_queue);
+                        jeu->begin(event_queue);
                         dessine = true;
                         break;
                     case ALLEGRO_KEY_DOWN :    // deplacement bas
@@ -238,6 +236,8 @@ int main(int argc, char **argv)
 
             // clear
             al_clear_to_color(NOIR);
+
+            jeu->update();
 
             // actualise affichage
             al_flip_display();
