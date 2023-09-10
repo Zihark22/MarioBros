@@ -96,10 +96,9 @@ Game::~Game() {
         objets.clear();
 
 		map<string,Sound*>::iterator it;  //Un itérateur
-        // for (const auto& pair : mesSons) {
-        for (it = mesSons.begin(); it!=mesSons.end(); ++it) {
+        // for (const auto& pair : mesSons)
+        for (it = mesSons.begin(); it!=mesSons.end(); ++it) 
             delete(it->second); // Libération de chaque instance de Sound
-        }
         mesSons.clear();
 
         // Affichage
@@ -157,10 +156,9 @@ void Game::setGameOver(bool isOver) {
 
 /////////////   METHODES AUTRES   ////////////////////
 void Game::begin() {
-    while (nomUser.size()<2)
-    {
+    do {
         nomUser = saisirUserName();
-    }
+    } while (nomUser.size()<2);
 }
 void Game::erreur(const char* txt)
 {

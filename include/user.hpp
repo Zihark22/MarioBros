@@ -8,44 +8,53 @@ class User : public Personnage
 {
     public:
 		User() : Personnage() {
-			for (int i = 0; i < IMGS_PERSOS; ++i)
-				imgs[i] = NULL;
+			imgs.clear();
 			this->h=0;
 			this->w=0;
 			this->msg="";
 		}
 		User(string nom) : Personnage(nom) // constructeur 
 		{
-			string chemin;
+			string chemin, orientation, extension, filename;
 			if(nom=="_") {
-				for (int i = 0; i < IMGS_PERSOS; ++i)
-					imgs[i] = NULL;
+				imgs.clear();
 				this->h=0;
 				this->w=0;
 			}
 			else {
-				for (int i = 0; i < IMGS_PERSOS; ++i) {
-					chemin="datas/persos/"+this->nom+"/"+this->nom+"_"+to_string(i)+".png";
-					imgs[i] = al_load_bitmap(chemin.c_str());
-					if(!imgs[i]) {
-						cerr << "Erreur : chargement du perso = " << this->nom << " et de l'image = " << chemin << endl;
+				chemin="datas/persos/"+this->nom+"/";
+				for (const auto& entry : directory_iterator(chemin)) 
+				{
+					if (entry.is_regular_file()) {
+						filename = entry.path().filename();
+						if(filename!=".DS_Store") {
+							orientation = filename.substr(nom.size()+1, filename.size()-nom.size()-(3+1+1)); // -3 pour l'extension   -1 pour le _ et -1 pour le .
+							extension = filename.substr(filename.size()-3);
+                			transform(orientation.begin(), orientation.end(), orientation.begin(), ::toupper); // passage en majuscule
+
+							// cout << "perso=" << nom << " , orientation=" << orientation << ", extension=" << extension << endl;
+							imgs[orientation] = al_load_bitmap((chemin+filename).c_str());
+							if(!imgs[orientation]) {
+								cerr << "Erreur : chargement du perso = " << this->nom << " et de l'image = " << chemin << endl;
+								this->h=0;
+								this->w=0;
+							}
+							else {
+								this->h=al_get_bitmap_height(imgs[orientation]);
+								this->w=al_get_bitmap_width(imgs[orientation]);
+							}
+						}
 					}
-				}
-				if(imgs[0]) {
-					this->h=al_get_bitmap_height(imgs[0]);
-					this->w=al_get_bitmap_width(imgs[0]);
-				}
-				else {
-					this->h=0;
-					this->w=0;
 				}
 			}
 			this->msg="";
 		}
     	~User() { // Destructeur
-			for (int i = 0; i < IMGS_PERSOS; ++i) {
-				if(imgs[i])
-					al_destroy_bitmap(imgs[i]);
+			map<string,ALLEGRO_BITMAP*>::iterator it;  //Un itérateur
+			for (it=imgs.begin();it!=imgs.end();++it) {
+				if(it->second) {
+					al_destroy_bitmap(it->second); // destruction des images
+				}
 			}
 		}
 		User(User const& userACopier); // constructeur de copie
@@ -67,7 +76,8 @@ class User : public Personnage
 
     protected :
 	    // Attributs
-	    ALLEGRO_BITMAP *imgs[IMGS_PERSOS];
+	    // ALLEGRO_BITMAP *imgs[IMGS_PERSOS];
+        map <string,ALLEGRO_BITMAP *> imgs;
 		string msg;
 };
 

@@ -215,10 +215,10 @@ int main(int argc, char **argv)
     // Liste des boutons
     bouton listeBut[NBR_BOUT];
     int indice = 0;
-    listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (float)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (int)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (int)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (int)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (int)((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
     progress++; afficherBarreProgression(progress);
 
     // Définir l'événement de redimensionnement de fenêtre

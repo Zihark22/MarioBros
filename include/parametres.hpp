@@ -14,6 +14,7 @@
 #include <iterator>     // iterateurs
 #include <map> 			// dictionnaire ou association clé/valeur : map<clé_type, valeur_type> nom_var;  éléments triés selon leur clé. C'est en fait des pairs accessible via <utility>
 #include <utility>      // accèder clé/valeur de map
+#include <filesystem>   // OS obtenir l'arborescence des fichiers
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -26,7 +27,10 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_video.h>
 
-using namespace std; // déclaration qui permet de rendre tous les symboles du namespace std disponibles dans le scope actuel sans avoir besoin de les qualifier explicitement.
+namespace fs = std::__fs::filesystem;
+
+using namespace std;
+using namespace fs;
 
 ///////////////////////////////////////////////
 ///////////////// PARAMETRES /////////////////

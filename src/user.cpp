@@ -2,125 +2,137 @@
 
 User::User(User const& userACopier) :  msg(userACopier.msg) 
 {
-    for (int i = 0; i < IMGS_PERSOS; ++i) {
-        if(userACopier.imgs[i])
-            this->imgs[i] = al_clone_bitmap(userACopier.imgs[i]);
+    map<string,ALLEGRO_BITMAP*>::iterator it;  //Un itérateur
+    for (auto it=userACopier.imgs.begin(); it!=userACopier.imgs.end(); ++it) {
+        if(it->second)
+            imgs[it->first] = al_clone_bitmap(it->second); // copie des images
         else
-            this->imgs[i] = nullptr;
+            imgs[it->first] = nullptr;
     }
 }
 void User::actualiseSize(int indice) {
+    string orientation;
     switch(indice) {
         case SUD:
-            indice=0;
+            orientation="FACE";
             break;
         case EST:
         case OUEST:
-            indice=1;
+            orientation="COTE";
             break;
         case NORD:
-            indice=2;
+            orientation="DOS";
             break;
         case RUNR:
         case RUNL:
-            indice=3;
+            orientation="COURIR";
             break;
         case COUCHER:
         case COUCHEL:
-            indice=4;
+            orientation="BAISSE";
             break;
         default:
-            indice=0;
+            orientation="FACE";
             break;
     }
-    this->w = al_get_bitmap_width(imgs[indice])  * this->tailleFactor;
-    this->h = al_get_bitmap_height(imgs[indice]) * this->tailleFactor;
+    this->w = al_get_bitmap_width( imgs[orientation]) * this->tailleFactor;
+    this->h = al_get_bitmap_height(imgs[orientation]) * this->tailleFactor;
 }
 ALLEGRO_BITMAP* User::getImg(int indice) const {
+    string orientation;
     switch(indice) {
         case SUD:
-            indice=0;
+            orientation="FACE";
             break;
         case EST:
         case OUEST:
-            indice=1;
+            orientation="COTE";
             break;
         case NORD:
-            indice=2;
+            orientation="DOS";
             break;
         case RUNR:
         case RUNL:
-            indice=3;
+            orientation="COURIR";
             break;
         case COUCHER:
         case COUCHEL:
-            indice=4;
+            orientation="BAISSE";
             break;
         default:
-            indice=0;
+            orientation="FACE";
             break;
     }
-    return imgs[indice];
+    // Utilisez la fonction find pour rechercher l'image par clé
+    auto it = imgs.find(orientation);
+
+    // Vérifiez si l'image a été trouvée
+    if (it != imgs.end()) {
+        return it->second;
+    } else {
+        // Retournez nullptr (ou une valeur par défaut) si l'image n'est pas trouvée
+        return nullptr; // Vous pouvez aussi choisir de renvoyer une image par défaut ici si nécessaire
+    }
 }
 void User::setImg(const char* chemin, int indice){
+    string orientation;
     switch(indice) {
         case SUD:
-            indice=0;
+            orientation="FACE";
             break;
         case EST:
         case OUEST:
-            indice=1;
+            orientation="COTE";
             break;
         case NORD:
-            indice=2;
+            orientation="DOS";
             break;
         case RUNR:
         case RUNL:
-            indice=3;
+            orientation="COURIR";
             break;
         case COUCHER:
         case COUCHEL:
-            indice=4;
+            orientation="BAISSE";
             break;
         default:
-            indice=0;
+            orientation="FACE";
             break;
     }
-    al_destroy_bitmap(this->imgs[indice]);
-    this->imgs[indice]=al_load_bitmap(chemin);
-    if(!imgs[indice]) {
-        // erreur("chargement du perso");
+    al_destroy_bitmap(this->imgs[orientation]);
+    this->imgs[orientation]=al_load_bitmap(chemin);
+    if(!imgs[orientation]) {
         cerr << "Erreur : chargement du perso" << endl;
     }
 }
 void User::setImg(ALLEGRO_BITMAP* img, int indice) {
+    string orientation;
     switch(indice) {
         case SUD:
-            indice=0;
+            orientation="FACE";
             break;
         case EST:
         case OUEST:
-            indice=1;
+            orientation="COTE";
             break;
         case NORD:
-            indice=2;
+            orientation="DOS";
             break;
         case RUNR:
         case RUNL:
-            indice=3;
+            orientation="COURIR";
             break;
         case COUCHER:
         case COUCHEL:
-            indice=4;
+            orientation="BAISSE";
             break;
         default:
-            indice=0;
+            orientation="FACE";
             break;
     }
-    this->imgs[indice]=img;
-    if(!imgs[indice]) {
-        // erreur("chargement du perso");
-        cerr << "Erreur : chargement du perso" << endl;
+    this->imgs[orientation]=img;
+    if(!imgs[orientation]) {
+        cerr << "Erreur : chargement de l'image " << orientation << " du perso" << nom << endl;
     }
 }
 string User::getMessage() const {
@@ -133,38 +145,39 @@ void User::afficherMessage(ALLEGRO_FONT *font) {
     al_draw_text(font, ROUGE, this->coord.x+this->w, this->coord.y-20, ALLEGRO_ALIGN_CENTER, this->msg.c_str());
 }
 void User::draw(int indice) {
+    string orientation;    
     if(afficher) {
         bool gauche=false;
         if(indice==COUCHEL || indice==OUEST || indice==RUNL)
             gauche=true;
         switch(indice) {
             case SUD:
-                indice=0;
+                orientation="FACE";
                 break;
             case EST:
             case OUEST:
-                indice=1;
+                orientation="COTE";
                 break;
             case NORD:
-                indice=2;
+                orientation="DOS";
                 break;
             case RUNR:
             case RUNL:
-                indice=3;
+                orientation="COURIR";
                 break;
             case COUCHER:
             case COUCHEL:
-                indice=4;
+                orientation="BAISSE";
                 break;
             default:
-                indice=0;
+                orientation="FACE";
                 break;
         }
-        if(imgs[indice]) {
+        if(imgs[orientation]) {
             if(gauche)
-                al_draw_scaled_bitmap(this->imgs[indice], 0, 0, al_get_bitmap_width(imgs[indice]), al_get_bitmap_height(imgs[indice]), this->coord.x, this->coord.y, this->w, this->h, ALLEGRO_FLIP_HORIZONTAL);
+                al_draw_scaled_bitmap(this->imgs[orientation], 0, 0, al_get_bitmap_width(imgs[orientation]), al_get_bitmap_height(imgs[orientation]), this->coord.x, this->coord.y, this->w, this->h, ALLEGRO_FLIP_HORIZONTAL);
             else
-                al_draw_scaled_bitmap(this->imgs[indice], 0, 0, al_get_bitmap_width(imgs[indice]), al_get_bitmap_height(imgs[indice]), this->coord.x, this->coord.y, this->w, this->h, 0);
+                al_draw_scaled_bitmap(this->imgs[orientation], 0, 0, al_get_bitmap_width(imgs[orientation]), al_get_bitmap_height(imgs[orientation]), this->coord.x, this->coord.y, this->w, this->h, 0);
         }
     }
 /*

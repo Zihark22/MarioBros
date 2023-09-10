@@ -17,10 +17,12 @@ if [ $# -eq 0 ]; then # aucun paramètre
   # Compilez tous les fichiers source .cpp en fichiers objets .o
   for file in src/*.cpp; do
       filename=$(basename "$file")
-      g++ -c "$file" -Iinclude -o "build/obj/${filename%.cpp}.o"
+      g++ -std=c++17 -c "$file" -Iinclude -o "build/obj/${filename%.cpp}.o"
       if [ $? -ne 0 ]; then
         echo "\033[31mErreur lors de la compilation de ${file}\033[0m"
         exit 1  # Sortie du script en cas d'erreur
+      else
+        echo "\033[35mCompilation ${file} successful\033[0m"
       fi
   done
 
