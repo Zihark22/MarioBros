@@ -43,7 +43,7 @@ using namespace fs;
 #define MAX_BLOCS 40
 #define MAX_MECHANTS 10
 #define MAX_OBJETS 10
-#define FRAME_RATE 30
+#define FRAME_RATE 20
 #define TIME_STEP 1.0/FRAME_RATE
 #define MAX_SPEED 8.0
 #define FREIN 1

@@ -81,16 +81,17 @@ int main(int argc, char **argv)
     assert(display != 0) ;
     al_set_window_title(display, "Mario Game");
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA); // effet de transparence
+    al_clear_to_color(NOIR); // Clear
 
     // Déclaration du jeu
     Game *jeu = new Game(display);
     jeu->setPerso("stickman");
 
     // Change position fenetre
-    int wx=0, wy=0;
-    al_get_window_position(display, &wx, &wy);
-    wx+=1000;
-    jeu->setWindowPOS(wx,wy,display);
+    // int wx=0, wy=0;
+    // al_get_window_position(display, &wx, &wy);
+    // wx+=1000;
+    // jeu->setWindowPOS(wx,wy,display);
 
     // Création de la file d'attente d'événements
     event_queue = al_create_event_queue();
@@ -107,8 +108,8 @@ int main(int argc, char **argv)
     al_register_event_source(event_queue, al_get_display_event_source(display));
 
     // Remet fenetre au centre
-    wx-=1000;
-    jeu->setWindowPOS(wx,wy,display);
+    // wx-=1000;
+    // jeu->setWindowPOS(wx,wy,display);
 
     // Défini la cible de rendu
     al_set_target_backbuffer(display);
@@ -116,14 +117,10 @@ int main(int argc, char **argv)
     // Début du timer
     al_start_timer(timer);
 
-    // Affichage de l'écran d'accueil
-    jeu->tracerAccueil();
-
     while(!jeu->isGameOver())
     {
         al_wait_for_event(event_queue, &ev); // attente d'un des événements
-
-        switch (ev.type) 
+        switch (ev.type)
         {
             case ALLEGRO_EVENT_DISPLAY_RESIZE:
                 break;
@@ -133,86 +130,20 @@ int main(int argc, char **argv)
                 break;
 
             case ALLEGRO_EVENT_KEY_DOWN:
-                switch(ev.keyboard.keycode)
-                {      
-                    case ALLEGRO_KEY_ESCAPE : // EXIT
-                        jeu->setGameOver(true);
-                        break;
-                    case ALLEGRO_KEY_ENTER :    // ACCUEIL
-                        jeu->begin(event_queue);
-                        dessine = true;
-                        break;
-                    case ALLEGRO_KEY_DOWN :    // deplacement bas
-                    case KEYBOARD_S :
-                        break;
-                    case ALLEGRO_KEY_UP :    // deplacement haut
-                    case KEYBOARD_Z :
-                        break;
-                    case ALLEGRO_KEY_SPACE :
-                        break;
-                    case ALLEGRO_KEY_RIGHT :    // deplacement droite
-                    case KEYBOARD_D :
-                        break;
-                    case ALLEGRO_KEY_LEFT :    // deplacement gauche
-                    case KEYBOARD_Q :
-                        break;
-                    
-                    case KEYBOARD_R :
-                        break;
-
-                    case KEYBOARD_F :
-                        break;
-
-                    case KEYBOARD_N :
-                        break;
-                    case KEYBOARD_A :
-                        break;
-                    case KEYBOARD_C :
-                        break;
-                    case KEYBOARD_B :
-                        break;
-                    case ALLEGRO_KEY_PAD_0 :
-                    case ALLEGRO_KEY_0 :
-                        break;
-                    case ALLEGRO_KEY_PAD_1 :
-                    case ALLEGRO_KEY_1 :
-                        break;
-                    case ALLEGRO_KEY_PAD_2 :
-                    case ALLEGRO_KEY_2 :
-                        break;
-                    case ALLEGRO_KEY_PAD_3 :
-                    case ALLEGRO_KEY_3 :
-                        break;
-                }
+                jeu->handleKeyPressed(ev.keyboard.keycode, event_queue);
                 break;
 
             case ALLEGRO_EVENT_KEY_UP:
-                switch(ev.keyboard.keycode)
-                {
-                    case ALLEGRO_KEY_RIGHT :    // deplacement droite
-                    case KEYBOARD_D :
-                        break;
-                    case ALLEGRO_KEY_LEFT :    // deplacement gauche
-                    case KEYBOARD_Q :
-                        break;
-                    case ALLEGRO_KEY_DOWN :    // deplacement bas
-                    case KEYBOARD_S :
-                        break;
-                    case ALLEGRO_KEY_UP :      // deplacement haut
-                    case KEYBOARD_Z :
-                        break;
-                    case ALLEGRO_KEY_SPACE :
-                        break;
-                    case KEYBOARD_C :
-                        break;
-                }
+                jeu->handleKeyUnPressed(ev.keyboard.keycode, event_queue);
                 break;
 
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
                 if(ev.mouse.button==1) {
+                    jeu->actionOnMenu();
+                    while(!al_is_event_queue_empty(event_queue))
+                        al_flush_event_queue(event_queue);
                     //fprintf(stdout, "Vous avez cliqué à gauche avec la souris.\n");
-                }
-                else if(ev.mouse.button==2) {
+                } else if(ev.mouse.button==2) {
                     //fprintf(stdout, "Vous avez cliqué à droite avec la souris.\n");
                 }
                 break;
@@ -222,24 +153,41 @@ int main(int argc, char **argv)
                 break;
 
             case ALLEGRO_EVENT_MOUSE_AXES:
-                al_get_mouse_state(&mouse_state);
+                if(jeu->getMenuSelected()) {
+                    al_get_mouse_state(&mouse_state);
+                    if(abs(jeu->getMousePos().x-mouse_state.x)>10 || abs(jeu->getMousePos().y-mouse_state.y)>10)
+                    {
+                        jeu->setMousePos(mouse_state.x , mouse_state.y);
+                        jeu->checkMouseOnButton();
+                    }
+                }
                 break;
 
             case ALLEGRO_EVENT_TIMER :
+                if(!jeu->getMenuSelected()) // si pas de Menu on update sinon reste figé
+                    jeu->update();
+                dessine = true;
                 break;
 
             default:
                 break;
         }
 
-        if(dessine==true && al_is_event_queue_empty(event_queue)){
+        if(dessine==true && al_is_event_queue_empty(event_queue) && !jeu->isGameOver()){
 
-            // clear
+            // Clear
             al_clear_to_color(NOIR);
 
-            jeu->update();
+            // Dessiner
+            if(jeu->getStarted())   // Si le jeu est commencé
+                jeu->dessine();        // Dessine le jeu (maps, blocs, perso, ...)
+            else
+                jeu->tracerAccueil();  // dessine Accueil
 
-            // actualise affichage
+            if(jeu->getMenuSelected()) // si le menu est activé
+                jeu->dessineMenu();    // dessine Menu
+
+            // Actualise affichage
             al_flip_display();
 
             dessine=false;

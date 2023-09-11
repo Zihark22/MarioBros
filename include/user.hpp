@@ -70,6 +70,7 @@ class User : public Personnage
     	void setMessage(string message);
 
     	// Autres
+		string indiceToKey(int indice) const;
     	void actualiseSize(int indice);
 		void draw(int indice);
     	void afficherMessage(ALLEGRO_FONT *font);

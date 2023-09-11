@@ -14,7 +14,9 @@ class Game
     	// Getters
         bool isGameOver();
         string getNomUser();
-
+        bool getStarted();
+        bool getMenuSelected();
+        POS getMousePos();
 
     	// Setters
         void setPerso(string nom);
@@ -23,22 +25,34 @@ class Game
         void setWindowX(int windowX, ALLEGRO_DISPLAY *display);
         void setWindowY(int windowY, ALLEGRO_DISPLAY *display);
         void setGameOver(bool isOver);
+        void setMenuSelected(bool menu);
+        void setMousePos(int x, int y);
 
-
-    	// Autres
-        void begin(ALLEGRO_EVENT_QUEUE *event_queue); // début du jeu (saisie du nom puis lancement du jeu sur map0)
+    	// Bases
         void erreur(const char* txt);
         string saisirUserName(void);
         void load_maps(void);
-        void update();
+        void begin(ALLEGRO_EVENT_QUEUE *event_queue); // début du jeu (saisie du nom puis lancement du jeu sur map0)
+
+        // Dessins
+        void dessine();
+        void dessineMenu();
+        void afficherTexte();
         void tracerAccueil();
+
+        // Changements
+        void update();
         void changeMap();
+        void handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue);
+        void handleKeyUnPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue);
+        void checkMouseOnButton();
+        void actionOnMenu();
 
     private :
         void charge_polices();
         void detruit_polices();
         int createMap0();
-
+        void afficheCommandes();
 
     protected:
 	// Attributs
@@ -47,7 +61,6 @@ class Game
         int score;
         Duree temps;
         int vies;
-
 
         // Affichage
         ALLEGRO_DISPLAY *display;
@@ -70,14 +83,18 @@ class Game
         vector<Bloc> blocs;
         vector<Mechant> mechants;
         vector<ObjectLance> objets;
+        map<string,bool> move;
 
         // Repères
-        int base_sol;    // position de base du sol au niveau de la creation de la map
-        int sol;         // position actuelle du sol, la limite de descente verticale du perso (le dessus d'un bloc mystère par exemple)
-        int nbrBlocsSol; // nbr de blocs constituant le sol (de 0 a nbrBlocsSol dans blocs)
-        int num_map;     // numéro de la map actuelle
-        int entree;      // indice du bloc d'entree
-        int sortie;      // indice du bloc de sortie
+        int base_sol;       // position de base du sol au niveau de la creation de la map
+        int sol;            // position actuelle du sol, la limite de descente verticale du perso (le dessus d'un bloc mystère par exemple)
+        int nbrBlocsSol;    // nbr de blocs constituant le sol (de 0 a nbrBlocsSol dans blocs)
+        int num_map;        // numéro de la map actuelle
+        int entree;         // indice du bloc d'entree
+        int sortie;         // indice du bloc de sortie
+        int perso_num_img;  // indice de l'image du perso
+        int cmptFrames;     // compte le défilement des frames pour le calcul du temps
+        POS souris;          // position de la souris
 
         // Accueil
         string msg_accueil;
@@ -86,21 +103,21 @@ class Game
 
         // Menu Echap
         vector<bouton> listeBut;
+        int boutonSelected;      // obtenir le bouton selectionné pour l'action a accomplir
 
         // Musiques
         ALLEGRO_VOICE *voice;
         ALLEGRO_MIXER *mixer;
         map <string,Sound*> mesSons;
-
+        bool sounds_on;
 
         // Images
         ALLEGRO_BITMAP *wallpaper;
         ALLEGRO_BITMAP *logo;
 
-
         // Moments du jeu
-        bool enter; // si on a validé le début du jeu
-
+        bool started;      // si on a validé le début du jeu
+        bool menuSelected; // si on a appuyé sur ECHAP pour afficher le Menu
 
         // Anim
         bool anim_fin;
