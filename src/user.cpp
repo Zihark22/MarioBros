@@ -9,6 +9,7 @@ User::User(User const& userACopier) :  msg(userACopier.msg)
         else
             imgs[it->first] = nullptr;
     }
+    actualImg=al_clone_bitmap(userACopier.actualImg);
 }
 string User::indiceToKey(int indice) const {
     string orientation;
@@ -42,6 +43,8 @@ void User::actualiseSize(int indice) {
     this->w = al_get_bitmap_width( imgs[orientation]) * this->tailleFactor;
     this->h = al_get_bitmap_height(imgs[orientation]) * this->tailleFactor;
 }
+
+////////// INUTILES /////////////
 ALLEGRO_BITMAP* User::getImg(int indice) const {
     string orientation=indiceToKey(indice);
 
@@ -72,6 +75,8 @@ void User::setImg(ALLEGRO_BITMAP* img, int indice) {
         cerr << "Erreur : chargement de l'image " << orientation << " du perso" << nom << endl;
     }
 }
+////////////////////////////////
+
 string User::getMessage() const {
     return this->msg;
 }
@@ -81,20 +86,71 @@ void User::setMessage(string message) {
 void User::afficherMessage(ALLEGRO_FONT *font) {
     al_draw_text(font, ROUGE, this->coord.x+this->w, this->coord.y-20, ALLEGRO_ALIGN_CENTER, this->msg.c_str());
 }
-void User::draw(int indice) {
-    if(afficher) {
-        bool gauche=false;
-        if(indice==COUCHEL || indice==OUEST || indice==RUNL)
-            gauche=true;
-        
-        string orientation=indiceToKey(indice);  
-        if(imgs[orientation]) {
-            if(gauche)
-                al_draw_scaled_bitmap(this->imgs[orientation], 0, 0, al_get_bitmap_width(imgs[orientation]), al_get_bitmap_height(imgs[orientation]), this->coord.x, this->coord.y, this->w, this->h, ALLEGRO_FLIP_HORIZONTAL);
-            else
-                al_draw_scaled_bitmap(this->imgs[orientation], 0, 0, al_get_bitmap_width(imgs[orientation]), al_get_bitmap_height(imgs[orientation]), this->coord.x, this->coord.y, this->w, this->h, 0);
-        }
+void User::changeActualImg(string mouv) {
+    if(mouv=="courirD") {
+        actualImg=imgs["courir"];
+        inverse=false;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
     }
+    else if(mouv=="courirG") {
+        actualImg=imgs["courir"];
+        inverse=true;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
+    }
+    else if(mouv=="droite") {
+        coord.y+=h;
+        actualImg=imgs["cote"];
+        inverse=false;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
+        coord.y-=h;
+    }
+    else if(mouv=="gauche") {
+        coord.y+=h;
+        actualImg=imgs["cote"];
+        inverse=true;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
+        coord.y-=h;
+    }
+    else if(mouv=="sauter") {
+        actualImg=imgs["face"];
+        inverse=false;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
+    }
+    else if(mouv=="entrer") {
+        actualImg=imgs["dos"];
+        inverse=false;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
+    }
+    else if(mouv=="baisserD") {
+        coord.y+=h;
+        actualImg=imgs["baisser"];
+        inverse=false;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
+        coord.y-=h;
+    }
+    else if(mouv=="baisserG") {
+        coord.y+=h;
+        actualImg=imgs["baisser"];
+        inverse=true;
+        w=al_get_bitmap_width(actualImg);
+        h=al_get_bitmap_height(actualImg);
+        coord.y-=h;
+    }
+    else
+        cerr << "Erreur : mouvement " << mouv << " non existant !" << endl;
+}
+void User::draw() {
+    if(afficher) {
+        al_draw_scaled_bitmap(actualImg, 0, 0, w, h, coord.x, coord.y, w*tailleFactor, h*tailleFactor, inverse); // ALLEGRO_FLIP_HORIZONTAL
+    }
+}
 /*
 void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    float sx, float sy, float sw, float sh,
@@ -113,4 +169,3 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
         ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
         ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
 */
-}

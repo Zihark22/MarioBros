@@ -54,7 +54,7 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "dependsOn":["erase_unwanted_files"]
+            "dependsOn":["compiler_classes_to_objects"]
         }
     ]
 }

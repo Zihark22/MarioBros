@@ -15,6 +15,7 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     window_x = 0;
     window_y = 0;
     RATIO_FRAME = window_height/HEIGHT;
+    agrandi_fact=1;
 
     // Chargement polices
     charge_polices();
@@ -35,10 +36,9 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     move["droite"]=false;
     move["gauche"]=false;
     move["sauter"]=false;
-    move["baisse"]=false;
 
     // Repères
-    base_sol = nbrBlocsSol = entree = sortie = num_map = perso_num_img = cmptFrames = souris.x = souris.y = 0;
+    base_sol = nbrBlocsSol = entree = sortie = num_map = cmptFrames = souris.x = souris.y = isOrientedLeft = 0;
 
     // Accueil
     msg_accueil = "Bienvenu dans Mario Bros. !! Appuyez sur ENTRER pour JOUER";
@@ -332,11 +332,12 @@ void Game::tracerAccueil() {
         al_draw_text(font, ORANGE, window_width+posPrintPart, posY-20, ALLEGRO_ALIGN_LEFT, msg_accueil.c_str());
 }
 void Game::dessine() {
-    maps[num_map].draw(window_width, window_height);
-    afficherTexte();
-    perso->draw(perso_num_img); // draw perso
+    maps[num_map].draw(window_width, window_height);    // draw maps
+    perso->draw();                                      // draw perso
     for (int i = 0; i < blocs.size(); ++i) 
-        blocs[i].draw(); // draw blocs
+        blocs[i].draw();                                // draw blocs
+    
+    afficherTexte();                                    // draw infos
 }
 void Game::dessineMenu() {
     // Dessiner le rectangle de flou
@@ -420,7 +421,11 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             break;
         case ALLEGRO_KEY_DOWN :    // deplacement bas
         case KEYBOARD_S :
-            move["baisse"]=true;
+            move["baisser"]=true;
+            if(isOrientedLeft)
+                perso->changeActualImg("baisserG");
+            else
+                perso->changeActualImg("baisserD");
             if(menuSelected) {
                 if(boutonSelected>=-1) {
                     listeBut[boutonSelected].couleurTxt=ROUGE;
@@ -452,10 +457,14 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
         case ALLEGRO_KEY_RIGHT :    // deplacement droite
         case KEYBOARD_D :
             move["droite"]=true;
+            isOrientedLeft=false;
+            perso->changeActualImg("droite");
             break;
         case ALLEGRO_KEY_LEFT :    // deplacement gauche
         case KEYBOARD_Q :
             move["gauche"]=true;
+            isOrientedLeft=true;
+            perso->changeActualImg("gauche");
             break;
         
         case KEYBOARD_R :
@@ -485,9 +494,6 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
         case ALLEGRO_KEY_3 :
             break;
     }
-    if(perso->getSpeed().x+ACCELERATION < MAX_SPEED && perso->getSpeed().x-ACCELERATION > -MAX_SPEED) {
-        perso->setSpeed(perso->getSpeed().x+ACCELERATION*(move["droite"]-move["gauche"]) , perso->getSpeed().y-jump_force*move["sauter"] );
-    }
 }
 void Game::handleKeyUnPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
     switch(keycode)
@@ -498,7 +504,11 @@ void Game::handleKeyUnPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             break;
         case ALLEGRO_KEY_DOWN :    // deplacement bas
         case KEYBOARD_S :
-            move["baisse"]=false;
+            move["baisser"]=false;
+            if(isOrientedLeft)
+                perso->changeActualImg("gauche");
+            else
+                perso->changeActualImg("droite");
             break;
         case ALLEGRO_KEY_UP :    // deplacement haut
         case KEYBOARD_Z :
@@ -646,29 +656,52 @@ void Game::update() {
         mesSons["music"]->stop();
 
     // Gestion du temps
-    if(num_map > 0) {
-        cmptFrames++;
-        if( cmptFrames>FRAME_RATE) {
+    cmptFrames++;
+    if(cmptFrames>FRAME_RATE) {
+        if(num_map > 0) 
             temps += Duree(0,0,1);
-            cmptFrames = 0;
-        }
+        cmptFrames = 0;
     }
     
     if(started) {
-        // FREINAGE
+        // Gravité
+        if(perso->getPos().y + perso->getH() < window_height-sol)
+            perso->setSpeedY(perso->getSpeed().y+gravity);
+        else
+            perso->setSpeedY(0);
+
+        //Deplacements
+        if(move["droite"] && perso->getSpeed().x+ACCELERATION <= MAX_SPEED)
+            perso->setSpeedX(perso->getSpeed().x+ACCELERATION);
+        if(move["gauche"] && perso->getSpeed().x-ACCELERATION > -MAX_SPEED)
+            perso->setSpeedX(perso->getSpeed().x-ACCELERATION);
+        if(move["sauter"] && perso->getSpeed().y==0) 
+            perso->setSpeedY(-jump_force);
+
+        // Effet courir
+        if(move["droite"]) {
+            if((cmptFrames>FRAME_RATE/4 && cmptFrames<2*FRAME_RATE/4) || cmptFrames>3*FRAME_RATE/4)
+                perso->changeActualImg("courirD");
+            else
+                perso->changeActualImg("droite");
+        }
+        else if(move["gauche"]) {
+            if((cmptFrames>FRAME_RATE/4 && cmptFrames<2*FRAME_RATE/4) || cmptFrames>3*FRAME_RATE/4)
+                perso->changeActualImg("courirG");
+            else
+                perso->changeActualImg("gauche");
+        }
+
+        // Freinage
         if(!move["droite"] && !move["gauche"] && perso->getSpeed().x!=0) {
             if(perso->getSpeed().x>0)
                 perso->setSpeedX(perso->getSpeed().x-FREIN);
             else if(perso->getSpeed().x<0)
                 perso->setSpeedX(perso->getSpeed().x+FREIN);
         }
-        // Limite perso
-        if(perso->getPos().y < window_height-base_sol-perso->getH()) // condition provisoire du perso limite descente
-            perso->setSpeedY(perso->getSpeed().y+gravity);
-        else {
-            perso->setPosY(window_height-base_sol-perso->getH()-1);
-            perso->setSpeedY(0);
-        }
+
+        // Gestion des collisions
+        handleCollisions();
 
         // acualise coord
         perso->actualisePos();
@@ -775,5 +808,250 @@ int Game::createMap0()
 
 
 // ---------------  COLLISIONS ------------------//
+float Game::conv_to_Rad(float const& degrees) {
+    return degrees*PI/180;
+}
+float Game::conv_to_Deg(float const& rad) {
+    return rad*180/PI;
+}
+float Game::calculateAngle(VECT2D const& vectorA, VECT2D const& vectorB) {
+    float dotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
+    float magnitudeA = sqrt(vectorA.x * vectorA.x + vectorA.y * vectorA.y);
+    float magnitudeB = sqrt(vectorB.x * vectorB.x + vectorB.y * vectorB.y);
+    float cosAngle = dotProduct / (magnitudeA * magnitudeB);
+    float sinAngle = sqrt(1.0f - pow(cosAngle,2));
 
+    float angle = acos(cosAngle);
 
+    if(vectorA.x*vectorB.y-vectorA.y*vectorB.x < 0.0f)
+        angle = 2*PI-angle;
+
+    return angle; // conv_to_Deg(angle);
+}
+int Game::collisionPersoBloc(User const& perso, Bloc const& bloc) 
+{
+    // Positions
+    int px = perso.getPos().x;
+    int py = perso.getPos().y;
+    int bx = bloc.getCoord().x;
+    int by = bloc.getCoord().y;
+
+    // Tailles
+    int pw = perso.getW();
+    int ph = perso.getH();
+    int bw = bloc.getW();
+    int bh = bloc.getH();
+
+    // Centre
+    int bcx = bx+bw/2;
+    int bcy = by+bh/2;
+    int pcx = px+pw/2;
+    int pcy = py+ph/2;
+
+    // Distances
+    int dcx = abs(bcx-pcx);
+    int dcy = abs(bcy-pcy);
+
+    VECT2D vect_bloc_perso = {(float)pcx-bcx , (float)pcy-bcy , 0};
+    vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
+
+    VECT2D vect_bloc = { (float)bcx+bw/2-bcx , (float)bcy-bcy , 1 };
+
+    float angle = calculateAngle(vect_bloc_perso, vect_bloc);
+
+    if(dcx<=(pw+bw)/2 && dcy<=(ph+bh)/2 && vect_bloc_perso.norme < sqrt( pow((pw+bw)/2,2) + pow((ph+bh)/2,2) ))  // Collision
+    {
+        if(angle>7*PI/6 and angle<11*PI/6)
+            return NORD;
+        else if(angle>PI/6 and angle<5*PI/6)
+            return SUD;
+        else if(angle<1*PI/6 or angle>11*PI/6)
+            return OUEST;
+        else if(angle>5*PI/6 and angle<7*PI/6)
+            return EST;
+        else {
+            cerr << "erreur perso/bloc" << endl;
+            return FIN;
+        }
+    }
+    else 
+        return FIN; 
+}
+
+void Game::handleCollisions()
+{
+    int i=0, j=0, k=0, nbrColl=0, dirCollision=0, tmpNbrObjets=0;
+    vector<ObjectLance> tmpObjets;
+    POS tmpCoord;
+    int cmptNoCollisions=0;
+
+    // Collisions perso/blocs
+    if(anim_sortie==false && anim_entree==false && anim_fin==false) 
+    { 
+        for(i=0;i<blocs.size();i++)
+        {
+            dirCollision = collisionPersoBloc(*perso , blocs[i]);
+            // afficheOrientation(dirCollision);
+            if(dirCollision!=FIN && i<nbrBlocsSol) { // si collision avec le sol
+                if(move["sauter"]==false)
+                    perso->setSpeedY(0);  // pas de déplacement en Y sauf si saut
+                sol=base_sol;
+                if(perso->getPos().y<window_height-sol-perso->getH() && sounds_on) 
+                    mesSons["son_sol"]->play();
+                perso->setPosY(window_height-sol-perso->getH());
+            }
+            else if(dirCollision!=FIN && blocs[i].isObject()==true && blocs[i].isHiding()==false && num_map!=0) {  //   tape le bloc mystère par en dessous
+                if(blocs[i].is_enable()==true) 
+                {
+                    blocs[i].disable();
+                    blocs[i].setCoord(-50,-50);
+                    switch(blocs[i].getType()) 
+                    {
+                        case CHAMPI :
+                            agrandi_fact=1;
+                            gravity=2;
+                            perso->setMessage(">");
+                            if(sounds_on) 
+                                mesSons["son_powerUp"]->play();
+                            break;
+                        case CHAMPI_GEANT :
+                            agrandi_fact=2;
+                            gravity=2;
+                            if(sounds_on) 
+                                mesSons["son_powerUp"]->play();
+                            break;
+                        case COIN :
+                            score++;
+                            if(score%10==0 and score!=0) {
+                                perso->setMessage("Zup");
+                                vies++;
+                                score=0;
+                            }
+                            else {
+                                perso->setMessage("+1");
+                                if(sounds_on) 
+                                    mesSons["son_coin"]->play();
+                            }
+                            break;
+                        case FLEUR :
+                            tmpCoord = perso->getPos();
+                            perso = new User("marioFire");
+                            perso->setPos(tmpCoord);
+                            agrandi_fact=1;
+                            gravity=2;
+                            if(sounds_on) 
+                                mesSons["son_powerUp"]->play();
+                            break;
+                        case CHAMPI_MINI :
+                            tmpCoord = perso->getPos();
+                            if(perso->getNom().compare("marioFire")==0)
+                                perso = new User("mario");
+                            perso->setPos(tmpCoord);
+                            agrandi_fact=0.5;
+                            gravity=1;
+                            if(sounds_on) 
+                                mesSons["son_powerUp"]->play();
+                            break;
+                        case CHAMPI_DOWN :
+                            break;
+                        case ETOILE :
+                            break;
+                    }
+                }
+            }
+            else if(dirCollision!=FIN && blocs[i].getType()==DOOR_CLOSED) {
+                if(move["sauter"]) {
+                    perso->setSpeedY(0);
+                    perso->changeActualImg("entrer");
+                    POS coordSortie = blocs[sortie].getCoord();
+                    blocs[sortie] = Bloc("datas/images/Door_open.png",0,0,ZERO,1,false,false,DOOR_OPEN);
+                    blocs[sortie].setCoord(coordSortie);
+                    perso->setPosX(blocs[sortie].getCoord().x+blocs[sortie].getW()/2-perso->getW()/2);
+                    anim_fin=true;
+                }
+            }
+            else if(dirCollision!=FIN && blocs[i].getType()==DOOR_OPEN) {
+                if(move["sauter"]) {
+                    al_rest(0.5);
+                    num_map = num_map >= NB_MAPS-1 ? 1 : num_map+1;
+                    changeMap();
+                }
+            }
+            else 
+            {
+                switch(dirCollision) 
+                {
+                    case SUD :
+                        if(i==sortie && blocs[sortie].getType()==TUYAU && blocs[sortie].getAngle()==ZERO && move["baisser"]) { // sortie de map dans le tuyau
+                            anim_sortie=true;
+                        }
+                        else {
+                            if(!move["sauter"]) 
+                                perso->setSpeedY(0);
+                            sol=window_height-blocs[i].getCoord().y-1;
+                            if(perso->getPos().y<window_height-sol-perso->getH() && sounds_on) 
+                                mesSons["son_sol"]->play();
+                            perso->setPosY(window_height-sol-perso->getH());
+                            
+                        }
+                        break;
+
+                    case EST :
+                        if(i==sortie && blocs[sortie].getType()==TUYAU && (blocs[sortie].getAngle()==GAUCHE || blocs[sortie].getAngle()==DROITE) ) { // sortie de map dans le tuyau
+                            anim_sortie=true;
+                        }
+                        else if(i==sortie && sortie !=0 && blocs[i].getType()==CHATEAU && perso->getNom()!="stickman" && perso->getPos().x+perso->getW()>blocs[sortie].getCoord().x && perso->getPos().y+perso->getH()>window_height-base_sol-5) { // sortie par le chateau
+                            anim_fin=true;
+                            jump_force=-25;
+                            gravity=2;
+                        }
+                        else {
+                            perso->setPosX(blocs[i].getCoord().x-perso->getW()-1);
+                            if(perso->getSpeed().x!=0) 
+                                perso->setSpeedX(0);
+                        }
+                        break;
+
+                    case OUEST :
+                        perso->setPosX(blocs[i].getCoord().x+blocs[i].getW()+1);
+                        if(perso->getSpeed().x!=0) 
+                            perso->setSpeedX(0);
+                        break;
+
+                    case NORD :
+                        perso->setPosY(blocs[i].getCoord().y+blocs[i].getH()+1);
+                        perso->setSpeedY(0);
+                        tmpCoord = perso->getPos();
+                        if(i==0+nbrBlocsSol && num_map==0) {
+                            perso = new User("mario");
+                            perso->setPos(tmpCoord);
+                            if(sounds_on) 
+                                mesSons["son_mario"]->play();
+                        }
+                        else if(i==1+nbrBlocsSol && num_map==0) { 
+                            perso = new User("luigi");
+                            perso->setPos(tmpCoord);
+                            if(sounds_on) 
+                                mesSons["son_luigi"]->play();
+                        }
+                        else if(blocs[i].getType()==MYSTERE && blocs[i].isHiding()==true && blocs[i-1].isObject()==true && blocs[i-1].is_enable()==false) { // tape le bloc mystère par en dessous
+                            // masqueRGB(display, blocs[i].getImg(), false, true, true);
+                            blocs[i]= Bloc("datas/images/bloc_vide.png",blocs[i].getCoord().x,blocs[i].getCoord().y,ZERO,1,false,false,BLOC_VIDE);
+                            blocs[i-1].enable();
+                            blocs[i-1].setSortieObjet(true);
+                            blocs[i-1].setCoord(blocs[i-1].getCoord().x , blocs[i].getCoord().y);
+                            blocs[i].setHiding(false);
+                        }
+                        break;
+
+                    default : // dirCollision = FIN
+                        cmptNoCollisions++;
+                        break;
+                } // fin switch
+            }
+        } // fin du for
+        if(cmptNoCollisions>=blocs.size())
+            sol=base_sol;
+    }  // fin bool
+
+}

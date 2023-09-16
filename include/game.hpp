@@ -54,6 +54,16 @@ class Game
         int createMap0();
         void afficheCommandes();
 
+    //---------- COLLISIONS ----------//
+        float calculateAngle(VECT2D const& vectorA, VECT2D const& vectorB);
+        float conv_to_Rad(float const& degrees);
+        float conv_to_Deg(float const& rad);
+        // perso
+        int collisionPersoBloc(User const& perso, Bloc const& bloc);
+        // int collisionPersoMechant(User const& perso, Mechant const& mechant);
+        // handle
+        void handleCollisions();
+
     protected:
 	// Attributs
         // Joueur
@@ -70,6 +80,7 @@ class Game
         int window_x;
         int window_y;
         float RATIO_FRAME;
+        float agrandi_fact;
      
         // Jeu
         User *perso;
@@ -92,9 +103,9 @@ class Game
         int num_map;        // numéro de la map actuelle
         int entree;         // indice du bloc d'entree
         int sortie;         // indice du bloc de sortie
-        int perso_num_img;  // indice de l'image du perso
         int cmptFrames;     // compte le défilement des frames pour le calcul du temps
         POS souris;          // position de la souris
+        bool isOrientedLeft; // savoir l'orientation du perso pour quand il se relève
 
         // Accueil
         string msg_accueil;

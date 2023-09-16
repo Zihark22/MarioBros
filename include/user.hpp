@@ -12,6 +12,8 @@ class User : public Personnage
 			this->h=0;
 			this->w=0;
 			this->msg="";
+			actualImg=0;
+			inverse=false;
 		}
 		User(string nom) : Personnage(nom) // constructeur 
 		{
@@ -20,6 +22,8 @@ class User : public Personnage
 				imgs.clear();
 				this->h=0;
 				this->w=0;
+				actualImg=nullptr;
+				inverse=false;
 			}
 			else {
 				chemin="datas/persos/"+this->nom+"/";
@@ -30,7 +34,7 @@ class User : public Personnage
 						if(filename!=".DS_Store") {
 							orientation = filename.substr(nom.size()+1, filename.size()-nom.size()-(3+1+1)); // -3 pour l'extension   -1 pour le _ et -1 pour le .
 							extension = filename.substr(filename.size()-3);
-                			transform(orientation.begin(), orientation.end(), orientation.begin(), ::toupper); // passage en majuscule
+                			// transform(orientation.begin(), orientation.end(), orientation.begin(), ::toupper); // passage en majuscule
 
 							// cout << "perso=" << nom << " , orientation=" << orientation << ", extension=" << extension << endl;
 							imgs[orientation] = al_load_bitmap((chemin+filename).c_str());
@@ -38,6 +42,8 @@ class User : public Personnage
 								cerr << "Erreur : chargement du perso = " << this->nom << " et de l'image = " << chemin << endl;
 								this->h=0;
 								this->w=0;
+								actualImg=nullptr;
+								inverse=false;
 							}
 							else {
 								this->h=al_get_bitmap_height(imgs[orientation]);
@@ -46,10 +52,14 @@ class User : public Personnage
 						}
 					}
 				}
+				actualImg=imgs["face"];
 			}
+			inverse=false;
 			this->msg="";
 		}
     	~User() { // Destructeur
+			// if(actualImg!=nullptr)
+			// 	al_destroy_bitmap(actualImg);
 			map<string,ALLEGRO_BITMAP*>::iterator it;  //Un itérateur
 			for (it=imgs.begin();it!=imgs.end();++it) {
 				if(it->second) {
@@ -72,13 +82,15 @@ class User : public Personnage
     	// Autres
 		string indiceToKey(int indice) const;
     	void actualiseSize(int indice);
-		void draw(int indice);
+		void draw();
     	void afficherMessage(ALLEGRO_FONT *font);
+    	void changeActualImg(string mouv);
 
     protected :
 	    // Attributs
-	    // ALLEGRO_BITMAP *imgs[IMGS_PERSOS];
         map <string,ALLEGRO_BITMAP *> imgs;
+		ALLEGRO_BITMAP *actualImg;
+		bool inverse; 
 		string msg;
 };
 

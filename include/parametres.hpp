@@ -45,9 +45,9 @@ using namespace fs;
 #define MAX_OBJETS 10
 #define FRAME_RATE 20
 #define TIME_STEP 1.0/FRAME_RATE
-#define MAX_SPEED 8.0
+#define MAX_SPEED 14.0
 #define FREIN 1
-#define ACCELERATION 1
+#define ACCELERATION 2
 #define IMGS_PERSOS 5
 #define IMGS_MECHANTS 3
 #define PI 3.14159
