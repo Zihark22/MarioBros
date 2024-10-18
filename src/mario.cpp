@@ -51,7 +51,7 @@ int init(void) {
         al_install_audio();
         al_reserve_samples(1);
         al_init_acodec_addon();
-        al_init_video_addon();
+        //al_init_video_addon();
     }
     catch(exception const& e)	 //On rattrape les exceptions standard de tous types
     {

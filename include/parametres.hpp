@@ -27,7 +27,7 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_video.h>
 
-namespace fs = std::__fs::filesystem;
+namespace fs = std::filesystem;
 
 using namespace std;
 using namespace fs;
