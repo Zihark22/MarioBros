@@ -200,13 +200,13 @@ int main(int argc, char **argv)
     mixer = al_create_mixer(FREQ_ECHANTILLONAGE, ALLEGRO_AUDIO_DEPTH_FLOAT32,ALLEGRO_CHANNEL_CONF_2);
     al_attach_mixer_to_voice(mixer, voice);
     progress++; afficherBarreProgression(progress);
-
+    
     // Musiques  -> Sound(const char* newChemin, int playmode, float gain, float vitesse, ALLEGRO_MIXER *mixer)
     music           = new Sound("musiques/new super mario bros (world 1-1).wav", LOOP, 0.5, 1.0, mixer);
     son_finish      = new Sound("musiques/Super Mario Bros Music-Level Complete.wav", ONCE, 1.0, 1.2, mixer);
     son_jump        = new Sound("musiques/ClassicSmallJump.wav", ONCE, 1.0, 1.0, mixer);
     son_tuyau       = new Sound("musiques/MultiplayerTeamFinish.wav", ONCE, 1.0, 1.0, mixer);
-    son_mario       = new Sound("musiques/Mario_sounds/Sample_0721-mario number one wouhou.wav", ONCE, 1.0, 1.0, mixer);
+    son_mario       = new Sound("musiques/SuperMarioBros.wav", ONCE, 1.0, 1.0, mixer);
     son_luigi       = new Sound("musiques/luigi_okey-dokey.wav", ONCE, 1.0, 1.0, mixer);
     son_coin        = new Sound("musiques/RedCoin.wav", ONCE, 1.0, 1.0, mixer);
     son_sol         = new Sound("musiques/FootStepBlock2.wav", ONCE, 2.0, 1.0, mixer);
@@ -215,17 +215,17 @@ int main(int argc, char **argv)
     son_powerDown   = new Sound("musiques/Power_Down_sound.wav", ONCE, 1.0, 1.0, mixer);
     son_fireBall    = new Sound("musiques/FireBall.wav", ONCE, 1.0, 1.0, mixer);
     son_fireBallHit = new Sound("musiques/FireBallHit1.wav", ONCE, 1.0, 1.0, mixer);
-    son_ecrase      = new Sound("musiques/Goomba_Stomp_Sound.wav", ONCE, 2.0, 1.0, mixer);
+    son_ecrase      = new Sound("musiques/goomba.wav", ONCE, 2.0, 1.0, mixer);
     son_koopa_shell = new Sound("musiques/Koopa_Troopa_Kick_Shell.wav", ONCE, 0.5, 1.0, mixer);
     progress+=4; afficherBarreProgression(progress);
 
     // Liste des boutons
     bouton listeBut[NBR_BOUT];
     int indice  = 0;
-    listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
-    listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "CONTINUER" , WIDTH/4, (float) ((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "COMMANDES" , WIDTH/4, (float) ((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "SONS"      , WIDTH/4, (float) ((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
+    listeBut[indice] = (bouton) { "QUITTER"   , WIDTH/4, (float) ((indice+1)*HEIGHT/(NBR_BOUT+2)+(indice*20)) , 2*WIDTH/4 , HEIGHT/(NBR_BOUT+2) , polices[1] , ROUGE , GRIS_TR }; indice++;
 
     // Définir l'événement de redimensionnement de fenêtre
     al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -241,6 +241,7 @@ int main(int argc, char **argv)
     // Lancement de la musique
     playSound=false;
     progress++; afficherBarreProgression(progress);
+    
 
     cout << endl;
 

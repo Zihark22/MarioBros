@@ -51,7 +51,7 @@ Sound::Sound(const char* newChemin, int playmode, float gain, float vitesse, ALL
     this->spl = al_create_sample_instance(NULL);
     al_attach_sample_instance_to_mixer(this->spl,mixer);
     this->son = al_load_sample(this->chemin.c_str());
-    if (!son) erreur("chargement audio");
+    if (!son) erreur("chargement audio: " + chemin);
 
     rc = al_set_sample(this->spl, this->son);
     if(rc) {
@@ -668,12 +668,13 @@ void Map::draw(int width, int height) {
 ///////////////////////////////////////////////
 //////////////// Fonctions ///////////////////
 //////////////////////////////////////////////
-void erreur(const char* txt)
+void erreur(string txt)
 {
     ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
     const char* button = "Quitter";
     char titre[50];
-    sprintf(titre,"Erreur : %s", txt);
+    sprintf(titre,"Erreur : %s", txt.c_str());
+    cerr << txt << endl;
     int result = al_show_native_message_box(d, titre, "Ne fonctionne pas", "Cliquer pour quitter, régler le problème puis recompiler !", button, ALLEGRO_MESSAGEBOX_ERROR); // ALLEGRO_MESSAGEBOX_YES_NO, ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_MESSAGEBOX_ERROR, ALLEGRO_MESSAGEBOX_QUESTION et ALLEGRO_MESSAGEBOX_OK_CANCEL
 
     // Vérifie le résultat de la boîte de dialogue
@@ -979,7 +980,7 @@ string saisirUserName(void)
                 if(nom.size()>0)
                     nom.pop_back();
                 if (nom.size() < sizeof(nom) - 1 && nom.size()<20) {
-                    char c[2] = {evt.keyboard.unichar, '\0'};
+                    char c[2] = {static_cast<char>(evt.keyboard.unichar), '\0'};
                     nom+=c;
                     nom+="_";
                 }
@@ -1282,10 +1283,10 @@ int collisionPersoBloc(User *perso, Bloc *bloc)
     int dcx = abs(bcx-pcx);
     int dcy = abs(bcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-bcx , pcy-bcy , 0};
+    VECT2D vect_bloc_perso = { (float) (pcx-bcx) , (float) (pcy-bcy) , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { bcx+bw/2-bcx , bcy-bcy , 1 };
+    VECT2D vect_bloc = { (float) (bcx+bw/2-bcx) , (float) (bcy-bcy) , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 
@@ -1331,10 +1332,10 @@ int collisionPersoMechant(User *perso, Mechant *mechant)
     int dcx = abs(mcx-pcx);
     int dcy = abs(mcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-mcx , pcy-mcy , 0};
+    VECT2D vect_bloc_perso = { (float) (pcx-mcx) , (float) (pcy-mcy) , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { mcx+mw/2-mcx , mcy-mcy , 1 };
+    VECT2D vect_bloc = { (float) (mcx+mw/2-mcx) , (float) (mcy-mcy) , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 
@@ -1380,10 +1381,10 @@ int collision2Mechants(Mechant *mechant1, Mechant *mechant2)
     int dcx = abs(bcx-pcx);
     int dcy = abs(bcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-bcx , pcy-bcy , 0};
+    VECT2D vect_bloc_perso = { (float) (pcx-bcx) , (float) (pcy-bcy) , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { bcx+bw/2-bcx , bcy-bcy , 1 };
+    VECT2D vect_bloc = { (float) (bcx+bw/2-bcx) , (float) (bcy-bcy) , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 
@@ -1429,10 +1430,10 @@ int collisionBlocMechant(Bloc *bloc, Mechant *mechant)
     int dcx = abs(bcx-pcx);
     int dcy = abs(bcy-pcy);
 
-    VECT2D vect_bloc_perso = { pcx-bcx , pcy-bcy , 0};
+    VECT2D vect_bloc_perso = { (float) (pcx-bcx) , (float) (pcy-bcy) , 0};
     vect_bloc_perso.norme = sqrt( pow(vect_bloc_perso.x,2) + pow(vect_bloc_perso.y,2) );
 
-    VECT2D vect_bloc = { bcx+bw/2-bcx , bcy-bcy , 1 };
+    VECT2D vect_bloc = { (float) (bcx+bw/2-bcx) , (float) (bcy-bcy) , 1 };
 
     float angle = calculateAngle(vect_bloc_perso, vect_bloc);
 

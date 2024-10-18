@@ -517,7 +517,7 @@ extern string boutons[NBR_BOUT];
 //////////////// PROTOTYPES ///////////////////
 //////////////////////////////////////////////
 
-void erreur(const char* txt);
+void erreur(string txt);
 int perdu(int vies);
 bool confirmQuit(void);
 int initialisation(void);
