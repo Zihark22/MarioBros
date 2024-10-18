@@ -45,20 +45,8 @@ void User::actualiseSize(int indice) {
 }
 
 ////////// INUTILES /////////////
-ALLEGRO_BITMAP* User::getImg(int indice) const {
-    string orientation=indiceToKey(indice);
-
-    // Utilisez la fonction find pour rechercher l'image par clé
-    auto it = imgs.find(orientation);
-
-    // Vérifiez si l'image a été trouvée
-    if (it != imgs.end()) {
-        return it->second;
-    } 
-    else {
-        // Retournez nullptr (ou une valeur par défaut) si l'image n'est pas trouvée
-        return nullptr; // Vous pouvez aussi choisir de renvoyer une image par défaut ici si nécessaire
-    }
+ALLEGRO_BITMAP* User::getImg() const {
+    return actualImg;
 }
 void User::setImg(const char* chemin, int indice){
     string orientation=indiceToKey(indice);  

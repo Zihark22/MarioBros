@@ -38,7 +38,7 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     move["sauter"]=false;
 
     // Repères
-    base_sol = nbrBlocsSol = entree = sortie = num_map = cmptFrames = souris.x = souris.y = isOrientedLeft = 0;
+    base_sol = nbrBlocsSol = entree = sortie = num_map = cmptFrames = cmptAnim = souris.x = souris.y = isOrientedLeft = 0;
 
     // Accueil
     msg_accueil = "Bienvenu dans Mario Bros. !! Appuyez sur ENTRER pour JOUER";
@@ -216,11 +216,13 @@ void Game::detruit_polices() {
 }
 
 void Game::begin(ALLEGRO_EVENT_QUEUE *event_queue) {
+    setWindowPOS(screenWmac-50,screenHmac-50,display); // Déplace la fenetre hors du cadre
     do {
         nomUser = saisirUserName();
     } while (nomUser.size()<2);
     while(!al_is_event_queue_empty(event_queue))
         al_flush_event_queue(event_queue);
+    setWindowPOS(50,50,display); // Remet fenetre au centre
     changeMap();
     started = true;
 }
@@ -333,11 +335,17 @@ void Game::tracerAccueil() {
 }
 void Game::dessine() {
     maps[num_map].draw(window_width, window_height);    // draw maps
-    perso->draw();                                      // draw perso
     for (int i = 0; i < blocs.size(); ++i) 
         blocs[i].draw();                                // draw blocs
-    
+    if(blocs[sortie].getType()==CHATEAU) {
+        int xaffich, yaffich;
+        xaffich=blocs[sortie].getCoord().x+blocs[sortie].getW()/2;
+        yaffich=blocs[sortie].getCoord().y+25;
+        al_draw_filled_rectangle(xaffich-25, yaffich, xaffich+25, yaffich+20, BLANC);
+        al_draw_text(polices[3], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
+    }
     afficherTexte();                                    // draw infos
+    perso->draw();                                      // draw perso
 }
 void Game::dessineMenu() {
     // Dessiner le rectangle de flou
@@ -420,7 +428,7 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
                 begin(event_queue);
             break;
         case ALLEGRO_KEY_DOWN :    // deplacement bas
-        case KEYBOARD_S :
+        case ALLEGRO_KEY_S :
             move["baisser"]=true;
             if(isOrientedLeft)
                 perso->changeActualImg("baisserG");
@@ -439,7 +447,7 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             }
             break;
         case ALLEGRO_KEY_UP :    // deplacement haut
-        case KEYBOARD_Z :
+        case ALLEGRO_KEY_Z :
         case ALLEGRO_KEY_SPACE :
             move["sauter"]=true;
             if(menuSelected) {
@@ -455,31 +463,31 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             }
             break;
         case ALLEGRO_KEY_RIGHT :    // deplacement droite
-        case KEYBOARD_D :
+        case ALLEGRO_KEY_D :
             move["droite"]=true;
             isOrientedLeft=false;
             perso->changeActualImg("droite");
             break;
         case ALLEGRO_KEY_LEFT :    // deplacement gauche
-        case KEYBOARD_Q :
+        case ALLEGRO_KEY_Q :
             move["gauche"]=true;
             isOrientedLeft=true;
             perso->changeActualImg("gauche");
             break;
         
-        case KEYBOARD_R :
+        case ALLEGRO_KEY_R :
             break;
 
-        case KEYBOARD_F :
+        case ALLEGRO_KEY_F :
             break;
 
-        case KEYBOARD_N :
+        case ALLEGRO_KEY_N :
             break;
-        case KEYBOARD_A :
+        case ALLEGRO_KEY_A :
             break;
-        case KEYBOARD_C :
+        case ALLEGRO_KEY_C :
             break;
-        case KEYBOARD_B :
+        case ALLEGRO_KEY_B :
             break;
         case ALLEGRO_KEY_PAD_0 :
         case ALLEGRO_KEY_0 :
@@ -503,7 +511,7 @@ void Game::handleKeyUnPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
         case ALLEGRO_KEY_ENTER :    // ACCUEIL
             break;
         case ALLEGRO_KEY_DOWN :    // deplacement bas
-        case KEYBOARD_S :
+        case ALLEGRO_KEY_S :
             move["baisser"]=false;
             if(isOrientedLeft)
                 perso->changeActualImg("gauche");
@@ -511,32 +519,34 @@ void Game::handleKeyUnPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
                 perso->changeActualImg("droite");
             break;
         case ALLEGRO_KEY_UP :    // deplacement haut
-        case KEYBOARD_Z :
+        case ALLEGRO_KEY_Z :
         case ALLEGRO_KEY_SPACE :
             move["sauter"]=false;
             break;
         case ALLEGRO_KEY_RIGHT :    // deplacement droite
-        case KEYBOARD_D :
+        case ALLEGRO_KEY_D :
             move["droite"]=false;
+            perso->changeActualImg("droite");
             break;
         case ALLEGRO_KEY_LEFT :    // deplacement gauche
-        case KEYBOARD_Q :
+        case ALLEGRO_KEY_Q :
             move["gauche"]=false;
+            perso->changeActualImg("gauche");
             break;
         
-        case KEYBOARD_R :
+        case ALLEGRO_KEY_R :
             break;
 
-        case KEYBOARD_F :
+        case ALLEGRO_KEY_F :
             break;
 
-        case KEYBOARD_N :
+        case ALLEGRO_KEY_N :
             break;
-        case KEYBOARD_A :
+        case ALLEGRO_KEY_A :
             break;
-        case KEYBOARD_C :
+        case ALLEGRO_KEY_C :
             break;
-        case KEYBOARD_B :
+        case ALLEGRO_KEY_B :
             break;
         case ALLEGRO_KEY_PAD_0 :
         case ALLEGRO_KEY_0 :
@@ -663,7 +673,8 @@ void Game::update() {
         cmptFrames = 0;
     }
     
-    if(started) {
+    if(started) 
+    {
         // Gravité
         if(perso->getPos().y + perso->getH() < window_height-sol)
             perso->setSpeedY(perso->getSpeed().y+gravity);
@@ -680,13 +691,13 @@ void Game::update() {
 
         // Effet courir
         if(move["droite"]) {
-            if((cmptFrames>FRAME_RATE/4 && cmptFrames<2*FRAME_RATE/4) || cmptFrames>3*FRAME_RATE/4)
+            if((cmptFrames>FRAME_RATE/6 && cmptFrames<2*FRAME_RATE/4) || cmptFrames>3*FRAME_RATE/4)
                 perso->changeActualImg("courirD");
             else
                 perso->changeActualImg("droite");
         }
         else if(move["gauche"]) {
-            if((cmptFrames>FRAME_RATE/4 && cmptFrames<2*FRAME_RATE/4) || cmptFrames>3*FRAME_RATE/4)
+            if((cmptFrames>FRAME_RATE/6 && cmptFrames<FRAME_RATE/3) || (cmptFrames>FRAME_RATE/2 && cmptFrames>2*FRAME_RATE/3) || cmptFrames>5*FRAME_RATE/6)
                 perso->changeActualImg("courirG");
             else
                 perso->changeActualImg("gauche");
@@ -703,8 +714,19 @@ void Game::update() {
         // Gestion des collisions
         handleCollisions();
 
-        // acualise coord
+        // Actualise coord
         perso->actualisePos();
+
+        // Gestion des bords
+        if(perso->getPos().x<0)
+            perso->setPosX(0);
+        if(perso->getPos().x+perso->getW()>window_width)
+            perso->setPosX(window_width-perso->getW());
+        if(perso->getPos().y>window_height)
+            perso->setPosY(0);
+
+        // Animations de sortie ou d'entrée
+        checkAnimations();
 
     } else {
         // Défilement message accueil
@@ -713,7 +735,90 @@ void Game::update() {
             posPrintPart = window_width+posPrintPart;  // Réinitialisation à droite une fois que le texte a dépassé l'écran
     }
 }
+void Game::masqueRGB(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *image, bool R, bool G, bool B) {
+    ALLEGRO_COLOR color, newColor;
+    int pR,pG,pB;
+    unsigned char red, green, blue;
+    int largeur = al_get_bitmap_width(image);
+    int hauteur = al_get_bitmap_height(image);
 
+    al_set_target_bitmap(image);
+
+    if (al_lock_bitmap(image, al_get_bitmap_format(image), ALLEGRO_LOCK_READWRITE) != NULL)
+    {
+        for (int K = 0; K < largeur; K++) {
+            for (int L = 0; L < hauteur; L++) {
+                // Obtenir la couleur du piKel
+                color = al_get_pixel(image, K, L);
+
+                al_unmap_rgb(color, &red, &green, &blue);
+                //fprintf(stderr, "origine (K=%d,L=%d): \tR=%d G=%d B=%d\n",K,L,(int)red,(int)green,(int)blue);
+
+                pR = R ? 0 : (int)red; 
+                pG = G ? 0 : (int)green; 
+                pB = B ? 0 : (int)blue; 
+
+                newColor = al_map_rgb(pR, pG, pB);
+                //fprintf(stderr, "new (K=%d,L=%d):     \tR=%d G=%d B=%d\n",K,L,pR,pG,pB);
+
+                // Dessiner le piKel avec la nouvelle couleur
+                al_put_pixel(K, L, newColor);
+            }
+        }
+    } 
+    al_unlock_bitmap(image);
+    al_set_target_backbuffer(display);
+}
+void Game::checkAnimations() {
+    if(anim_fin) // fin de niveau via porte ou chateau
+    { 
+        perso->setSpeedY(0);
+        perso->setPosY(window_height-sol-perso->getH());
+        if(blocs[sortie].getType()==CHATEAU) 
+        {
+            mesSons["music"]->setGain(0.2);
+            if(sounds_on) 
+                 mesSons["son_finish"]->play();
+            if(perso->getPos().x+perso->getW()/2>=blocs[sortie].getCoord().x+blocs[sortie].getW()/2) { // si perso au nvx de la porte
+                perso->changeActualImg("entrer");
+                perso->setSpeedX(0);
+                cmptAnim++;
+            }
+            else
+                perso->setSpeedX(2); // avance jusqu a la porte
+        }
+        else  // porte
+        {
+            cmptAnim++;
+            perso->changeActualImg("entrer");
+            perso->setSpeedX(0);
+        }
+        
+        if(cmptAnim>50) {
+            if(num_map>=NB_MAPS-1) {
+                // finish();
+                anim_fin=false;
+                anim_entree=false;
+                cmptAnim=0;
+            }
+            else {
+                num_map++;
+                changeMap();
+                perso = new User(perso->getNom());
+                perso->setPos(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2 , blocs[entree-1].getCoord().y);
+                anim_fin=false;
+                anim_entree=true;
+                cmptAnim=0;
+            }
+        }
+        else if(cmptAnim>15)
+            masqueRGB(display, perso->getImg(), true, true, true);
+        else if(cmptAnim>10)
+            masqueRGB(display, perso->getImg(), true, true, false);
+        else if(cmptAnim>5)
+            masqueRGB(display, perso->getImg(), true, false, false);
+    }
+}
 
 // ---------------  MAPS ------------------//
 void Game::load_maps() {
@@ -739,9 +844,9 @@ void Game::changeMap()
         case 0 : 
             base_sol=createMap0();
             break;
-        // case 1 : 
-        //     base_sol=createMap1();
-        //     break;
+        case 1 : 
+            base_sol=createMap1();
+            break;
         // case 2 : 
         //     base_sol=createMap2();
         //     break;
@@ -803,6 +908,103 @@ int Game::createMap0()
 // ----- ENTREE ----------
     entree=0;
 
+    return sol;
+}
+int Game::createMap1() 
+{
+    int tmpH;
+    POS newCoord;
+    int diffBords=0;
+
+    blocs.clear(); // efface tous les blocs de la map précédente
+
+    // -------- SOL ---------------
+
+    blocs.push_back(Bloc("datas/images/sol_terre.png",0,0,ZERO,1,false,false,TERRE));
+        const int sol = blocs.back().getH();
+        blocs.back().setCoord( (POS) { 0, window_height-sol } );
+
+    while( blocs.back().getCoord().x + blocs.back().getW() < maps[num_map].getW()*maps[num_map].getBackgroundScale() )
+    {
+        blocs.push_back(Bloc("datas/images/sol_terre.png",blocs.back().getCoord().x+blocs.back().getW(),window_height-sol,ZERO,1*RATIO_FRAME,false,false,TERRE));
+    }
+    
+    nbrBlocsSol = blocs.size();
+
+    // -------- JEU ---------------
+    
+    blocs.push_back(Bloc("datas/images/bloc.png",350,window_height-sol-150,ZERO,1*RATIO_FRAME,false,false,BLOC));
+    blocs.push_back(Bloc("datas/images/bloc_mystere.png",blocs.back().getCoord().x+blocs.back().getW(),blocs.back().getCoord().y,ZERO,1*RATIO_FRAME,false,true,MYSTERE));
+    blocs.push_back(Bloc("datas/images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN)); 
+        newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2;
+        newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()-2;
+        blocs.back().setCoord(newCoord);
+        blocs.back().disable();
+        Bloc tmpBloc=blocs[blocs.size()-2];
+        blocs[blocs.size()-2]=blocs.back();
+        blocs.back()=tmpBloc;
+    blocs.push_back(Bloc("datas/images/bloc.png",blocs.back().getCoord().x+blocs.back().getW(),blocs.back().getCoord().y-blocs.back().getH()+5,ZERO,1*RATIO_FRAME,false,false,BLOC));
+    blocs.push_back(Bloc("datas/images/bloc_mystere.png",blocs.back().getCoord().x+blocs.back().getW()+200,blocs.back().getCoord().y-20,ZERO,1*RATIO_FRAME,false,true,MYSTERE));
+    blocs.push_back(Bloc("datas/images/fleur.png",0,0,ZERO,0.4*RATIO_FRAME,true,false,FLEUR));
+        newCoord.x = blocs[blocs.size()-2].getCoord().x+blocs[blocs.size()-2].getW()/2-blocs.back().getW()/2;
+        newCoord.y = blocs[blocs.size()-2].getCoord().y-blocs.back().getH()-2;
+        blocs.back().setCoord(newCoord);
+        blocs.back().disable();
+        tmpBloc=blocs[blocs.size()-2];
+        blocs[blocs.size()-2]=blocs.back();
+        blocs.back()=tmpBloc;
+    blocs.push_back(Bloc("datas/images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN)); 
+        newCoord.x = 300;
+        newCoord.y = window_height-sol-100;
+        blocs.back().setCoord(newCoord);
+    blocs.push_back(Bloc("datas/images/coin2.png",0,0,ZERO,0.3*RATIO_FRAME,true,false,COIN)); 
+        newCoord.x = 600;
+        newCoord.y = window_height-sol-150;
+        blocs.back().setCoord(newCoord);
+
+// -------- ENTREE ---------------
+
+    blocs.push_back(Bloc("datas/images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords = blocs.back().getW();
+    blocs.push_back(Bloc("datas/images/tuyau_bas.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords -= blocs.back().getW();
+        diffBords /=2;
+        blocs.back().setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
+    blocs.push_back(Bloc("datas/images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU));
+        blocs.back().setCoord( (POS) { 0, blocs[blocs.size()-2].getCoord().y+blocs[blocs.size()-2].getH() } );
+        // entree = blocs.size()-1;
+        entree = 0;
+
+// -------- SORTIE ---------------
+
+    blocs.push_back(Bloc("datas/images/tuyau_haut.png",0,0,ZERO,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords = blocs.back().getW();
+    blocs.push_back(Bloc("datas/images/tuyau_bas.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU));
+        diffBords -= blocs.back().getW();
+        diffBords /=2;
+        tmpH=blocs.back().getH(); blocs.back().setH(blocs.back().getW()); blocs.back().setW(tmpH);
+        blocs.back().setCoord( (POS) { (int) (maps[num_map].getW() - blocs.back().getW()) , window_height-blocs.back().getH()-sol } );
+    blocs.push_back(Bloc("datas/images/tuyau_haut.png",0,0,GAUCHE,1*RATIO_FRAME,false,false,TUYAU));
+        tmpH=blocs.back().getH(); blocs.back().setH(blocs.back().getW()); blocs.back().setW(tmpH);
+        blocs.back().setCoord( (POS) { (int) (maps[num_map].getW() - blocs[blocs.size()-2].getW()-blocs.back().getW())+20 , window_height-sol-blocs.back().getH()+diffBords } );
+        sortie = blocs.size()-1;
+
+//--------------- MECHANTS -----------------
+/* 
+    mechants[nbrMechants] = new Mechant("goomba");
+        mechants[nbrMechants].setTaille(0.06*RATIO_FRAME);
+        mechants[nbrMechants].actualiseSize(0);
+        mechants[nbrMechants].setSpeedX(-3);
+        mechants[nbrMechants].setPos(200,window_height-sol-mechants[nbrMechants].getH()-2);
+        nbrMechants++;
+
+    mechants[nbrMechants] = new Mechant("koopa");
+        mechants[nbrMechants].setTaille(0.03*RATIO_FRAME);
+        mechants[nbrMechants].actualiseSize(0);
+        mechants[nbrMechants].setSpeedX(-3);
+        mechants[nbrMechants].setPos(500,window_height-sol-mechants[nbrMechants].getH());
+        nbrMechants++;
+ */
     return sol;
 }
 
@@ -1002,7 +1204,8 @@ void Game::handleCollisions()
                         }
                         else if(i==sortie && sortie !=0 && blocs[i].getType()==CHATEAU && perso->getNom()!="stickman" && perso->getPos().x+perso->getW()>blocs[sortie].getCoord().x && perso->getPos().y+perso->getH()>window_height-base_sol-5) { // sortie par le chateau
                             anim_fin=true;
-                            jump_force=-25;
+                            // On remet les valeurs d'origine à la fin pour recommencer
+                            jump_force=25; 
                             gravity=2;
                         }
                         else {

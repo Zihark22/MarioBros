@@ -6,4 +6,4 @@ exec
 *.dSYM
 /*.dSYM
 *.bak_*
-/build/*
+/build

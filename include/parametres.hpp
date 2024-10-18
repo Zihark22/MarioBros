@@ -25,7 +25,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_acodec.h>
-#include <allegro5/allegro_video.h>
+// #include <allegro5/allegro_video.h>
 
 namespace fs = std::filesystem;
 
@@ -35,34 +35,47 @@ using namespace fs;
 ///////////////////////////////////////////////
 ///////////////// PARAMETRES /////////////////
 //////////////////////////////////////////////
+
+// Affichage
+#define screenWmac 1440  // dimensions ecran mac
+#define screenHmac 900
 #define WIDTH 	1280
 #define HEIGHT 	720
+#define FRAME_RATE 20
+#define TIME_STEP 1.0/FRAME_RATE
+#define HAUTEUR_TEXTE 60
+#define NBR_FONTS 5
+#define FACTEUR_ZOOM_PERTE_VIE 2
+
+// Audio
+#define FREQ_ECHANTILLONAGE 44100
+
+// Images
 #define WALLPAPER "datas/images/Super_Mario_Bros_Movie.jpg"
 #define LOGO "datas/images/New_Super_Mario_Bros._Logo.png"
+
+// Limites
 #define NB_MAPS 6
+#define NBR_BOUT 4
 #define MAX_BLOCS 40
 #define MAX_MECHANTS 10
 #define MAX_OBJETS 10
-#define FRAME_RATE 20
-#define TIME_STEP 1.0/FRAME_RATE
 #define MAX_SPEED 14.0
-#define FREIN 1
-#define ACCELERATION 2
 #define IMGS_PERSOS 5
 #define IMGS_MECHANTS 3
-#define PI 3.14159
-#define LOADING_ELEMENTS 52
-#define HAUTEUR_TEXTE 60
-#define FREQ_ECHANTILLONAGE 44100
-#define NBR_FONTS 5
-#define VIT_OBJ 3
-#define NBR_BOUT 4
-#define VITY_BONUS 2
 #define LARGEUR_MAP 5000
+#define LOADING_ELEMENTS 52     // barre de progression 
+#define TABLE_SIZE 100          // hachage
+
+// Environnement
+#define FREIN 1
+#define ACCELERATION 2
+#define PI 3.14159
+#define VIT_OBJ 3
+#define VITY_BONUS 2
 #define TEXT_SPEED 5
 #define VIT_MAP -3
-#define FACTEUR_ZOOM_PERTE_VIE 2
-#define TABLE_SIZE 100
+
 
 ///////////////////////////////////////////////
 /////////////// ENUMERATIONS /////////////////

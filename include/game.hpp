@@ -52,7 +52,12 @@ class Game
         void charge_polices();
         void detruit_polices();
         int createMap0();
+        int createMap1();
         void afficheCommandes();
+        void masqueRGB(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *image, bool R, bool G, bool B);
+
+        // Mouvements
+        void checkAnimations();
 
     //---------- COLLISIONS ----------//
         float calculateAngle(VECT2D const& vectorA, VECT2D const& vectorB);
@@ -104,6 +109,7 @@ class Game
         int entree;         // indice du bloc d'entree
         int sortie;         // indice du bloc de sortie
         int cmptFrames;     // compte le défilement des frames pour le calcul du temps
+        int cmptAnim;       // Pour les animations
         POS souris;          // position de la souris
         bool isOrientedLeft; // savoir l'orientation du perso pour quand il se relève
 

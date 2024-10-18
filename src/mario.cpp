@@ -51,7 +51,7 @@ int init(void) {
         al_install_audio();
         al_reserve_samples(1);
         al_init_acodec_addon();
-        //al_init_video_addon();
+        // al_init_video_addon();
     }
     catch(exception const& e)	 //On rattrape les exceptions standard de tous types
     {
@@ -87,11 +87,9 @@ int main(int argc, char **argv)
     Game *jeu = new Game(display);
     jeu->setPerso("stickman");
 
-    // Change position fenetre
-    // int wx=0, wy=0;
-    // al_get_window_position(display, &wx, &wy);
-    // wx+=1000;
-    // jeu->setWindowPOS(wx,wy,display);
+    // Obtient position fenetre
+    int wx=0, wy=0;
+    al_get_window_position(display, &wx, &wy);
 
     // Création de la file d'attente d'événements
     event_queue = al_create_event_queue();
@@ -106,10 +104,6 @@ int main(int argc, char **argv)
     al_register_event_source(event_queue, al_get_mouse_event_source());
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
     al_register_event_source(event_queue, al_get_display_event_source(display));
-
-    // Remet fenetre au centre
-    // wx-=1000;
-    // jeu->setWindowPOS(wx,wy,display);
 
     // Défini la cible de rendu
     al_set_target_backbuffer(display);
@@ -199,6 +193,9 @@ int main(int argc, char **argv)
         al_destroy_event_queue(event_queue);
         al_destroy_display(display);
         al_uninstall_audio();
+        al_uninstall_keyboard();
+        al_uninstall_mouse();
+        al_uninstall_system();
     }
     catch(exception const& e)	 //On rattrape les exceptions standard de tous types
     {

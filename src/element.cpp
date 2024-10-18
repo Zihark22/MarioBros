@@ -17,8 +17,8 @@ Element::Element(string chemin_img, float scale) : scale(scale) {  // constructe
 
 Element::~Element() // Destructeur
 {
-    if(img)
-        al_destroy_bitmap(img);
+    // if(img)
+    //     al_destroy_bitmap(img);
 }
 
 ALLEGRO_BITMAP* Element::getImg() const {

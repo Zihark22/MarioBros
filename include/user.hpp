@@ -71,7 +71,7 @@ class User : public Personnage
 
     // Méthodes (prototypes)
     	// Getters
-		ALLEGRO_BITMAP* getImg(int indice) const;
+		ALLEGRO_BITMAP* getImg() const;
     	string getMessage() const;
 
     	// Setters

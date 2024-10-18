@@ -31,7 +31,7 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-std=c++17",
-                // "-stdlib=libc++",
+                // "-stdlib=libc++", // pour macOS
                 "-g",
                 "build/obj/*.o",
                 "-o",
