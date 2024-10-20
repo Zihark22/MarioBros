@@ -498,6 +498,7 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             break;
         
         case ALLEGRO_KEY_R :
+            num_map = 0;
             break;
 
         case ALLEGRO_KEY_F :
@@ -564,6 +565,8 @@ void Game::handleKeyUnPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             break;
         
         case ALLEGRO_KEY_R :
+            changeMap();
+            perso = new User(perso->getNom());
             break;
 
         case ALLEGRO_KEY_F :
@@ -801,9 +804,9 @@ void Game::masqueRGB(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *image, bool R, bo
 void Game::checkAnimations() {
     if(anim_fin) // fin de niveau via porte ou chateau
     {
+        perso->setSpeedX(0);
         perso->setSpeedY(0);
         perso->setPosY(window_height-sol-perso->getH());
-        perso->setSpeedX(0);
         move["droite"] = false;
         if(blocs[sortie].getType()==CHATEAU)  // si chateau
         {
@@ -827,20 +830,18 @@ void Game::checkAnimations() {
         
         // animation de fondu
         if(cmptAnim>50) {
+            anim_fin=false;
+            cmptAnim=0;
             if(num_map>=NB_MAPS-1) {
                 // finish();
-                anim_fin=false;
                 anim_entree=false;
-                cmptAnim=0;
             }
             else {
                 num_map++;
                 changeMap();
                 perso = new User(perso->getNom());
                 perso->setPos(blocs[entree-1].getCoord().x+blocs[entree-1].getW()/2-perso->getW()/2 , blocs[entree-1].getCoord().y);
-                anim_fin=false;
                 anim_entree=true;
-                cmptAnim=0;
             }
         }
         else if(cmptAnim>15)
@@ -870,6 +871,7 @@ void Game::changeMap()
     if(num_map>0) {
         maps[num_map].setMap0(false);
         maps[num_map].setBackgroundScale(2);
+        maps[num_map-1].setBackgroundX(0);
     }
     switch(num_map) 
     {
@@ -895,7 +897,6 @@ void Game::changeMap()
             base_sol=createMap0();
             break;
     }
-    maps[num_map-1].setBackgroundX(0);
 }
 int Game::createMap0() 
 {
@@ -1004,8 +1005,7 @@ int Game::createMap1()
         blocs.back().setCoord( (POS) { diffBords, HAUTEUR_TEXTE} );
     blocs.push_back(Bloc("datas/images/tuyau_haut.png",0,0,INVERSION,1*RATIO_FRAME,false,false,TUYAU));
         blocs.back().setCoord( (POS) { 0, blocs[blocs.size()-2].getCoord().y+blocs[blocs.size()-2].getH() } );
-        // entree = blocs.size()-1;
-        entree = 0;
+        entree = blocs.size()-1;
 
 // -------- SORTIE ---------------
 
@@ -1134,7 +1134,7 @@ void Game::handleCollisions()
                     mesSons["son_sol"]->play();
                 perso->setPosY(window_height-sol-perso->getH());
             }
-            else if(dirCollision!=FIN && blocs[i].isObject()==true && blocs[i].isHiding()==false && num_map!=0) {  //   tape le bloc mystère par en dessous
+            else if(dirCollision!=FIN && blocs[i].isObject()==true && blocs[i].isHiding()==false ) {  //   tape le bloc mystère par en dessous
                 if(blocs[i].is_enable()==true) 
                 {
                     blocs[i].disable();

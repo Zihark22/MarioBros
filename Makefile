@@ -13,9 +13,9 @@ OBJ_DIR = $(BUILD_DIR)/obj
 INC_DIR = include
 
 ifeq ($(OS),WINDOWS)
-	EXEC := mario_app.exe
+	EXEC := $(BUILD_DIR)/mario_app.exe
 else
-	EXEC := mario_app
+	EXEC := $(BUILD_DIR)/mario_app
 endif
 
 CFLAGS = -g -I$(INC_DIR) -std=c++17 # Wall donne les warnings et g génère des infos de débogage
