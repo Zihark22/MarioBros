@@ -1,7 +1,7 @@
 #include "../include/game.hpp"
 
 //////////////////   SPECIAUX   ///////////////////////
-Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
+Game::Game() {
 
     // Joueur
     nomUser = "_";
@@ -9,11 +9,21 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     temps = Duree(0,0,0);
     vies = 3;
 
-    // Affichage
-    window_height = 720;
-    window_width  = 1280;
-    window_x = 0;
-    window_y = 0;
+    // Création de la fenêtre
+    al_set_new_display_flags(ALLEGRO_WINDOWED);  // ALLEGRO_FULLSCREEN_WINDOW  | ALLEGRO_RESIZABLE
+    display = shared_ptr<ALLEGRO_DISPLAY>(al_create_display(WIDTH, HEIGHT), [](ALLEGRO_DISPLAY* disp) {
+            cerr << "Destruction de l'affichage..." << endl;
+            al_destroy_display(disp);
+        });
+    al_set_window_title(display.get(), "Mario Bros.");
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA); // effet de transparence
+    al_clear_to_color(NOIR); // Clear
+    al_set_window_position(display.get(), (screenW-WIDTH)/2, (screenH-HEIGHT)/2); // place la fenetre au milieu
+
+
+    window_height = al_get_display_height(display.get());
+    window_width  = al_get_display_width(display.get());
+    al_get_window_position(display.get(), &window_x, &window_y); // Obtient position fenetre
     RATIO_FRAME = window_height/HEIGHT;
     agrandi_fact=1;
 
@@ -26,7 +36,7 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     level = 0;
     fullscreen = false;
     playsound  = false;
-    gravity = 2;
+    gravity = 3;
     jump_force = 25;
     maps.clear();
     blocs.clear();
@@ -42,7 +52,7 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
 
     // Accueil
     msg_accueil = "Bienvenu dans Mario Bros. !! Appuyez sur ENTRER pour JOUER";
-    posHidePart = al_get_text_width(polices[1], msg_accueil.c_str());
+    posHidePart = al_get_text_width(polices["Arial Bold"], msg_accueil.c_str());
     posPrintPart= window_width/2 - posHidePart/2;
 
     // Moments du jeu
@@ -93,13 +103,13 @@ Game::Game(ALLEGRO_DISPLAY *display) : display(display) {
     for (int i = 0; i < NBR_BOUT; i++)
     {
         posY = 2*window_height/10 + i*window_height/(NBR_BOUT+2) + i*20;
-        bouton nvBut = { nom_but[i] , posX , posY , w , h , polices[1] , ROUGE , GRIS_TR };
+        bouton nvBut = { nom_but[i] , posX , posY , w , h , polices["Arial"] , ROUGE , GRIS_TR };
         listeBut.push_back(nvBut);
     }
     boutonSelected = -1;
 
     // Création de la fenêtre d'accueil
-    posHidePart = al_get_text_width(polices[1], msg_accueil.c_str());  // Position de la partie cachée du texte
+    posHidePart = al_get_text_width(polices["Arial"], msg_accueil.c_str());  // Position de la partie cachée du texte
     posPrintPart = window_width/2 - posHidePart/2; // Position de la partie affichée du texte
 }
 Game::~Game() {
@@ -154,6 +164,9 @@ bool Game::getMenuSelected() {
 POS Game::getMousePos() {
     return souris;
 }
+ALLEGRO_DISPLAY* Game::getDisplay() {
+    return this->display.get();
+}
 
 //////////////////   SETTERS   ///////////////////////
 void Game::setPerso(string nom) {
@@ -162,18 +175,13 @@ void Game::setPerso(string nom) {
 void Game::setNomUser(string nom) {
     nomUser = nom;
 }
-void Game::setWindowPOS(int windowX,int windowY, ALLEGRO_DISPLAY *display) {
+void Game::setWindowX(int windowX) {
     window_x = windowX;
-    window_y = windowY;
-    al_set_window_position(display, window_x, window_y);
+    al_set_window_position(display.get(), window_x, window_y);
 }
-void Game::setWindowX(int windowX, ALLEGRO_DISPLAY *display) {
-    window_x = windowX;
-    al_set_window_position(display, window_x, window_y);
-}
-void Game::setWindowY(int windowY, ALLEGRO_DISPLAY *display) {
+void Game::setWindowY(int windowY) {
     window_y = windowY;
-    al_set_window_position(display, window_x, window_y);
+    al_set_window_position(display.get(), window_x, window_y);
 }
 void Game::setGameOver(bool isOver) {
     gameOver = isOver;
@@ -187,12 +195,12 @@ void Game::setMousePos(int x, int y) {
 }
 
 /////////////   METHODES AUTRES   ////////////////////
-void Game::erreur(const char* txt)
+void Game::erreur(string txt)
 {
     ALLEGRO_DISPLAY* d = al_is_system_installed() ? al_get_current_display() : NULL;
     const char* button = "Quitter";
     char titre[50];
-    sprintf(titre,"Erreur : %s", txt);
+    sprintf(titre,"Erreur : %s", txt.c_str());
     int result = al_show_native_message_box(d, titre, "Ne fonctionne pas", "Cliquer pour quitter, régler le problème puis recompiler !", button, ALLEGRO_MESSAGEBOX_ERROR); // ALLEGRO_MESSAGEBOX_YES_NO, ALLEGRO_MESSAGEBOX_WARN, ALLEGRO_MESSAGEBOX_ERROR, ALLEGRO_MESSAGEBOX_QUESTION et ALLEGRO_MESSAGEBOX_OK_CANCEL
 
     if (result == 1)
@@ -204,69 +212,75 @@ void Game::charge_polices() {
     string dossier="datas/polices/";
     string nom;
 
-    nom="Arial.ttf"; font = al_load_font((dossier+nom).c_str(), 36, 0);             if(font) { polices[i]=font; i++;font=NULL; }
-    nom="Arial Bold.ttf"; font = al_load_font((dossier+nom).c_str(), 36, 0);        if(font) { polices[i]=font; i++;font=NULL; }
-    nom="MarioAndLuigi.ttf"; font = al_load_font((dossier+nom).c_str(), 40, 0);     if(font) { polices[i]=font; i++;font=NULL; }
-    nom="Arial Bold.ttf"; font = al_load_font((dossier+nom).c_str(), 20, 0);        if(font) { polices[i]=font; i++;font=NULL; }
-    nom="Arial Bold.ttf"; font = al_load_font((dossier+nom).c_str(), 15, 0);        if(font) { polices[i]=font; i++;font=NULL; }
+    // Parcourir le dossier
+    for (const auto& entry : directory_iterator(dossier)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".ttf") { // Vérifier l'extension .ttf
+            string font_path = entry.path().string();
+            ALLEGRO_FONT* font = al_load_ttf_font(font_path.c_str(), FONT_SIZE, 0);
+
+            if (font) {
+                // Stocker la police dans le dictionnaire
+                polices[entry.path().filename().stem().string()] = font;
+                cout << "Police chargée : " << entry.path().filename().string() << endl;
+            } else {
+                cerr << "Erreur lors du chargement de la police : " << font_path << endl;
+            }
+        }
+    }
+
+
+
 }
 void Game::detruit_polices() {
-    for (int i = 0; i < NBR_FONTS; ++i)
-        if(polices[i]) al_destroy_font(polices[i]);
+    // for (int i = 0; i < NBR_FONTS; ++i)
+        // if(polices[i]) al_destroy_font(polices[i]);
+    for (auto& pair : polices) {
+        al_destroy_font(pair.second); // Libérer chaque police
+    }
+    polices.clear(); // Vider le dictionnaire
 }
 
 void Game::begin(ALLEGRO_EVENT_QUEUE *event_queue) {
-    setWindowPOS(screenWmac-50,screenHmac-50,display); // Déplace la fenetre hors du cadre
     do {
         nomUser = saisirUserName();
     } while (nomUser.size()<2);
     while(!al_is_event_queue_empty(event_queue))
-        al_flush_event_queue(event_queue);
-    setWindowPOS(50,50,display); // Remet fenetre au centre
+    al_flush_event_queue(event_queue);
     changeMap();
     started = true;
 }
 string Game::saisirUserName(void)
 {
-    ALLEGRO_DISPLAY *d = NULL;
     ALLEGRO_EVENT_QUEUE *evt_queue = NULL;
     ALLEGRO_FONT *font = NULL;
     int largeur=400, hauteur=200;
 
-    al_set_new_display_flags(ALLEGRO_WINDOWED);
-    d = al_create_display(largeur,hauteur);
-    if (!d) {
-        fprintf(stderr, "Erreur lors de la création de la fenêtre.\n");
-        return "erreur";
-    }
-    al_set_window_title(d, "PSEUDO");
-
     font = al_load_ttf_font("datas/polices/Arial Bold.ttf", 25, 0);
     if (!font) {
-        fprintf(stderr, "Erreur lors du chargement de la police de caracteres.\n");
+        this->erreur("Erreur lors du chargement de la police de caracteres.\n");
         return "erreur";
     }
 
     evt_queue = al_create_event_queue();
     if (!evt_queue) {
-        fprintf(stderr, "Erreur lors de la création de la file d'evenements.\n");
+        this->erreur("Erreur lors de la création de la file d'evenements.\n");
         return "erreur";
     }
 
-    al_register_event_source(evt_queue, al_get_display_event_source(d));
+    al_register_event_source(evt_queue, al_get_display_event_source(display.get()));
     al_register_event_source(evt_queue, al_get_keyboard_event_source());
 
     ALLEGRO_EVENT evt;
     string nom="_";
     
-    al_set_target_backbuffer(d);
+    al_set_target_backbuffer(display.get());
 
     while (1) {
-        al_clear_to_color(NOIR);
-
-        al_draw_text(font, ROUGE, largeur/2, hauteur/4, ALLEGRO_ALIGN_CENTER, "PSEUDO");
-        al_draw_filled_rectangle(50,3*hauteur/4-30,largeur-50,3*hauteur/4+30, GRIS);
-        al_draw_text(font, BLANC, largeur/2, 3*hauteur/4-12, ALLEGRO_ALIGN_CENTER, nom.c_str());
+        al_clear_to_color(GRIS); // fond en gris
+        al_draw_filled_rectangle((this->window_width-largeur)/2,(this->window_height-hauteur)/2, this->window_width/2+largeur/2,this->window_height/2+hauteur/2, NOIR); // carre de centre
+        al_draw_text(font, ORANGE, this->window_width/2,(this->window_height-hauteur)/2+hauteur/4, ALLEGRO_ALIGN_CENTER, "PSEUDO"); // titre
+        al_draw_filled_rectangle((this->window_width-largeur)/2+largeur/5,this->window_height/2,this->window_width/2+largeur/2-largeur/4,this->window_height/2+hauteur/2-hauteur/5, GRIS); // rectangle de saisie
+        al_draw_text(font, JAUNE, this->window_width/2, this->window_height/2+15, ALLEGRO_ALIGN_CENTER, nom.c_str()); // saisie du pseudo
 
         al_flip_display();
 
@@ -302,15 +316,12 @@ string Game::saisirUserName(void)
         al_flush_event_queue(evt_queue);
     al_destroy_event_queue(evt_queue);
     al_destroy_font(font);
-    al_destroy_display(d);
-
-    al_set_target_backbuffer(display);
 
     return nom;
 }
 
 void Game::tracerAccueil() {
-    ALLEGRO_FONT* font = polices[1];
+    ALLEGRO_FONT* font = polices["Arial"];
     wallpaper = al_load_bitmap(WALLPAPER);
     if (!wallpaper)
         erreur("initialise image d'accueil");
@@ -328,7 +339,7 @@ void Game::tracerAccueil() {
     int facteur = 4;
     al_draw_scaled_bitmap(logo, 0, 0, al_get_bitmap_width(logo), al_get_bitmap_height(logo), window_width/2-al_get_bitmap_width(logo)/facteur/2, 3*window_height/4-al_get_bitmap_height(logo)/facteur/2, al_get_bitmap_width(logo)/facteur, al_get_bitmap_height(logo)/facteur, 0);
     int posY = window_height-30;
-    al_draw_filled_rectangle(0,posY-30,window_width,posY+30,al_map_rgba(0, 0, 0, 222));
+    al_draw_filled_rectangle(0,posY-30,window_width,window_height,al_map_rgba(0, 0, 0, 222));
     al_draw_text(font, ORANGE, posPrintPart, posY-20, ALLEGRO_ALIGN_LEFT, msg_accueil.c_str());
     if(posPrintPart<0)
         al_draw_text(font, ORANGE, window_width+posPrintPart, posY-20, ALLEGRO_ALIGN_LEFT, msg_accueil.c_str());
@@ -340,11 +351,11 @@ void Game::dessine() {
     if(blocs[sortie].getType()==CHATEAU) {
         int xaffich, yaffich;
         xaffich=blocs[sortie].getCoord().x+blocs[sortie].getW()/2;
-        yaffich=blocs[sortie].getCoord().y+25;
-        al_draw_filled_rectangle(xaffich-25, yaffich, xaffich+25, yaffich+20, BLANC);
-        al_draw_text(polices[3], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
+        yaffich=blocs[sortie].getCoord().y+30;
+        al_draw_filled_rectangle(xaffich-35, yaffich-5, xaffich+30, yaffich+25, BLANC);
+        al_draw_text(polices["SuperMario256"], ROUGE, xaffich, yaffich, ALLEGRO_ALIGN_CENTER, "EXIT");
     }
-    afficherTexte();                                    // draw infos
+    afficherParametres();                                    // draw infos
     perso->draw();                                      // draw perso
 }
 void Game::dessineMenu() {
@@ -352,7 +363,7 @@ void Game::dessineMenu() {
     al_draw_filled_rectangle(0, 0, window_width, window_height, al_map_rgba(0, 0, 0, 222));
 
     // Dessin de MENU
-    al_draw_text(polices[1], ROUGE, window_width/2, window_height/5/2, ALLEGRO_ALIGN_CENTER, "MENU");
+    al_draw_text(polices["Arial Bold"], ROUGE, window_width/2, window_height/5/2, ALLEGRO_ALIGN_CENTER, "MENU");
     
     // Dessin des boutons et rectangles
     for (int i = 0; i < NBR_BOUT; ++i) {
@@ -367,8 +378,8 @@ void Game::dessineMenu() {
             al_draw_text(listeBut[i].font, listeBut[i].couleurTxt, listeBut[i].posX+listeBut[i].w/2, listeBut[i].posY+listeBut[i].h/2-18, ALLEGRO_ALIGN_CENTER, listeBut[i].nom.c_str());
     }
 }
-void Game::afficherTexte() {
-    ALLEGRO_FONT *font = polices[3];
+void Game::afficherParametres() {
+    ALLEGRO_FONT *font = polices["Arial"];
     int decaleBords = 40;
     ALLEGRO_BITMAP* coeur = al_load_bitmap("datas/images/coeur.png");
     if (!coeur)
@@ -429,11 +440,6 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             break;
         case ALLEGRO_KEY_DOWN :    // deplacement bas
         case ALLEGRO_KEY_S :
-            move["baisser"]=true;
-            if(isOrientedLeft)
-                perso->changeActualImg("baisserG");
-            else
-                perso->changeActualImg("baisserD");
             if(menuSelected) {
                 if(boutonSelected>=-1) {
                     listeBut[boutonSelected].couleurTxt=ROUGE;
@@ -445,11 +451,19 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
                 listeBut[boutonSelected].couleurTxt=JAUNE;
                 listeBut[boutonSelected].couleurRect=NOIR;
             }
+            else {                
+                if(!anim_fin){
+                    move["baisser"]=true;
+                    if(isOrientedLeft)
+                        perso->changeActualImg("baisserG");
+                    else
+                        perso->changeActualImg("baisserD");
+                }
+            }
             break;
         case ALLEGRO_KEY_UP :    // deplacement haut
         case ALLEGRO_KEY_Z :
         case ALLEGRO_KEY_SPACE :
-            move["sauter"]=true;
             if(menuSelected) {
                 if(boutonSelected!=-1) {
                     listeBut[boutonSelected].couleurTxt=ROUGE;
@@ -461,18 +475,26 @@ void Game::handleKeyPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
                 listeBut[boutonSelected].couleurTxt=JAUNE;
                 listeBut[boutonSelected].couleurRect=NOIR;
             }
+            else {
+                if(!anim_fin)
+                    move["sauter"]=true;
+            }
             break;
         case ALLEGRO_KEY_RIGHT :    // deplacement droite
         case ALLEGRO_KEY_D :
-            move["droite"]=true;
-            isOrientedLeft=false;
-            perso->changeActualImg("droite");
+            if(!menuSelected && !anim_fin) {
+                move["droite"]=true;
+                isOrientedLeft=false;
+                perso->changeActualImg("droite");
+            }
             break;
         case ALLEGRO_KEY_LEFT :    // deplacement gauche
         case ALLEGRO_KEY_Q :
-            move["gauche"]=true;
-            isOrientedLeft=true;
-            perso->changeActualImg("gauche");
+            if(!menuSelected && !anim_fin) {
+                move["gauche"]=true;
+                isOrientedLeft=true;
+                perso->changeActualImg("gauche");
+            }
             break;
         
         case ALLEGRO_KEY_R :
@@ -512,26 +534,33 @@ void Game::handleKeyUnPressed(int keycode, ALLEGRO_EVENT_QUEUE *event_queue) {
             break;
         case ALLEGRO_KEY_DOWN :    // deplacement bas
         case ALLEGRO_KEY_S :
-            move["baisser"]=false;
-            if(isOrientedLeft)
-                perso->changeActualImg("gauche");
-            else
-                perso->changeActualImg("droite");
+            if(!menuSelected && !anim_fin) {
+                move["baisser"]=false;
+                if(isOrientedLeft)
+                    perso->changeActualImg("gauche");
+                else
+                    perso->changeActualImg("droite");
+            }
             break;
         case ALLEGRO_KEY_UP :    // deplacement haut
         case ALLEGRO_KEY_Z :
         case ALLEGRO_KEY_SPACE :
-            move["sauter"]=false;
+            if(!menuSelected && !anim_fin)
+                move["sauter"]=false;
             break;
         case ALLEGRO_KEY_RIGHT :    // deplacement droite
         case ALLEGRO_KEY_D :
-            move["droite"]=false;
-            perso->changeActualImg("droite");
+            if(!menuSelected && !anim_fin) {
+                move["droite"]=false;
+                perso->changeActualImg("droite");
+            }
             break;
         case ALLEGRO_KEY_LEFT :    // deplacement gauche
         case ALLEGRO_KEY_Q :
-            move["gauche"]=false;
-            perso->changeActualImg("gauche");
+            if(!menuSelected && !anim_fin) {
+                move["gauche"]=false;
+                perso->changeActualImg("gauche");
+            }
             break;
         
         case ALLEGRO_KEY_R :
@@ -636,7 +665,7 @@ void Game::afficheCommandes() {
     al_clear_to_color(GRIS);
 
     al_draw_scaled_bitmap(img,0,0,al_get_bitmap_width(img),al_get_bitmap_height(img),0,0,largeur,hauteur,0);
-    al_draw_text(polices[3], ORANGE, 10, 10, ALLEGRO_ALIGN_LEFT, "LISTE DES COMMANDES");
+    al_draw_text(polices["Arial Bold"], ORANGE, 10, 10, ALLEGRO_ALIGN_LEFT, "LISTE DES COMMANDES");
 
     al_flip_display();
     bool fin=false;
@@ -654,7 +683,7 @@ void Game::afficheCommandes() {
     }
     al_destroy_event_queue(evt_queue);
     al_destroy_display(d);
-    al_set_target_backbuffer(display);
+    al_set_target_backbuffer(display.get());
 }
 
 void Game::update() {
@@ -731,7 +760,7 @@ void Game::update() {
     } else {
         // Défilement message accueil
         posPrintPart -= TEXT_SPEED;
-        if (posPrintPart < -al_get_text_width(polices[1], msg_accueil.c_str()))
+        if (posPrintPart < -al_get_text_width(polices["Arial"], msg_accueil.c_str()))
             posPrintPart = window_width+posPrintPart;  // Réinitialisation à droite une fois que le texte a dépassé l'écran
     }
 }
@@ -771,21 +800,23 @@ void Game::masqueRGB(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *image, bool R, bo
 }
 void Game::checkAnimations() {
     if(anim_fin) // fin de niveau via porte ou chateau
-    { 
+    {
         perso->setSpeedY(0);
         perso->setPosY(window_height-sol-perso->getH());
-        if(blocs[sortie].getType()==CHATEAU) 
+        perso->setSpeedX(0);
+        move["droite"] = false;
+        if(blocs[sortie].getType()==CHATEAU)  // si chateau
         {
             mesSons["music"]->setGain(0.2);
             if(sounds_on) 
                  mesSons["son_finish"]->play();
             if(perso->getPos().x+perso->getW()/2>=blocs[sortie].getCoord().x+blocs[sortie].getW()/2) { // si perso au nvx de la porte
                 perso->changeActualImg("entrer");
-                perso->setSpeedX(0);
+                move["droite"] = false;
                 cmptAnim++;
             }
             else
-                perso->setSpeedX(2); // avance jusqu a la porte
+                move["droite"] = true; // avance jusqu a la porte
         }
         else  // porte
         {
@@ -794,6 +825,7 @@ void Game::checkAnimations() {
             perso->setSpeedX(0);
         }
         
+        // animation de fondu
         if(cmptAnim>50) {
             if(num_map>=NB_MAPS-1) {
                 // finish();
@@ -812,11 +844,11 @@ void Game::checkAnimations() {
             }
         }
         else if(cmptAnim>15)
-            masqueRGB(display, perso->getImg(), true, true, true);
+            masqueRGB(display.get(), perso->getImg(), true, true, true);
         else if(cmptAnim>10)
-            masqueRGB(display, perso->getImg(), true, true, false);
+            masqueRGB(display.get(), perso->getImg(), true, true, false);
         else if(cmptAnim>5)
-            masqueRGB(display, perso->getImg(), true, false, false);
+            masqueRGB(display.get(), perso->getImg(), true, false, false);
     }
 }
 
@@ -1011,10 +1043,10 @@ int Game::createMap1()
 
 // ---------------  COLLISIONS ------------------//
 float Game::conv_to_Rad(float const& degrees) {
-    return degrees*PI/180;
+    return degrees*M_PI/180;
 }
 float Game::conv_to_Deg(float const& rad) {
-    return rad*180/PI;
+    return rad*180/M_PI;
 }
 float Game::calculateAngle(VECT2D const& vectorA, VECT2D const& vectorB) {
     float dotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
@@ -1026,7 +1058,7 @@ float Game::calculateAngle(VECT2D const& vectorA, VECT2D const& vectorB) {
     float angle = acos(cosAngle);
 
     if(vectorA.x*vectorB.y-vectorA.y*vectorB.x < 0.0f)
-        angle = 2*PI-angle;
+        angle = 2*M_PI-angle;
 
     return angle; // conv_to_Deg(angle);
 }
@@ -1063,13 +1095,13 @@ int Game::collisionPersoBloc(User const& perso, Bloc const& bloc)
 
     if(dcx<=(pw+bw)/2 && dcy<=(ph+bh)/2 && vect_bloc_perso.norme < sqrt( pow((pw+bw)/2,2) + pow((ph+bh)/2,2) ))  // Collision
     {
-        if(angle>7*PI/6 and angle<11*PI/6)
+        if(angle>7*M_PI/6 and angle<11*M_PI/6)
             return NORD;
-        else if(angle>PI/6 and angle<5*PI/6)
+        else if(angle>M_PI/6 and angle<5*M_PI/6)
             return SUD;
-        else if(angle<1*PI/6 or angle>11*PI/6)
+        else if(angle<1*M_PI/6 or angle>11*M_PI/6)
             return OUEST;
-        else if(angle>5*PI/6 and angle<7*PI/6)
+        else if(angle>5*M_PI/6 and angle<7*M_PI/6)
             return EST;
         else {
             cerr << "erreur perso/bloc" << endl;

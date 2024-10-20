@@ -31,24 +31,22 @@ class User : public Personnage
 				{
 					if (entry.is_regular_file()) {
 						filename = entry.path().filename();
-						if(filename!=".DS_Store") {
-							orientation = filename.substr(nom.size()+1, filename.size()-nom.size()-(3+1+1)); // -3 pour l'extension   -1 pour le _ et -1 pour le .
-							extension = filename.substr(filename.size()-3);
-                			// transform(orientation.begin(), orientation.end(), orientation.begin(), ::toupper); // passage en majuscule
+						orientation = filename.substr(nom.size()+1, filename.size()-nom.size()-(3+1+1)); // -3 pour l'extension   -1 pour le _ et -1 pour le .
+						extension = filename.substr(filename.size()-3);
+						// transform(orientation.begin(), orientation.end(), orientation.begin(), ::toupper); // passage en majuscule
 
-							// cout << "perso=" << nom << " , orientation=" << orientation << ", extension=" << extension << endl;
-							imgs[orientation] = al_load_bitmap((chemin+filename).c_str());
-							if(!imgs[orientation]) {
-								cerr << "Erreur : chargement du perso = " << this->nom << " et de l'image = " << chemin << endl;
-								this->h=0;
-								this->w=0;
-								actualImg=nullptr;
-								inverse=false;
-							}
-							else {
-								this->h=al_get_bitmap_height(imgs[orientation]);
-								this->w=al_get_bitmap_width(imgs[orientation]);
-							}
+						// cout << "perso=" << nom << " , orientation=" << orientation << ", extension=" << extension << endl;
+						imgs[orientation] = al_load_bitmap((chemin+filename).c_str());
+						if(!imgs[orientation]) {
+							cerr << "Erreur : chargement du perso = " << this->nom << " et de l'image = " << chemin << endl;
+							this->h=0;
+							this->w=0;
+							actualImg=nullptr;
+							inverse=false;
+						}
+						else {
+							this->h=al_get_bitmap_height(imgs[orientation]);
+							this->w=al_get_bitmap_width(imgs[orientation]);
 						}
 					}
 				}
@@ -90,7 +88,7 @@ class User : public Personnage
 	    // Attributs
         map <string,ALLEGRO_BITMAP *> imgs;
 		ALLEGRO_BITMAP *actualImg;
-		bool inverse; 
+		bool inverse;
 		string msg;
 };
 

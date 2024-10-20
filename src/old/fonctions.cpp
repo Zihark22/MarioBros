@@ -70,9 +70,9 @@ int initialisation(void) {
     if (!al_init_acodec_addon()) {
         erreur("initialise codecs");
     }
-    if (!al_init_video_addon()) {
-        erreur("initialise vidéo");
-    }
+    // if (!al_init_video_addon()) {
+    //     erreur("initialise vidéo");
+    // }
     return 0;
 }
 void charge_polices() {
@@ -200,46 +200,46 @@ void afficheOrientation(int num) {
     }
     cout << orientation << endl;
 }
-void afficherBarreProgression(int pourcentage) {
-    // Efface la ligne précédente
-    cout << "\033[2K";
+// void afficherBarreProgression(int pourcentage) {
+//     // Efface la ligne précédente
+//     cout << "\033[2K";
 
-    // Déplace le curseur au début de la ligne
-    cout << "\r";
+//     // Déplace le curseur au début de la ligne
+//     cout << "\r";
 
-    pourcentage = pourcentage * 100 / LOADING_ELEMENTS;
+//     pourcentage = pourcentage * 100 / LOADING_ELEMENTS;
 
-    // Choix de la couleur en fonction du pourcentage
-    if (pourcentage <= 25)
-        cout << SET_COLOR_BLANC;
-    else if (pourcentage <= 50)
-        cout << SET_COLOR_RED;
-    else if (pourcentage <= 75)
-        cout << SET_COLOR_YELLOW;
-    else if (pourcentage <= 95)
-        cout << SET_COLOR_VIOLET;
-    else
-        cout << SET_COLOR_GREEN;
+//     // Choix de la couleur en fonction du pourcentage
+//     if (pourcentage <= 25)
+//         cout << SET_COLOR_BLANC;
+//     else if (pourcentage <= 50)
+//         cout << SET_COLOR_RED;
+//     else if (pourcentage <= 75)
+//         cout << SET_COLOR_YELLOW;
+//     else if (pourcentage <= 95)
+//         cout << SET_COLOR_VIOLET;
+//     else
+//         cout << SET_COLOR_GREEN;
 
-    // Affiche la barre de progression
-    if(pourcentage==100)
-    cout << "Load completed: [";
-    else
-    cout << "Loading… : [";
-    int nombreCaracteres = 50;
-    int nombreMarques = pourcentage * nombreCaracteres / 100;
-    for (int i = 0; i < nombreCaracteres; ++i) {
-    if (i < nombreMarques)
-      cout << "◼︎";
-    else
-      cout << "◻︎";
-    }
-    cout << "] " << pourcentage << "%" << RESET_COLOR;
+//     // Affiche la barre de progression
+//     if(pourcentage==100)
+//     cout << "Load completed: [";
+//     else
+//     cout << "Loading… : [";
+//     int nombreCaracteres = 50;
+//     int nombreMarques = pourcentage * nombreCaracteres / 100;
+//     for (int i = 0; i < nombreCaracteres; ++i) {
+//     if (i < nombreMarques)
+//       cout << "◼︎";
+//     else
+//       cout << "◻︎";
+//     }
+//     cout << "] " << pourcentage << "%" << RESET_COLOR;
 
-    // Rafraîchit la sortie
-    cout.flush();
-    usleep(50000);
-}
+//     // Rafraîchit la sortie
+//     cout.flush();
+//     usleep(50000);
+// }
 string saisirUserName(void)
 {
     ALLEGRO_DISPLAY *d = NULL;
@@ -604,10 +604,10 @@ void finish() {
 
 // ---------------  COLLISIONS -------------------------//
 float conv_to_Rad(float const& degrees) {
-    return degrees*PI/180;
+    return degrees*M_PI/180;
 }
 float conv_to_Deg(float const& rad) {
-    return rad*180/PI;
+    return rad*180/M_PI;
 }
 float calculateAngle(VECT2D const& vectorA, VECT2D const& vectorB) {
     float dotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
@@ -619,7 +619,7 @@ float calculateAngle(VECT2D const& vectorA, VECT2D const& vectorB) {
     float angle = acos(cosAngle);
 
     if(vectorA.x*vectorB.y-vectorA.y*vectorB.x < 0.0f)
-        angle = 2*PI-angle;
+        angle = 2*M_PI-angle;
 
     return angle; // conv_to_Deg(angle);
 }

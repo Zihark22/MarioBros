@@ -7,7 +7,7 @@
 class Game
 {
     public:
-    	Game(ALLEGRO_DISPLAY *display);  // constructeur
+    	Game();  // constructeur
 		~Game(); // Destructeur
 
     // Méthodes (prototypes)
@@ -17,19 +17,19 @@ class Game
         bool getStarted();
         bool getMenuSelected();
         POS getMousePos();
+        ALLEGRO_DISPLAY* getDisplay();
 
     	// Setters
         void setPerso(string nom);
         void setNomUser(string nom);
-        void setWindowPOS(int windowX,int windowY, ALLEGRO_DISPLAY *display);
-        void setWindowX(int windowX, ALLEGRO_DISPLAY *display);
-        void setWindowY(int windowY, ALLEGRO_DISPLAY *display);
+        void setWindowX(int windowX);
+        void setWindowY(int windowY);
         void setGameOver(bool isOver);
         void setMenuSelected(bool menu);
         void setMousePos(int x, int y);
 
     	// Bases
-        void erreur(const char* txt);
+        void erreur(string txt);
         string saisirUserName(void);
         void load_maps(void);
         void begin(ALLEGRO_EVENT_QUEUE *event_queue); // début du jeu (saisie du nom puis lancement du jeu sur map0)
@@ -37,7 +37,7 @@ class Game
         // Dessins
         void dessine();
         void dessineMenu();
-        void afficherTexte();
+        void afficherParametres();
         void tracerAccueil();
 
         // Changements
@@ -78,8 +78,8 @@ class Game
         int vies;
 
         // Affichage
-        ALLEGRO_DISPLAY *display;
-        ALLEGRO_FONT *polices[NBR_FONTS];
+        shared_ptr<ALLEGRO_DISPLAY>  display;
+        unordered_map<string, ALLEGRO_FONT*> polices;
         int window_height;
         int window_width;
         int window_x;
@@ -110,8 +110,8 @@ class Game
         int sortie;         // indice du bloc de sortie
         int cmptFrames;     // compte le défilement des frames pour le calcul du temps
         int cmptAnim;       // Pour les animations
-        POS souris;          // position de la souris
-        bool isOrientedLeft; // savoir l'orientation du perso pour quand il se relève
+        POS souris;         // position de la souris
+        bool isOrientedLeft;// savoir l'orientation du perso pour quand il se relève
 
         // Accueil
         string msg_accueil;

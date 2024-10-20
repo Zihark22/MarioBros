@@ -12,9 +12,9 @@ ObjectLance::ObjectLance(string nom) : Personnage(nom) { // Constructeur
 }
 void ObjectLance::draw() {
     if(this->afficher) {
-        this->angle+=PI/6;
-        if(this->angle>=2*PI)
-            this->angle/=2*PI;
+        this->angle+=M_PI/6;
+        if(this->angle>=2*M_PI)
+            this->angle/=2*M_PI;
         al_draw_scaled_rotated_bitmap(this->img, al_get_bitmap_width(this->img)/2, al_get_bitmap_height(this->img)/2, this->coord.x+this->w/2, this->coord.y+this->h/2, this->tailleFactor, this->tailleFactor, this->angle, 0); // -3.14/2 = 90° sens trigo
     }
 }

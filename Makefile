@@ -1,4 +1,4 @@
-OS = WINDOWS # MAC, LINUX ou WINDOWS
+OS = LINUX # MAC, LINUX ou WINDOWS
 CC = g++
 
 ifeq ($(CC),g++)
@@ -11,7 +11,12 @@ SRC_DIR = src
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
 INC_DIR = include
-NOM_EXEC = test
+
+ifeq ($(OS),WINDOWS)
+	EXEC := mario_app.exe
+else
+	EXEC := mario_app
+endif
 
 CFLAGS = -g -I$(INC_DIR) -std=c++17 # Wall donne les warnings et g génère des infos de débogage
 LIBS_ALLEGRO = -lallegro -lallegro_main -lallegro_primitives -lallegro_font -lallegro_image -lallegro_color -lallegro_ttf -lallegro_dialog -lallegro_audio -lallegro_acodec -lallegro_video
@@ -20,14 +25,9 @@ SRC = $(wildcard $(SRC_DIR)/*.$(EXT))
 OBJ = $(patsubst $(SRC_DIR)/%.$(EXT), $(OBJ_DIR)/%.o, $(SRC))
 DEPS = $(patsubst $(SRC_DIR)/%.$(EXT), $(OBJ_DIR)/%.d, $(SRC))
 
-# condition egalite
-ifeq ($(OS),WINDOWS)
-	EXEC := $(BUILD_DIR)/$(NOM_EXEC).exe
-else
-	EXEC := $(BUILD_DIR)/$(NOM_EXEC)
-endif
 
-all: clean_screen $(BUILD_DIR) $(OBJ_DIR) $(EXEC) #clean
+
+all: clean_screen $(BUILD_DIR) $(OBJ_DIR) $(EXEC) run #clean
 
 # Lier les fichiers objets pour créer l'exécutable
 $(EXEC): $(OBJ)

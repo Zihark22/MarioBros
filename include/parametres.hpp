@@ -13,8 +13,10 @@
 #include <exception>    // exception
 #include <iterator>     // iterateurs
 #include <map> 			// dictionnaire ou association clé/valeur : map<clé_type, valeur_type> nom_var;  éléments triés selon leur clé. C'est en fait des pairs accessible via <utility>
+#include <unordered_map>// dico non ordonnée 		
 #include <utility>      // accèder clé/valeur de map
 #include <filesystem>   // OS obtenir l'arborescence des fichiers
+#include <memory>       // memoire (shared_pointers)
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -37,14 +39,14 @@ using namespace fs;
 //////////////////////////////////////////////
 
 // Affichage
-#define screenWmac 1440  // dimensions ecran mac
-#define screenHmac 900
+#define screenW 2560  // dimensions ecran mac
+#define screenH 1440
 #define WIDTH 	1280
 #define HEIGHT 	720
 #define FRAME_RATE 20
 #define TIME_STEP 1.0/FRAME_RATE
 #define HAUTEUR_TEXTE 60
-#define NBR_FONTS 5
+#define FONT_SIZE 25
 #define FACTEUR_ZOOM_PERTE_VIE 2
 
 // Audio
@@ -70,7 +72,6 @@ using namespace fs;
 // Environnement
 #define FREIN 1
 #define ACCELERATION 2
-#define PI 3.14159
 #define VIT_OBJ 3
 #define VITY_BONUS 2
 #define TEXT_SPEED 5
@@ -95,15 +96,18 @@ typedef struct {
 	int x;
 	int y;
 } POS;
+
 typedef struct {
 	float x;
 	float y;
 	float norme;
 } VECT2D;
+
 typedef struct {
 	int x;
 	int y;
 } VITESSE;
+
 typedef struct
 {
     string nom;
@@ -118,16 +122,16 @@ typedef struct
 
 // ----------  HACHAGE ---------------------
 
-// Structure pour stocker une paire clé-valeur
-typedef struct {
-    char key[50];
-    int value;
-} KeyValuePair;
+// // Structure pour stocker une paire clé-valeur
+// typedef struct {
+//     char key[50];
+//     int value;
+// } KeyValuePair;
 
-// Structure de la table de hachage
-typedef struct {
-    KeyValuePair data[TABLE_SIZE];
-} HashTable;
+// // Structure de la table de hachage
+// typedef struct {
+//     KeyValuePair data[TABLE_SIZE];
+// } HashTable;
 
 ///////////////////////////////////////////////
 ///////////////// COULEURS ///////////////////
@@ -150,7 +154,7 @@ typedef struct {
 #define ROUGE_TR 	al_map_rgba(255,0,0,200) 
 #define BLEU_TR 	al_map_rgba(0,0,255,200)
 #define VERT_TR 	al_map_rgba(0,255,0,200)
-#define NOIR_TR 	al_map_rgba(0,0,0,200) 
+#define NOIR_TR 	al_map_rgba(0,0,0,200)
 #define BLANC_TR 	al_map_rgba(255,255,255,200)
 #define JAUNE_TR 	al_map_rgba(255,255,0,200) 
 #define ROSE_TR 	al_map_rgba(255,0,255,200)
@@ -160,45 +164,45 @@ typedef struct {
 #define GRIS_TR		al_map_rgba(55, 55, 55, 200)
 
 // Codes d'échappement ANSI pour les couleurs
-#define RESET_COLOR "\033[0m"
-#define SET_COLOR_NOIR "\033[30m"
-#define SET_COLOR_RED "\033[31m"
-#define SET_COLOR_GREEN "\033[32m"
-#define SET_COLOR_YELLOW "\033[33m"
-#define SET_COLOR_VIOLET "\033[34m"
-#define SET_COLOR_ROSE "\033[35m"
-#define SET_COLOR_CYAN "\033[36m"
-#define SET_COLOR_BLANC "\033[37m"
-#define SET_COLOR_BLEU "\033[38m"
+// #define RESET_COLOR "\033[0m"
+// #define SET_COLOR_NOIR "\033[30m"
+// #define SET_COLOR_RED "\033[31m"
+// #define SET_COLOR_GREEN "\033[32m"
+// #define SET_COLOR_YELLOW "\033[33m"
+// #define SET_COLOR_VIOLET "\033[34m"
+// #define SET_COLOR_ROSE "\033[35m"
+// #define SET_COLOR_CYAN "\033[36m"
+// #define SET_COLOR_BLANC "\033[37m"
+// #define SET_COLOR_BLEU "\033[38m"
 
 ///////////////////////////////////////////////
 //mapping QWERTY par défault mais ici AZERTY//
 //////////////////////////////////////////////
-#define KEYBOARD_Q ALLEGRO_KEY_A
-#define KEYBOARD_A ALLEGRO_KEY_Q
-#define KEYBOARD_Z ALLEGRO_KEY_W
-#define KEYBOARD_W ALLEGRO_KEY_Z
-#define KEYBOARD_M ALLEGRO_KEY_SEMICOLON
-#define KEYBOARD_E ALLEGRO_KEY_E
-#define KEYBOARD_R ALLEGRO_KEY_R
-#define KEYBOARD_T ALLEGRO_KEY_T
-#define KEYBOARD_Y ALLEGRO_KEY_Y
-#define KEYBOARD_U ALLEGRO_KEY_U
-#define KEYBOARD_I ALLEGRO_KEY_I
-#define KEYBOARD_O ALLEGRO_KEY_O
-#define KEYBOARD_P ALLEGRO_KEY_P
-#define KEYBOARD_S ALLEGRO_KEY_S
-#define KEYBOARD_D ALLEGRO_KEY_D
-#define KEYBOARD_F ALLEGRO_KEY_F
-#define KEYBOARD_G ALLEGRO_KEY_G
-#define KEYBOARD_H ALLEGRO_KEY_H
-#define KEYBOARD_J ALLEGRO_KEY_J
-#define KEYBOARD_K ALLEGRO_KEY_K
-#define KEYBOARD_L ALLEGRO_KEY_L
-#define KEYBOARD_X ALLEGRO_KEY_X
-#define KEYBOARD_C ALLEGRO_KEY_C
-#define KEYBOARD_V ALLEGRO_KEY_V
-#define KEYBOARD_B ALLEGRO_KEY_B
-#define KEYBOARD_N ALLEGRO_KEY_N
+// #define KEYBOARD_Q ALLEGRO_KEY_A
+// #define KEYBOARD_A ALLEGRO_KEY_Q
+// #define KEYBOARD_Z ALLEGRO_KEY_W
+// #define KEYBOARD_W ALLEGRO_KEY_Z
+// #define KEYBOARD_M ALLEGRO_KEY_SEMICOLON
+// #define KEYBOARD_E ALLEGRO_KEY_E
+// #define KEYBOARD_R ALLEGRO_KEY_R
+// #define KEYBOARD_T ALLEGRO_KEY_T
+// #define KEYBOARD_Y ALLEGRO_KEY_Y
+// #define KEYBOARD_U ALLEGRO_KEY_U
+// #define KEYBOARD_I ALLEGRO_KEY_I
+// #define KEYBOARD_O ALLEGRO_KEY_O
+// #define KEYBOARD_P ALLEGRO_KEY_P
+// #define KEYBOARD_S ALLEGRO_KEY_S
+// #define KEYBOARD_D ALLEGRO_KEY_D
+// #define KEYBOARD_F ALLEGRO_KEY_F
+// #define KEYBOARD_G ALLEGRO_KEY_G
+// #define KEYBOARD_H ALLEGRO_KEY_H
+// #define KEYBOARD_J ALLEGRO_KEY_J
+// #define KEYBOARD_K ALLEGRO_KEY_K
+// #define KEYBOARD_L ALLEGRO_KEY_L
+// #define KEYBOARD_X ALLEGRO_KEY_X
+// #define KEYBOARD_C ALLEGRO_KEY_C
+// #define KEYBOARD_V ALLEGRO_KEY_V
+// #define KEYBOARD_B ALLEGRO_KEY_B
+// #define KEYBOARD_N ALLEGRO_KEY_N
 
 #endif

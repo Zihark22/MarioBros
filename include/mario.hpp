@@ -8,81 +8,79 @@
 ///////////////////////////////////////////////
 ///////////////// POLICES ////////////////////
 //////////////////////////////////////////////
-#define ARIAL_BOLD_36 al_load_font("polices/Arial Bold.ttf", 36, 0)
+// #define ARIAL_BOLD_36 al_load_font("polices/Arial Bold.ttf", 36, 0)
 
 ///////////////////////////////////////////////
 ///////////// VARIABLE GLOBALES //////////////
 //////////////////////////////////////////////
-extern ALLEGRO_FONT *polices[NBR_FONTS];
-extern User perso;
-extern vector<Map> maps;
-extern vector<Bloc> blocs;
-extern vector<Mechant> mechants;
-extern vector<ObjectLance> objets;
-extern bool objetsCol[MAX_OBJETS];
-extern POS coordCol;
+// extern User perso;
+// extern vector<Map> maps;
+// extern vector<Bloc> blocs;
+// extern vector<Mechant> mechants;
+// extern vector<ObjectLance> objets;
+// extern bool objetsCol[MAX_OBJETS];
+// extern POS coordCol;
 
-extern Sound *music;
-extern Sound *son_finish;
-extern Sound *son_jump;
-extern Sound *son_tuyau;
-extern Sound *son_sol;
-extern Sound *son_mario;
-extern Sound *son_luigi;
-extern Sound *son_coin;
-extern Sound *son_over;
-extern Sound *son_powerUp;
-extern Sound *son_powerDown;
-extern Sound *son_fireBall;
-extern Sound *son_fireBallHit;
-extern Sound *son_ecrase;
-extern Sound *son_koopa_shell;
+// extern Sound *music;
+// extern Sound *son_finish;
+// extern Sound *son_jump;
+// extern Sound *son_tuyau;
+// extern Sound *son_sol;
+// extern Sound *son_mario;
+// extern Sound *son_luigi;
+// extern Sound *son_coin;
+// extern Sound *son_over;
+// extern Sound *son_powerUp;
+// extern Sound *son_powerDown;
+// extern Sound *son_fireBall;
+// extern Sound *son_fireBallHit;
+// extern Sound *son_ecrase;
+// extern Sound *son_koopa_shell;
 
-extern int entree;
-extern int sortie;
-extern int nbrBlocsSol;
-extern int nbrObjets;
-extern int nbrMechants;
-extern int indice_sol;
-extern int sol;
-extern int base_sol;
-extern int window_height;
-extern int window_width;
-extern int JUMP_FORCE;
-extern int GRAVITY;
+// extern int entree;
+// extern int sortie;
+// extern int nbrBlocsSol;
+// extern int nbrObjets;
+// extern int nbrMechants;
+// extern int indice_sol;
+// extern int sol;
+// extern int base_sol;
+// extern int window_height;
+// extern int window_width;
+// extern int JUMP_FORCE;
+// extern int GRAVITY;
 
-extern int level;
-extern int vies;
-extern int score;
-extern int temps;
-extern string nomUser;
-extern float AGRANDI_FACT;
-extern float RATIO_FRAME;
-extern int num_map;
-extern int perso_num_img;
-extern int anim_tuyau;
+// extern int level;
+// extern int vies;
+// extern int score;
+// extern int temps;
+// extern string nomUser;
+// extern float AGRANDI_FACT;
+// extern float RATIO_FRAME;
+// extern int num_map;
+// extern int perso_num_img;
+// extern int anim_tuyau;
 
-extern bool key[KEY_MAX];
-extern bool stop;
-extern bool playSound;
-extern bool enter;
-extern bool lanceObjet;
-extern bool fin, dessine, fullscreen, jump, img_courir, baisse, anim_fin, anim_sortie, anim_entree, anim_perteVie, remonte, retreci, grabObject, sounds_on, sortie_objet;
+// extern bool key[KEY_MAX];
+// extern bool stop;
+// extern bool playSound;
+// extern bool enter;
+// extern bool lanceObjet;
+// extern bool fin, dessine, fullscreen, jump, img_courir, baisse, anim_fin, anim_sortie, anim_entree, anim_perteVie, remonte, retreci, grabObject, sounds_on, sortie_objet;
 
-extern ALLEGRO_EVENT_QUEUE *event_queue;
+// extern ALLEGRO_EVENT_QUEUE *event_queue;
 
-extern string const boutons[NBR_BOUT];
+// extern string const boutons[NBR_BOUT];
 
-extern string const txt;
-extern int longTxt;  // Position de la partie cachée du texte
-extern int textX; // Position de la partie affichée du texte
+// extern string const txt;
+// extern int longTxt;  // Position de la partie cachée du texte
+// extern int textX; // Position de la partie affichée du texte
 
 ///////////////////////////////////////////////
 //////////////// PROTOTYPES ///////////////////
 //////////////////////////////////////////////
 
 void printAllegroVersion();
-void erreur(const char* txt);
 int perdu(int vies);
 bool confirmQuit(void);
 int initialisation(void);
@@ -97,7 +95,7 @@ void afficheOrientation(int num);
 string saisirUserName(void);
 void afficheCommandes(void);
 void afficherTexte(ALLEGRO_FONT *font);
-void afficherBarreProgression(int pourcentage);
+// void afficherBarreProgression(int pourcentage);
 void afficheTypeBloc(int numBloc);
 void restart();
 void finish();
@@ -122,15 +120,15 @@ void handleCollisions(); // objets et mechants
 int changeMap();
 int createMap0();
 int createMap1();
-int createMap2();
-int createMap3();
-int createMap4();
-int createMap5();
+// int createMap2();
+// int createMap3();
+// int createMap4();
+// int createMap5();
 
 //------------ HACHAGE -------------//
-int hachage(char *chaine);
-int hashe(char* key);	// Fonction de hachage pour générer l'index à partir de la clé
-void insert(HashTable* table, char* key, int value);	// Fonction pour ajouter une paire clé-valeur à la table de hachage
-int get(HashTable* table, char* key);	// Fonction pour récupérer la valeur associée à une clé
+// int hachage(char *chaine);
+// int hashe(char* key);	// Fonction de hachage pour générer l'index à partir de la clé
+// void insert(HashTable* table, char* key, int value);	// Fonction pour ajouter une paire clé-valeur à la table de hachage
+// int get(HashTable* table, char* key);	// Fonction pour récupérer la valeur associée à une clé
 
 #endif

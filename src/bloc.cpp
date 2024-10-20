@@ -27,13 +27,13 @@ void Bloc::draw() {
             tourne=0;
             break;
         case DROITE:
-            tourne=PI/2;
+            tourne=M_PI/2;
             break;
         case GAUCHE:
-            tourne=3*PI/2;
+            tourne=3*M_PI/2;
             break;
         case INVERSION:
-            tourne=PI;
+            tourne=M_PI;
             break;
         default :
             tourne=0;

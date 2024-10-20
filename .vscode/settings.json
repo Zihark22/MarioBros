@@ -11,7 +11,22 @@
         "memory": "cpp",
         "utility": "cpp",
         "chrono": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "optional": "cpp",
+        "numbers": "cpp",
+        "unordered_map": "cpp",
+        "array": "cpp",
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "memory_resource": "cpp",
+        "istream": "cpp",
+        "numeric": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "tuple": "cpp"
     },
     "C_Cpp.dimInactiveRegions": false
 }

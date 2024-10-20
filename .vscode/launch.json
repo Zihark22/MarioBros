@@ -8,7 +8,7 @@
       "name": "Déboguer le programme Mario Bros.",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build/exec",
+      "program": "${workspaceFolder}/build/mario_app",
       "args": [],
       "stopAtEntry": false, // true donne l'arrêt donc on doit appuyer sur continuer pour lancer
       "cwd": "${workspaceFolder}",

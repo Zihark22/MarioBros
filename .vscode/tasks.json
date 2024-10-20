@@ -35,18 +35,17 @@
                 "-g",
                 "build/obj/*.o",
                 "-o",
-                "build/exec",
+                "build/mario_app",
                 "-lallegro",
                 "-lallegro_main",
                 "-lallegro_primitives",
+                "-lallegro_ttf",
                 "-lallegro_font",
                 "-lallegro_image",
                 "-lallegro_color",
-                "-lallegro_ttf",
                 "-lallegro_dialog",
                 "-lallegro_audio",
-                "-lallegro_acodec",
-                "-lallegro_video"
+                "-lallegro_acodec"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
